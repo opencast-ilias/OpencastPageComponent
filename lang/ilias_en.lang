@@ -1,4 +1,4 @@
-cmd_insert#:#Insert OpencastPageComponent
+cmd_insert#:#Insert Opencast Video
 config_configuration#:#Configuration
 config_configuration_saved#:#Configuration saved
 config_save#:#Save

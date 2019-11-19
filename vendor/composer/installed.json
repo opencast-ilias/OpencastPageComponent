@@ -97,6 +97,53 @@
         ]
     },
     {
+        "name": "srag/datatable",
+        "version": "v0.22.0",
+        "version_normalized": "0.22.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/studer-raimann/DataTableUI.git",
+            "reference": "70326486e2bb8e562b2f11197b3e5e991921cb41"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/studer-raimann/DataTableUI/zipball/70326486e2bb8e562b2f11197b3e5e991921cb41",
+            "reference": "70326486e2bb8e562b2f11197b3e5e991921cb41",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=7.2",
+            "srag/dic": ">=0.1.0"
+        },
+        "time": "2019-11-19T10:49:24+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "srag\\DataTable\\OpencastPageComponent\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-3.0-only"
+        ],
+        "authors": [
+            {
+                "name": "studer + raimann ag - Team Custom 1",
+                "email": "support-custom1@studer-raimann.ch",
+                "homepage": "https://studer-raimann.ch",
+                "role": "Developer"
+            }
+        ],
+        "description": "ILIAS 6.0 Data Table UI",
+        "homepage": "https://github.com/studer-raimann/TableUI",
+        "keywords": [
+            "ILIAS",
+            "table",
+            "ui"
+        ]
+    },
+    {
         "name": "srag/dic",
         "version": "v0.19.2",
         "version_normalized": "0.19.2.0",

@@ -9,17 +9,18 @@ class ComposerStaticInit3af4b1f150e4ec7dc807fd66dfd254e7
     public static $prefixLengthsPsr4 = array (
         's' => 
         array (
-            'srag\\RemovePluginDataConfirm\\' => 29,
+            'srag\\RemovePluginDataConfirm\\OpencastPageComponent\\' => 51,
             'srag\\Plugins\\OpencastPageComponent\\' => 35,
             'srag\\LibrariesNamespaceChanger\\' => 31,
-            'srag\\DIC\\' => 9,
-            'srag\\CustomInputGUIs\\' => 21,
-            'srag\\ActiveRecordConfig\\' => 24,
+            'srag\\DataTable\\' => 15,
+            'srag\\DIC\\OpencastPageComponent\\' => 31,
+            'srag\\CustomInputGUIs\\OpencastPageComponent\\' => 43,
+            'srag\\ActiveRecordConfig\\OpencastPageComponent\\' => 46,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'srag\\RemovePluginDataConfirm\\' => 
+        'srag\\RemovePluginDataConfirm\\OpencastPageComponent\\' => 
         array (
             0 => __DIR__ . '/..' . '/srag/removeplugindataconfirm/src',
         ),
@@ -31,15 +32,19 @@ class ComposerStaticInit3af4b1f150e4ec7dc807fd66dfd254e7
         array (
             0 => __DIR__ . '/..' . '/srag/librariesnamespacechanger/src',
         ),
-        'srag\\DIC\\' => 
+        'srag\\DataTable\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/srag/datatable/src',
+        ),
+        'srag\\DIC\\OpencastPageComponent\\' => 
         array (
             0 => __DIR__ . '/..' . '/srag/dic/src',
         ),
-        'srag\\CustomInputGUIs\\' => 
+        'srag\\CustomInputGUIs\\OpencastPageComponent\\' => 
         array (
             0 => __DIR__ . '/..' . '/srag/custominputguis/src',
         ),
-        'srag\\ActiveRecordConfig\\' => 
+        'srag\\ActiveRecordConfig\\OpencastPageComponent\\' => 
         array (
             0 => __DIR__ . '/..' . '/srag/activerecordconfig/src',
         ),
@@ -142,6 +147,42 @@ class ComposerStaticInit3af4b1f150e4ec7dc807fd66dfd254e7
         'srag\\DIC\\OpencastPageComponent\\Util\\LibraryLanguageInstaller' => __DIR__ . '/..' . '/srag/dic/src/Util/LibraryLanguageInstaller.php',
         'srag\\DIC\\OpencastPageComponent\\Version\\Version' => __DIR__ . '/..' . '/srag/dic/src/Version/Version.php',
         'srag\\DIC\\OpencastPageComponent\\Version\\VersionInterface' => __DIR__ . '/..' . '/srag/dic/src/Version/VersionInterface.php',
+        'srag\\DataTable\\OpencastPageComponent\\Component\\Column\\Column' => __DIR__ . '/..' . '/srag/datatable/src/Component/Column/Column.php',
+        'srag\\DataTable\\OpencastPageComponent\\Component\\Column\\Formatter\\Formatter' => __DIR__ . '/..' . '/srag/datatable/src/Component/Column/Formatter/Formatter.php',
+        'srag\\DataTable\\OpencastPageComponent\\Component\\Data\\Data' => __DIR__ . '/..' . '/srag/datatable/src/Component/Data/Data.php',
+        'srag\\DataTable\\OpencastPageComponent\\Component\\Data\\Fetcher\\DataFetcher' => __DIR__ . '/..' . '/srag/datatable/src/Component/Data/Fetcher/DataFetcher.php',
+        'srag\\DataTable\\OpencastPageComponent\\Component\\Data\\Row\\RowData' => __DIR__ . '/..' . '/srag/datatable/src/Component/Data/Row/RowData.php',
+        'srag\\DataTable\\OpencastPageComponent\\Component\\Format\\BrowserFormat' => __DIR__ . '/..' . '/srag/datatable/src/Component/Format/BrowserFormat.php',
+        'srag\\DataTable\\OpencastPageComponent\\Component\\Format\\Format' => __DIR__ . '/..' . '/srag/datatable/src/Component/Format/Format.php',
+        'srag\\DataTable\\OpencastPageComponent\\Component\\Settings\\Settings' => __DIR__ . '/..' . '/srag/datatable/src/Component/Settings/Settings.php',
+        'srag\\DataTable\\OpencastPageComponent\\Component\\Settings\\Sort\\SortField' => __DIR__ . '/..' . '/srag/datatable/src/Component/Settings/Sort/SortField.php',
+        'srag\\DataTable\\OpencastPageComponent\\Component\\Settings\\Storage\\SettingsStorage' => __DIR__ . '/..' . '/srag/datatable/src/Component/Settings/Storage/SettingsStorage.php',
+        'srag\\DataTable\\OpencastPageComponent\\Component\\Table' => __DIR__ . '/..' . '/srag/datatable/src/Component/Table.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Column\\Column' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Column/Column.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Column\\Formatter\\AbstractActionsFormatter' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Column/Formatter/AbstractActionsFormatter.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Column\\Formatter\\AbstractFormatter' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Column/Formatter/AbstractFormatter.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Column\\Formatter\\DateColumnFormatter' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Column/Formatter/DateColumnFormatter.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Column\\Formatter\\DefaultFormatter' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Column/Formatter/DefaultFormatter.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Column\\Formatter\\LearningProgressFormatter' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Column/Formatter/LearningProgressFormatter.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Column\\Formatter\\LinkColumnFormatter' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Column/Formatter/LinkColumnFormatter.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Data\\Data' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Data/Data.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Data\\Fetcher\\AbstractDataFetcher' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Data/Fetcher/AbstractDataFetcher.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Data\\Fetcher\\StaticDataFetcher' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Data/Fetcher/StaticDataFetcher.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Data\\Row\\AbstractRowData' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Data/Row/AbstractRowData.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Data\\Row\\GetterRowData' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Data/Row/GetterRowData.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Data\\Row\\PropertyRowData' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Data/Row/PropertyRowData.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Format\\AbstractFormat' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Format/AbstractFormat.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Format\\CSVFormat' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Format/CSVFormat.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Format\\DefaultBrowserFormat' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Format/DefaultBrowserFormat.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Format\\ExcelFormat' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Format/ExcelFormat.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Format\\HTMLFormat' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Format/HTMLFormat.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Format\\PDFFormat' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Format/PDFFormat.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Renderer' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Renderer.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Settings\\Settings' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Settings/Settings.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Settings\\Sort\\SortField' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Settings/Sort/SortField.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Settings\\Storage\\AbstractSettingsStorage' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Settings/Storage/AbstractSettingsStorage.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Settings\\Storage\\DefaultSettingsStorage' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Settings/Storage/DefaultSettingsStorage.php',
+        'srag\\DataTable\\OpencastPageComponent\\Implementation\\Table' => __DIR__ . '/..' . '/srag/datatable/src/Implementation/Table.php',
         'srag\\LibrariesNamespaceChanger\\Libraries' => __DIR__ . '/..' . '/srag/librariesnamespacechanger/src/Libraries.php',
         'srag\\LibrariesNamespaceChanger\\LibrariesNamespaceChanger' => __DIR__ . '/..' . '/srag/librariesnamespacechanger/src/LibrariesNamespaceChanger.php',
         'srag\\LibrariesNamespaceChanger\\PHP7Backport' => __DIR__ . '/..' . '/srag/librariesnamespacechanger/src/PHP7Backport.php',

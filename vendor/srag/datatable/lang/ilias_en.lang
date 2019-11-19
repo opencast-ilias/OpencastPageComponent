@@ -1,0 +1,15 @@
+datatable_add_columns#:#Add columns
+datatable_apply_filter#:#Apply filter
+datatable_count#:#(%1$s of %2$s)
+datatable_export#:#Export
+datatable_filter#:#Filter
+datatable_format_csv#:#CSV
+datatable_format_excel#:#Excel
+datatable_format_html#:#HTML
+datatable_format_pdf#:#PDF
+datatable_multiple_actions#:#Multiple actions
+datatable_no_data#:#No data
+datatable_remove_sort#:#Remove sort
+datatable_reset_filter#:#Reset filter
+datatable_rows_per_page#:#Rows per page (%s)
+datatable_select_all#:#Select all
