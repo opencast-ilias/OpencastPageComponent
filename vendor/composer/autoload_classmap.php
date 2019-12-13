@@ -7,6 +7,8 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'OpencastPageComponentRemoveDataConfirm' => $baseDir . '/classes/uninstall/class.OpencastPageComponentRemoveDataConfirm.php',
+    'VideoSearchTable' => $baseDir . '/src/Table/VideoSearchTable.php',
+    'VideoSearchTableGUI' => $baseDir . '/src/Table/VideoSearchTableGUI.php',
     'ilOpencastPageComponentConfigGUI' => $baseDir . '/classes/class.ilOpencastPageComponentConfigGUI.php',
     'ilOpencastPageComponentPlugin' => $baseDir . '/classes/class.ilOpencastPageComponentPlugin.php',
     'ilOpencastPageComponentPluginGUI' => $baseDir . '/classes/class.ilOpencastPageComponentPluginGUI.php',

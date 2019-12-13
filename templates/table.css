@@ -1,0 +1,7 @@
+tr.ocpc_table_row {
+	cursor: pointer;
+}
+
+tr.ocpc_table_row:hover {
+	background-color: #557196 !important;
+}

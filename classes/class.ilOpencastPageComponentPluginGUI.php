@@ -2,6 +2,9 @@
 
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see https://github.com/ILIAS-eLearning/ILIAS/tree/trunk/docs/LICENSE */
 
+use ILIAS\DI\Container;
+use srag\CustomInputGUIs\OpencastPageComponent\TableGUI\TableGUI;
+use srag\DIC\OpencastPageComponent\Exception\DICException;
 use srag\Plugins\OpencastPageComponent\Utils\OpencastPageComponentTrait;
 use srag\DIC\OpencastPageComponent\DICTrait;
 
@@ -27,6 +30,13 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     const CMD_EDIT = "edit";
     const CMD_INSERT = "insert";
     const CMD_UPDATE = "update";
+    const CMD_APPLY_FILTER = "applyFilter";
+    const CMD_RESET_FILTER = "resetFilter";
+    const CUSTOM_CMD = 'ocpc_cmd';
+    /**
+     * @var Container
+     */
+    protected $dic;
 
 
     /**
@@ -34,37 +44,79 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
      */
     public function __construct()
     {
+        global $DIC;
+        $this->dic = $DIC;
+        xoctConf::setApiSettings();
         parent::__construct();
     }
-
 
     /**
      *
      */
-    public function executeCommand()
+    public function executeCommand() {
+        try {
+            $next_class = $this->dic->ctrl()->getNextClass();
+            $cmd = $this->dic->ctrl()->getCmd();
+
+            switch ($next_class) {
+                default:
+                    if ($cmd == self::CMD_INSERT && $_GET[self::CUSTOM_CMD]) {
+                        $cmd = $_GET[self::CUSTOM_CMD];
+                        $this->performCommand($cmd);
+                        break;
+                    } else {
+                        $cmd = $this->dic->ctrl()->getCmd();
+                        $this->performCommand($cmd);
+                        break;
+                    }
+            }
+        } catch (xvmpException $e) {
+            ilUtil::sendFailure($e->getMessage(), true);
+            $this->dic->ctrl()->returnToParent($this);
+        }
+    }
+
+
+    /**
+     * @param string $cmd
+     */
+    public function performCommand(string $cmd)
     {
-        $next_class = self::dic()->ctrl()->getNextClass($this);
-
-        switch (strtolower($next_class)) {
+        switch ($cmd) {
+            case self::CMD_CANCEL:
+            case self::CMD_CREATE:
+            case self::CMD_EDIT:
+            case self::CMD_INSERT:
+            case self::CMD_UPDATE:
+            case self::CMD_APPLY_FILTER:
+            case self::CMD_RESET_FILTER:
+                $this->{$cmd}();
+                break;
             default:
-                $cmd = self::dic()->ctrl()->getCmd();
-
-                switch ($cmd) {
-                    case self::CMD_CANCEL:
-                    case self::CMD_CREATE:
-                    case self::CMD_EDIT:
-                    case self::CMD_INSERT:
-                    case self::CMD_UPDATE:
-                        $this->{$cmd}();
-                        break;
-
-                    default:
-                        break;
-                }
                 break;
         }
     }
 
+
+    /**
+     * @return TableGUI
+     * @throws DICException
+     */
+    protected function getTable() : TableGUI
+    {
+        $this->dic->ctrl()->clearParameterByClass(self::class, self::CUSTOM_CMD);
+        $command_url = $this->dic->ctrl()->getLinkTarget($this, self::CMD_CREATE);
+        $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, self::CMD_APPLY_FILTER);
+        $table = new VideoSearchTableGUI($this, self::CMD_INSERT, $this->dic, $command_url);
+        $table->setFilterCommand(self::CMD_INSERT);
+
+        $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, self::CMD_RESET_FILTER);
+        $reset_filter_url = $this->dic->ctrl()->getLinkTarget($this, self::CMD_INSERT);
+        $reset_filter = $this->lng->txt('reset_filter');
+        $this->dic->ui()->mainTemplate()->addOnLoadCode('OpencastPageComponent.overwriteResetButton("' . $reset_filter . '", "' . $reset_filter_url . '");');
+
+        return $table;
+    }
 
     /**
      * @return ilPropertyFormGUI
@@ -85,29 +137,38 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
      */
     public function insert()
     {
-        $this->edit();
+        $table = $this->getTable();
+        self::output()->output($table->getHTML());
+        return;
     }
 
+    protected function applyFilter()
+    {
+        $table = $this->getTable();
+        $table->setFilterCommand(self::CMD_INSERT);
+        $table->resetOffset();
+        $table->writeFilterToSession();
+        $this->redirect(self::CMD_INSERT);
+    }
+
+    /**
+     *
+     */
+    public function resetFilter() {
+        $table = $this->getTable();
+        $table->resetOffset();
+        $table->resetFilter();
+        $this->redirect(self::CMD_INSERT);
+    }
 
     /**
      *
      */
     public function create()
     {
-        $form = $this->getForm();
-
-        $form->setValuesByPost();
-
-        if (!$form->checkInput()) {
-            self::output()->output($form);
-
-            return;
-        }
-
-        // TODO: Implement create
-
+        $event_id = filter_input(INPUT_GET, VideoSearchTableGUI::GET_PARAM_EVENT_ID, FILTER_SANITIZE_STRING);
         $properties = [
-
+            'event_id' => $event_id
         ];
         $this->createElement($properties);
 
@@ -169,6 +230,19 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
      */
     public function getElementHTML($a_mode, array $a_properties, $plugin_version) : string
     {
-        return ""; // TODO: Implement getElementHTML
+        $event_id = $a_properties['event_id'];
+        $xoctEvent = xoctEvent::find($event_id);
+        $renderer = new xoctEventRenderer($xoctEvent);
+        $thumbnail_html = $renderer->getThumbnailHTML();
+        return '<iframe src="' . $xoctEvent->getPlayerLink() . '">';
     }
+
+    /**
+     * @param $cmd
+     */
+    public function redirect($cmd) {
+        $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, $cmd);
+        $this->dic->ctrl()->redirect($this, self::CMD_INSERT);
+    }
+
 }

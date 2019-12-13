@@ -12,7 +12,7 @@ class ComposerStaticInit3af4b1f150e4ec7dc807fd66dfd254e7
             'srag\\RemovePluginDataConfirm\\OpencastPageComponent\\' => 51,
             'srag\\Plugins\\OpencastPageComponent\\' => 35,
             'srag\\LibrariesNamespaceChanger\\' => 31,
-            'srag\\DataTable\\' => 15,
+            'srag\\DataTable\\OpencastPageComponent\\' => 37,
             'srag\\DIC\\OpencastPageComponent\\' => 31,
             'srag\\CustomInputGUIs\\OpencastPageComponent\\' => 43,
             'srag\\ActiveRecordConfig\\OpencastPageComponent\\' => 46,
@@ -32,7 +32,7 @@ class ComposerStaticInit3af4b1f150e4ec7dc807fd66dfd254e7
         array (
             0 => __DIR__ . '/..' . '/srag/librariesnamespacechanger/src',
         ),
-        'srag\\DataTable\\' => 
+        'srag\\DataTable\\OpencastPageComponent\\' => 
         array (
             0 => __DIR__ . '/..' . '/srag/datatable/src',
         ),
@@ -52,6 +52,8 @@ class ComposerStaticInit3af4b1f150e4ec7dc807fd66dfd254e7
 
     public static $classMap = array (
         'OpencastPageComponentRemoveDataConfirm' => __DIR__ . '/../..' . '/classes/uninstall/class.OpencastPageComponentRemoveDataConfirm.php',
+        'VideoSearchTable' => __DIR__ . '/../..' . '/src/Table/VideoSearchTable.php',
+        'VideoSearchTableGUI' => __DIR__ . '/../..' . '/src/Table/VideoSearchTableGUI.php',
         'ilOpencastPageComponentConfigGUI' => __DIR__ . '/../..' . '/classes/class.ilOpencastPageComponentConfigGUI.php',
         'ilOpencastPageComponentPlugin' => __DIR__ . '/../..' . '/classes/class.ilOpencastPageComponentPlugin.php',
         'ilOpencastPageComponentPluginGUI' => __DIR__ . '/../..' . '/classes/class.ilOpencastPageComponentPluginGUI.php',
