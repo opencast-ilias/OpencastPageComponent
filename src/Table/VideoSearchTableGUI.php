@@ -1,7 +1,6 @@
 <?php
 
 use ILIAS\DI\Container;
-use srag\CustomInputGUIs\OpencastPageComponent\PropertyFormGUI\PropertyFormGUI;
 use srag\CustomInputGUIs\OpencastPageComponent\TableGUI\TableGUI;
 use srag\DIC\OpencastPageComponent\Exception\DICException;
 
@@ -17,7 +16,6 @@ class VideoSearchTableGUI extends TableGUI
     const GET_PARAM_EVENT_ID = 'event_id';
     const ID_PREFIX = 'oc_pc_';
     const ROW_TEMPLATE = '/templates/html/table_row.html';
-
     const F_TITLE = 'title';
     const F_SERIES = 'series';
     const F_START_FROM = 'start_from';
@@ -39,6 +37,7 @@ class VideoSearchTableGUI extends TableGUI
      * @var ilOpenCastPlugin
      */
     protected $opencast_plugin;
+
 
     /**
      * VideoSearchTableGUI constructor.
@@ -112,6 +111,7 @@ class VideoSearchTableGUI extends TableGUI
             case 'thumbnail':
                 /** @var xoctEvent $object */
                 $object = $row['object'];
+
                 return '<img height="107.5px" width="200px" src="' . $object->getThumbnailUrl() . '">';
             case 'title':
                 return $row['title'];
@@ -120,6 +120,7 @@ class VideoSearchTableGUI extends TableGUI
             case 'series':
                 /** @var xoctEvent $object */
                 $object = $row['object'];
+
                 return $object->getSeries();
             case 'start':
                 return date('d.m.Y H:i', $row['start_unix']);
@@ -207,7 +208,6 @@ class VideoSearchTableGUI extends TableGUI
         $start = $this->addFilterItemByMetaType(self::F_START, self::FILTER_DATE_RANGE, false, $this->opencast_plugin->txt('event_start'));
         $this->filter[self::F_START_FROM] = $start->getValue()['from'];
         $this->filter[self::F_START_TO] = $start->getValue()['to'];
-
     }
 
 
@@ -236,6 +236,7 @@ class VideoSearchTableGUI extends TableGUI
     {
         $this->setFormAction($this->dic->ctrl()->getFormAction($this->parent_obj));
     }
+
 
     /**
      * @return array

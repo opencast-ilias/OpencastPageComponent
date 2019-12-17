@@ -4,9 +4,9 @@
 
 namespace srag\Plugins\OpencastPageComponent\Config;
 
-use srag\Plugins\OpencastPageComponent\Utils\OpencastPageComponentTrait;
 use ilOpencastPageComponentPlugin;
 use srag\ActiveRecordConfig\OpencastPageComponent\ActiveRecordConfig;
+use srag\Plugins\OpencastPageComponent\Utils\OpencastPageComponentTrait;
 
 /**
  * Class Config
@@ -27,14 +27,13 @@ class Config extends ActiveRecordConfig
     const KEY_DEFAULT_WIDTH = "default_width";
     const KEY_DEFAULT_HEIGHT = "default_height";
     const KEY_DEFAULT_AS_IFRAME = "default_as_iframe";
-
     /**
      * @var array
      */
     protected static $fields
         = [
-            self::KEY_DEFAULT_WIDTH => self::TYPE_INTEGER,
-            self::KEY_DEFAULT_HEIGHT => self::TYPE_INTEGER,
+            self::KEY_DEFAULT_WIDTH     => self::TYPE_INTEGER,
+            self::KEY_DEFAULT_HEIGHT    => self::TYPE_INTEGER,
             self::KEY_DEFAULT_AS_IFRAME => self::TYPE_BOOLEAN
         ];
 }

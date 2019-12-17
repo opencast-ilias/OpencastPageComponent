@@ -4,9 +4,9 @@
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
+use srag\DIC\OpencastPageComponent\Util\LibraryLanguageInstaller;
 use srag\Plugins\OpencastPageComponent\Config\Config;
 use srag\Plugins\OpencastPageComponent\Utils\OpencastPageComponentTrait;
-use srag\DIC\OpencastPageComponent\Util\LibraryLanguageInstaller;
 use srag\RemovePluginDataConfirm\OpencastPageComponent\PluginUninstallTrait;
 
 /**

@@ -4,10 +4,10 @@
 
 use ILIAS\DI\Container;
 use srag\CustomInputGUIs\OpencastPageComponent\TableGUI\TableGUI;
+use srag\DIC\OpencastPageComponent\DICTrait;
 use srag\DIC\OpencastPageComponent\Exception\DICException;
 use srag\Plugins\OpencastPageComponent\Config\Config;
 use srag\Plugins\OpencastPageComponent\Utils\OpencastPageComponentTrait;
-use srag\DIC\OpencastPageComponent\DICTrait;
 
 /**
  * Class ilOpencastPageComponentPluginGUI
@@ -34,15 +34,12 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     const CMD_APPLY_FILTER = "applyFilter";
     const CMD_RESET_FILTER = "resetFilter";
     const CUSTOM_CMD = 'ocpc_cmd';
-
     const PROP_EVENT_ID = 'event_id';
     const PROP_WIDTH = 'width';
     const PROP_HEIGHT = 'height';
     const PROP_AS_IFRAME = 'as_iframe';
-
     const MODE_EDIT = 'edit';
     const MODE_PRESENTATION = 'presentation';
-
     /**
      * @var Container
      */
@@ -60,10 +57,12 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         parent::__construct();
     }
 
+
     /**
      *
      */
-    public function executeCommand() {
+    public function executeCommand()
+    {
         try {
             $next_class = $this->dic->ctrl()->getNextClass();
             $cmd = $this->dic->ctrl()->getCmd();
@@ -80,7 +79,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
                         break;
                     }
             }
-        } catch (xvmpException $e) {
+        } catch (ilException $e) {
             ilUtil::sendFailure($e->getMessage(), true);
             $this->dic->ctrl()->returnToParent($this);
         }
@@ -130,6 +129,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         return $table;
     }
 
+
     /**
      * @return ilPropertyFormGUI
      */
@@ -160,7 +160,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $as_iframe->setChecked($prop[self::PROP_AS_IFRAME]);
         $form->addItem($as_iframe);
 
-
         $form->addCommandButton(self::CMD_UPDATE, $this->dic->language()->txt("save"));
         $form->addCommandButton(self::CMD_CANCEL, $this->dic->language()->txt("cancel"));
         $form->setTitle($this->getPlugin()->txt("form_title"));
@@ -178,6 +177,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     {
         $table = $this->getTable();
         self::output()->output($table->getHTML());
+
         return;
     }
 
@@ -194,15 +194,18 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $this->redirect(self::CMD_INSERT);
     }
 
+
     /**
      *
      */
-    public function resetFilter() {
+    public function resetFilter()
+    {
         $table = $this->getTable();
         $table->resetOffset();
         $table->resetFilter();
         $this->redirect(self::CMD_INSERT);
     }
+
 
     /**
      *
@@ -211,9 +214,9 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     {
         $event_id = filter_input(INPUT_GET, VideoSearchTableGUI::GET_PARAM_EVENT_ID, FILTER_SANITIZE_STRING);
         $properties = [
-            self::PROP_EVENT_ID => $event_id,
-            self::PROP_HEIGHT => Config::getField(Config::KEY_DEFAULT_HEIGHT),
-            self::PROP_WIDTH => Config::getField(Config::KEY_DEFAULT_WIDTH),
+            self::PROP_EVENT_ID  => $event_id,
+            self::PROP_HEIGHT    => Config::getField(Config::KEY_DEFAULT_HEIGHT),
+            self::PROP_WIDTH     => Config::getField(Config::KEY_DEFAULT_WIDTH),
             self::PROP_AS_IFRAME => (bool) Config::getField(Config::KEY_DEFAULT_AS_IFRAME)
         ];
         $this->createElement($properties);
@@ -289,10 +292,12 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         }
     }
 
+
     /**
      * @param $cmd
      */
-    public function redirect($cmd) {
+    public function redirect($cmd)
+    {
         $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, $cmd);
         $this->dic->ctrl()->redirect($this, self::CMD_INSERT);
     }
@@ -311,6 +316,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $tpl->setVariable('SRC', $xoctEvent->getPlayerLink());
         $tpl->setVariable('WIDTH', $properties[self::PROP_WIDTH]);
         $tpl->setVariable('HEIGHT', $properties[self::PROP_HEIGHT]);
+
         return $tpl->get();
     }
 
@@ -326,7 +332,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
      */
     protected function getStandardElementHTML(string $mode, array $properties) : string
     {
-
         $xoctEvent = xoctEvent::find($properties[self::PROP_EVENT_ID]);
         $renderer = new xoctEventRenderer($xoctEvent);
         $use_modal = (xoctConf::getConfig(xoctConf::F_USE_MODALS));
@@ -346,9 +351,9 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         } else {
             $tpl->setVariable('VIDEO_LINK', '#');
         }
+
         return $tpl->get();
     }
-
 
 
     /**

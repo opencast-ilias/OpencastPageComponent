@@ -4,9 +4,9 @@
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
+use srag\ActiveRecordConfig\OpencastPageComponent\ActiveRecordConfigGUI;
 use srag\Plugins\OpencastPageComponent\Config\ConfigFormGUI;
 use srag\Plugins\OpencastPageComponent\Utils\OpencastPageComponentTrait;
-use srag\ActiveRecordConfig\OpencastPageComponent\ActiveRecordConfigGUI;
 
 /**
  * Class ilOpencastPageComponentConfigGUI

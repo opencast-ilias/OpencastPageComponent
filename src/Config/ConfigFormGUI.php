@@ -34,11 +34,11 @@ class ConfigFormGUI extends ActiveRecordConfigFormGUI
     protected function initFields()/*: void*/
     {
         $this->fields = [
-            Config::KEY_DEFAULT_WIDTH  => [
+            Config::KEY_DEFAULT_WIDTH     => [
                 self::PROPERTY_CLASS    => ilNumberInputGUI::class,
                 self::PROPERTY_REQUIRED => true
             ],
-            Config::KEY_DEFAULT_HEIGHT => [
+            Config::KEY_DEFAULT_HEIGHT    => [
                 self::PROPERTY_CLASS    => ilNumberInputGUI::class,
                 self::PROPERTY_REQUIRED => true
             ],
