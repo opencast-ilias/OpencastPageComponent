@@ -22,7 +22,7 @@ class VideoSearchTableGUI extends TableGUI
     const F_SERIES = 'series';
     const F_START_FROM = 'start_from';
     const F_START_TO = 'start_to';
-
+    const F_START = 'start';
     /**
      * @var Container
      */
@@ -35,6 +35,10 @@ class VideoSearchTableGUI extends TableGUI
      * @var array
      */
     protected $filter = [];
+    /**
+     * @var ilOpenCastPlugin
+     */
+    protected $opencast_plugin;
 
     /**
      * VideoSearchTableGUI constructor.
@@ -49,14 +53,20 @@ class VideoSearchTableGUI extends TableGUI
     public function __construct($parent_gui, $parent_cmd, $dic, $command_url)
     {
         $this->dic = $dic;
-        parent::__construct($parent_gui, $parent_cmd);
+        $this->command_url = $command_url;
+        $this->opencast_plugin = ilOpenCastPlugin::getInstance();
+        $this->initId();    // this is necessary so the offset and order can be determined
+        $this->setLimit(10);
+        $this->limit_determined = true;
         $this->setExternalSegmentation(true);
         $this->setExternalSorting(true);
+        $this->determineOffsetAndOrder();
+        parent::__construct($parent_gui, $parent_cmd);
         $this->setRowTemplate(self::plugin()->directory() . '/templates/table_row.html');
         $this->dic->ui()->mainTemplate()->addCss(self::plugin()->directory() . '/templates/table.css');
         $this->dic->ui()->mainTemplate()->addJavaScript(self::plugin()->directory() . '/templates/table.js');
-        $this->command_url = $command_url;
         $this->setEnableNumInfo(false);
+        $this->setShowRowsSelector(false);
     }
 
 
@@ -110,7 +120,6 @@ class VideoSearchTableGUI extends TableGUI
             case 'series':
                 /** @var xoctEvent $object */
                 $object = $row['object'];
-
                 return $object->getSeries();
             case 'start':
                 return date('d.m.Y H:i', $row['start_unix']);
@@ -129,9 +138,9 @@ class VideoSearchTableGUI extends TableGUI
             'thumbnail'   => ['txt' => '', 'id' => 'thumbnail', 'default' => true],
             'title'       => ['txt' => $this->dic->language()->txt('title'), 'id' => 'title', 'default' => true],
             'description' => ['txt' => $this->dic->language()->txt('description'), 'id' => 'description', 'default' => true],
-            'series'      => ['txt' => $this->dic->language()->txt('series'), 'id' => 'series', 'default' => true],
-            'start'       => ['txt' => $this->dic->language()->txt('launch'), 'id' => 'start', 'default' => true],
-            'location'    => ['txt' => $this->dic->language()->txt('location'), 'id' => 'location', 'default' => true],
+            'series'      => ['txt' => $this->opencast_plugin->txt('series_channel_id'), 'id' => 'series', 'default' => true],
+            'start'       => ['txt' => $this->opencast_plugin->txt('event_start'), 'id' => 'start', 'default' => true],
+            'location'    => ['txt' => $this->opencast_plugin->txt('event_location'), 'id' => 'location', 'default' => true],
         ];
     }
 
@@ -141,22 +150,45 @@ class VideoSearchTableGUI extends TableGUI
      */
     protected function initData()
     {
+        // the api doesn't deliver a max count, so we fetch (limit + 1) to see if there should be a 'next' page
+        $events = (array) xoctEvent::getFiltered(
+            $this->buildFilterArray(),
+            xoctUser::getInstance($this->dic->user())->getIdentifier(),
+            [],
+            $this->getOffset(),
+            $this->getLimit() + 1
+        );
+        $this->setMaxCount($this->getOffset() + count($events));
+        if (count($events) == ($this->getLimit() + 1)) {
+            array_pop($events);
+        }
+        $this->setData($events);
+    }
+
+
+    /**
+     * @return array
+     */
+    protected function buildFilterArray() : array
+    {
         $filter = ['status' => 'EVENTS.EVENTS.STATUS.PROCESSED'];
 
         if ($title_filter = $this->filter[self::F_TITLE]) {
             $filter[self::F_TITLE] = $title_filter;
         }
+
         if ($series_filter = $this->filter[self::F_SERIES]) {
             $filter[self::F_SERIES] = $series_filter;
         }
+
         /** @var $start_filter_from ilDateTime */
         /** @var $start_filter_to ilDateTime */
         if (($start_filter_from = $this->filter[self::F_START_FROM]) || ($start_filter_to = $this->filter[self::F_START_TO])) {
             $filter['start'] = ($start_filter_from ? $start_filter_from->get(IL_CAL_FKT_DATE, 'Y-m-d\TH:i:s') : '1970-01-01T00:00:00')
                 . '/' . ($start_filter_to ? $start_filter_to->get(IL_CAL_FKT_DATE, 'Y-m-d\TH:i:s') : '2200-01-01T00:00:00');
         }
-        $this->setData(xoctEvent::getFiltered($filter, xoctUser::getInstance($this->dic->user())->getIdentifier(), [], $this->getOffset(), (string) $this->getLimit()));
-        $this->setMaxCount(is_array($this->row_data) ? (count($this->row_data) + 1) : 0);
+
+        return $filter;
     }
 
 
@@ -167,10 +199,12 @@ class VideoSearchTableGUI extends TableGUI
     {
         $title = $this->addFilterItemByMetaType(self::F_TITLE, self::FILTER_TEXT);
         $this->filter[self::F_TITLE] = $title->getValue();
-        $series = $this->addFilterItemByMetaType(self::F_SERIES, self::FILTER_SELECT);
+
+        $series = $this->addFilterItemByMetaType(self::F_SERIES, self::FILTER_SELECT, false, $this->opencast_plugin->txt('series_channel_id'));
         $series->setOptions($this->getSeriesFilterOptions());
         $this->filter[self::F_SERIES] = $series->getValue();
-        $start = $this->addFilterItemByMetaType('start', self::FILTER_DATETIME_RANGE);
+
+        $start = $this->addFilterItemByMetaType(self::F_START, self::FILTER_DATE_RANGE, false, $this->opencast_plugin->txt('event_start'));
         $this->filter[self::F_START_FROM] = $start->getValue()['from'];
         $this->filter[self::F_START_TO] = $start->getValue()['to'];
 
@@ -182,7 +216,7 @@ class VideoSearchTableGUI extends TableGUI
      */
     protected function initId()
     {
-        return self::ID_PREFIX . $this->dic->user()->getId();
+        $this->setId(self::ID_PREFIX . $this->dic->user()->getId());
     }
 
 
@@ -202,7 +236,6 @@ class VideoSearchTableGUI extends TableGUI
     {
         $this->setFormAction($this->dic->ctrl()->getFormAction($this->parent_obj));
     }
-
 
     /**
      * @return array

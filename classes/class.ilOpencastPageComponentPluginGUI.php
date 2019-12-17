@@ -115,6 +115,8 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $reset_filter = $this->lng->txt('reset_filter');
         $this->dic->ui()->mainTemplate()->addOnLoadCode('OpencastPageComponent.overwriteResetButton("' . $reset_filter . '", "' . $reset_filter_url . '");');
 
+        $this->dic->ctrl()->clearParameters($this);
+
         return $table;
     }
 
