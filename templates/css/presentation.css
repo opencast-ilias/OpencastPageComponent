@@ -1,0 +1,50 @@
+iframe.ocpc_iframe {
+	margin: 20px 20px 20px 0;
+}
+
+a.ocpc_video_link {
+	display: block;
+	width: fit-content;
+	height: fit-content;
+}
+
+div.ocpc_image_container {
+	position: relative;
+	display: inline-block;
+	margin: 20px 20px 20px 0;
+}
+
+.ocpc_play_overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	opacity: 0;
+	transition: .5s ease;
+	background-color: rgba(0,0,0,.7);
+	text-align: center;
+}
+
+.ocpc_image_container:hover .ocpc_play_overlay, .ocpc_image_container:hover .ocpc_play_icon {
+	opacity: 1;
+}
+
+/* this is necessary to center the "play" image */
+.ocpc_pseudo_element {
+	height: 100%;
+	vertical-align: middle;
+	display: inline-block;
+}
+
+div.ocpc_image_container img.ocpc_play_icon {
+	vertical-align: middle;
+	display: inline-block;
+}
+
+/* modal */
+.xoct_iframe {
+	width:100%;
+	height: 300px;
+}
+

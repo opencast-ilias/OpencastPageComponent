@@ -11,4 +11,12 @@
  */
 
 \srag\Plugins\OpencastPageComponent\Config\Config::updateDB();
+\srag\Plugins\OpencastPageComponent\Config\Config::setField(
+    \srag\Plugins\OpencastPageComponent\Config\Config::KEY_DEFAULT_WIDTH,
+    268
+);
+\srag\Plugins\OpencastPageComponent\Config\Config::setField(
+    \srag\Plugins\OpencastPageComponent\Config\Config::KEY_DEFAULT_HEIGHT,
+    150
+);
 ?>

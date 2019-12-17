@@ -24,13 +24,17 @@ class Config extends ActiveRecordConfig
     use OpencastPageComponentTrait;
     const TABLE_NAME = "copg_pgcp_ocpc_config";
     const PLUGIN_CLASS_NAME = ilOpencastPageComponentPlugin::class;
-    const KEY_SOME = "some";
+    const KEY_DEFAULT_WIDTH = "default_width";
+    const KEY_DEFAULT_HEIGHT = "default_height";
+    const KEY_DEFAULT_AS_IFRAME = "default_as_iframe";
+
     /**
      * @var array
      */
     protected static $fields
         = [
-            self::KEY_SOME => self::TYPE_STRING
+            self::KEY_DEFAULT_WIDTH => self::TYPE_INTEGER,
+            self::KEY_DEFAULT_HEIGHT => self::TYPE_INTEGER,
+            self::KEY_DEFAULT_AS_IFRAME => self::TYPE_BOOLEAN
         ];
-    // TODO: Implement Config
 }

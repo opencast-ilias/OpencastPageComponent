@@ -4,10 +4,11 @@
 
 namespace srag\Plugins\OpencastPageComponent\Config;
 
-use srag\Plugins\OpencastPageComponent\Utils\OpencastPageComponentTrait;
+use ilCheckboxInputGUI;
+use ilNumberInputGUI;
 use ilOpencastPageComponentPlugin;
-use ilTextInputGUI;
 use srag\ActiveRecordConfig\OpencastPageComponent\ActiveRecordConfigFormGUI;
+use srag\Plugins\OpencastPageComponent\Utils\OpencastPageComponentTrait;
 
 /**
  * Class ConfigFormGUI
@@ -33,11 +34,18 @@ class ConfigFormGUI extends ActiveRecordConfigFormGUI
     protected function initFields()/*: void*/
     {
         $this->fields = [
-            Config::KEY_SOME => [
-                self::PROPERTY_CLASS    => ilTextInputGUI::class,
+            Config::KEY_DEFAULT_WIDTH  => [
+                self::PROPERTY_CLASS    => ilNumberInputGUI::class,
                 self::PROPERTY_REQUIRED => true
-            ]
+            ],
+            Config::KEY_DEFAULT_HEIGHT => [
+                self::PROPERTY_CLASS    => ilNumberInputGUI::class,
+                self::PROPERTY_REQUIRED => true
+            ],
+            Config::KEY_DEFAULT_AS_IFRAME => [
+                self::PROPERTY_CLASS    => ilCheckboxInputGUI::class,
+                self::PROPERTY_REQUIRED => true
+            ],
         ];
-        // TODO: Implement ConfigFormGUI
     }
 }

@@ -16,7 +16,7 @@ class VideoSearchTableGUI extends TableGUI
     const PLUGIN_CLASS_NAME = ilOpencastPageComponentPlugin::class;
     const GET_PARAM_EVENT_ID = 'event_id';
     const ID_PREFIX = 'oc_pc_';
-    const ROW_TEMPLATE = '/templates/table_row.html';
+    const ROW_TEMPLATE = '/templates/html/table_row.html';
 
     const F_TITLE = 'title';
     const F_SERIES = 'series';
@@ -62,9 +62,9 @@ class VideoSearchTableGUI extends TableGUI
         $this->setExternalSorting(true);
         $this->determineOffsetAndOrder();
         parent::__construct($parent_gui, $parent_cmd);
-        $this->setRowTemplate(self::plugin()->directory() . '/templates/table_row.html');
-        $this->dic->ui()->mainTemplate()->addCss(self::plugin()->directory() . '/templates/table.css');
-        $this->dic->ui()->mainTemplate()->addJavaScript(self::plugin()->directory() . '/templates/table.js');
+        $this->setRowTemplate(self::plugin()->directory() . '/templates/html/table_row.html');
+        $this->dic->ui()->mainTemplate()->addCss(self::plugin()->directory() . '/templates/css/table.css');
+        $this->dic->ui()->mainTemplate()->addJavaScript(self::plugin()->directory() . '/templates/js/table.js');
         $this->setEnableNumInfo(false);
         $this->setShowRowsSelector(false);
     }

@@ -5,6 +5,7 @@
 use ILIAS\DI\Container;
 use srag\CustomInputGUIs\OpencastPageComponent\TableGUI\TableGUI;
 use srag\DIC\OpencastPageComponent\Exception\DICException;
+use srag\Plugins\OpencastPageComponent\Config\Config;
 use srag\Plugins\OpencastPageComponent\Utils\OpencastPageComponentTrait;
 use srag\DIC\OpencastPageComponent\DICTrait;
 
@@ -33,6 +34,15 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     const CMD_APPLY_FILTER = "applyFilter";
     const CMD_RESET_FILTER = "resetFilter";
     const CUSTOM_CMD = 'ocpc_cmd';
+
+    const PROP_EVENT_ID = 'event_id';
+    const PROP_WIDTH = 'width';
+    const PROP_HEIGHT = 'height';
+    const PROP_AS_IFRAME = 'as_iframe';
+
+    const MODE_EDIT = 'edit';
+    const MODE_PRESENTATION = 'presentation';
+
     /**
      * @var Container
      */
@@ -126,9 +136,36 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     protected function getForm() : ilPropertyFormGUI
     {
         $form = new ilPropertyFormGUI();
+        $prop = $this->getProperties();
 
-        // TODO: Implement getForm
-        // TODO: Use seperate class
+        // width
+        $width = new ilNumberInputGUI($this->getPlugin()->txt(self::PROP_WIDTH), self::PROP_WIDTH);
+        $width->setMaxLength(4);
+        $width->setSize(40);
+        $width->setRequired(true);
+        $width->setValue($prop[self::PROP_WIDTH]);
+        $form->addItem($width);
+
+        // height
+        $height = new ilNumberInputGUI($this->getPlugin()->txt(self::PROP_HEIGHT), self::PROP_HEIGHT);
+        $height->setMaxLength(3);
+        $height->setSize(40);
+        $height->setRequired(true);
+        $height->setValue($prop[self::PROP_HEIGHT]);
+        $form->addItem($height);
+
+        // as iframe
+        $as_iframe = new ilCheckboxInputGUI($this->getPlugin()->txt(self::PROP_AS_IFRAME), self::PROP_AS_IFRAME);
+        $as_iframe->setInfo($this->getPlugin()->txt(self::PROP_AS_IFRAME . '_info'));
+        $as_iframe->setChecked($prop[self::PROP_AS_IFRAME]);
+        $form->addItem($as_iframe);
+
+
+        $form->addCommandButton(self::CMD_UPDATE, $this->dic->language()->txt("save"));
+        $form->addCommandButton(self::CMD_CANCEL, $this->dic->language()->txt("cancel"));
+        $form->setTitle($this->getPlugin()->txt("form_title"));
+
+        $form->setFormAction($this->dic->ctrl()->getFormAction($this));
 
         return $form;
     }
@@ -144,6 +181,10 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         return;
     }
 
+
+    /**
+     * @throws DICException
+     */
     protected function applyFilter()
     {
         $table = $this->getTable();
@@ -170,7 +211,10 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     {
         $event_id = filter_input(INPUT_GET, VideoSearchTableGUI::GET_PARAM_EVENT_ID, FILTER_SANITIZE_STRING);
         $properties = [
-            'event_id' => $event_id
+            self::PROP_EVENT_ID => $event_id,
+            self::PROP_HEIGHT => Config::getField(Config::KEY_DEFAULT_HEIGHT),
+            self::PROP_WIDTH => Config::getField(Config::KEY_DEFAULT_WIDTH),
+            self::PROP_AS_IFRAME => (bool) Config::getField(Config::KEY_DEFAULT_AS_IFRAME)
         ];
         $this->createElement($properties);
 
@@ -206,7 +250,9 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 
         $properties = $this->getProperties();
 
-        // TODO: Implement update
+        $properties[self::PROP_HEIGHT] = $form->getInput(self::PROP_HEIGHT);
+        $properties[self::PROP_WIDTH] = $form->getInput(self::PROP_WIDTH);
+        $properties[self::PROP_AS_IFRAME] = $form->getInput(self::PROP_AS_IFRAME);
 
         $this->updateElement($properties);
 
@@ -229,14 +275,18 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
      * @param string $plugin_version
      *
      * @return string
+     * @throws \srag\DIC\OpenCast\Exception\DICException
+     * @throws ilTemplateException
+     * @throws xoctException
      */
     public function getElementHTML($a_mode, array $a_properties, $plugin_version) : string
     {
-        $event_id = $a_properties['event_id'];
-        $xoctEvent = xoctEvent::find($event_id);
-        $renderer = new xoctEventRenderer($xoctEvent);
-        $thumbnail_html = $renderer->getThumbnailHTML();
-        return '<iframe src="' . $xoctEvent->getPlayerLink() . '">';
+        $as_iframe = (bool) $a_properties[self::PROP_AS_IFRAME];
+        if ($as_iframe && ($a_mode == self::MODE_PRESENTATION)) {
+            return $this->getIframeHTML($a_properties);
+        } else {
+            return $this->getStandardElementHTML($a_mode, $a_properties);
+        }
     }
 
     /**
@@ -247,4 +297,65 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $this->dic->ctrl()->redirect($this, self::CMD_INSERT);
     }
 
+
+    /**
+     * @param array $properties
+     *
+     * @return string
+     * @throws ilTemplateException
+     */
+    protected function getIframeHTML(array $properties) : string
+    {
+        $xoctEvent = xoctEvent::find($properties[self::PROP_EVENT_ID]);
+        $tpl = $this->getPlugin()->getTemplate('html/component_as_iframe.html');
+        $tpl->setVariable('SRC', $xoctEvent->getPlayerLink());
+        $tpl->setVariable('WIDTH', $properties[self::PROP_WIDTH]);
+        $tpl->setVariable('HEIGHT', $properties[self::PROP_HEIGHT]);
+        return $tpl->get();
+    }
+
+
+    /**
+     * @param string $mode
+     * @param array  $properties
+     *
+     * @return string
+     * @throws \srag\DIC\OpenCast\Exception\DICException
+     * @throws ilTemplateException
+     * @throws xoctException
+     */
+    protected function getStandardElementHTML(string $mode, array $properties) : string
+    {
+
+        $xoctEvent = xoctEvent::find($properties[self::PROP_EVENT_ID]);
+        $renderer = new xoctEventRenderer($xoctEvent);
+        $use_modal = (xoctConf::getConfig(xoctConf::F_USE_MODALS));
+        $tpl = $this->getPlugin()->getTemplate('html/component_as_link.html');
+        $tpl->setVariable('HEIGHT', $properties[self::PROP_HEIGHT]);
+        $tpl->setVariable('WIDTH', $properties[self::PROP_WIDTH]);
+        $tpl->setVariable('THUMBNAIL_URL', $xoctEvent->getThumbnailUrl());
+        if ($mode == self::MODE_PRESENTATION) {
+            $tpl->setVariable('TARGET', '_blank');
+            $tpl->setVariable('VIDEO_LINK', $use_modal ? $xoctEvent->getPlayerLink() : '#');
+            $tpl->touchBlock('overlay');
+            $this->dic->ui()->mainTemplate()->addCss($this->getPlugin()->getDirectory() . '/templates/css/presentation.css');
+            if ($use_modal) {
+                $tpl->setVariable('MODAL', $renderer->getPlayerModal()->getHTML());
+                $tpl->setVariable('MODAL_LINK', $renderer->getModalLink());
+            }
+        } else {
+            $tpl->setVariable('VIDEO_LINK', '#');
+        }
+        return $tpl->get();
+    }
+
+
+
+    /**
+     * @return ilOpencastPageComponentPlugin
+     */
+    public function getPlugin()
+    {
+        return parent::getPlugin();
+    }
 }
