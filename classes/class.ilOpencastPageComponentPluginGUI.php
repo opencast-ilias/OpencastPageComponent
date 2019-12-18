@@ -38,6 +38,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     const PROP_WIDTH = 'width';
     const PROP_HEIGHT = 'height';
     const PROP_AS_IFRAME = 'as_iframe';
+    const POST_SIZE = 'size';
     const MODE_EDIT = 'edit';
     const MODE_PRESENTATION = 'presentation';
     /**
@@ -135,24 +136,34 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
      */
     protected function getForm() : ilPropertyFormGUI
     {
+        $this->dic->ui()->mainTemplate()->addJavaScript($this->getPlugin()->getDirectory() . '/node_modules/ion-rangeslider/js/ion.rangeSlider.min.js');
+        $this->dic->ui()->mainTemplate()->addCss($this->getPlugin()->getDirectory() . '/node_modules/ion-rangeslider/css/ion.rangeSlider.min.css');
+        $this->dic->ui()->mainTemplate()->addJavaScript($this->getPlugin()->getDirectory() . '/templates/js/form.min.js');
+        $this->dic->ui()->mainTemplate()->addOnLoadCode('OpencastPageComponent.initForm();');
+
         $form = new ilPropertyFormGUI();
         $prop = $this->getProperties();
+        $xoctEvent = xoctEvent::find($prop[self::PROP_EVENT_ID]);
 
-        // width
-        $width = new ilNumberInputGUI($this->getPlugin()->txt(self::PROP_WIDTH), self::PROP_WIDTH);
-        $width->setMaxLength(4);
-        $width->setSize(40);
-        $width->setRequired(true);
-        $width->setValue($prop[self::PROP_WIDTH]);
-        $form->addItem($width);
+        // thumbnail
+        $thumbnail = new ilNonEditableValueGUI($this->dic->language()->txt('preview'), '', true);
+        $thumbnail->setValue('<img width="' . $prop['width'] . 'px" height="' . $prop['height'] . 'px" id="ocpc_thumbnail" src="' . $xoctEvent->getThumbnailUrl() . '">');
+        $form->addItem($thumbnail);
 
-        // height
-        $height = new ilNumberInputGUI($this->getPlugin()->txt(self::PROP_HEIGHT), self::PROP_HEIGHT);
-        $height->setMaxLength(3);
-        $height->setSize(40);
-        $height->setRequired(true);
-        $height->setValue($prop[self::PROP_HEIGHT]);
-        $form->addItem($height);
+        // width height
+        $width_height = new ilWidthHeightInputGUI($this->dic->language()->txt("cont_width") .
+            " / " . $this->dic->language()->txt("cont_height"), self::POST_SIZE);
+        $width_height->setConstrainProportions(true);
+        $width_height->setRequired(true);
+        $width_height->setValueByArray([self::POST_SIZE => array_merge($prop, ['constr_prop' => true])]);
+        $form->addItem($width_height);
+
+        // slider
+        $slider = new ilNonEditableValueGUI('', '', true);
+        $slider_tpl = $this->getPlugin()->getTemplate('html/slider_input.html', false, false);
+        $slider_tpl->setVariable('CONFIG', json_encode($this->getRangeSliderConfig()));
+        $slider->setValue($slider_tpl->get());
+        $form->addItem($slider);
 
         // as iframe
         $as_iframe = new ilCheckboxInputGUI($this->getPlugin()->txt(self::PROP_AS_IFRAME), self::PROP_AS_IFRAME);
@@ -221,7 +232,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         ];
         $this->createElement($properties);
 
-        $this->returnToParent();
+        $this->edit();
     }
 
 
@@ -253,8 +264,9 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 
         $properties = $this->getProperties();
 
-        $properties[self::PROP_HEIGHT] = $form->getInput(self::PROP_HEIGHT);
-        $properties[self::PROP_WIDTH] = $form->getInput(self::PROP_WIDTH);
+        $size = $form->getInput(self::POST_SIZE);
+        $properties[self::PROP_HEIGHT] = $size[self::PROP_HEIGHT];
+        $properties[self::PROP_WIDTH] = $size[self::PROP_WIDTH];
         $properties[self::PROP_AS_IFRAME] = $form->getInput(self::PROP_AS_IFRAME);
 
         $this->updateElement($properties);
@@ -355,6 +367,22 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         return $tpl->get();
     }
 
+    /**
+     * @return array
+     */
+    protected function getRangeSliderConfig()
+    {
+        return [
+            'skin' => 'modern',
+            'min' => 0,
+            'max' => 100,
+            'from' => 50,
+            'from_min' => 10,
+            'step' => 1,
+            'grid' => true,
+            'postfix' => '%',
+        ];
+    }
 
     /**
      * @return ilOpencastPageComponentPlugin
