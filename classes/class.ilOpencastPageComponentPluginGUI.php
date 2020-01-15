@@ -353,7 +353,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $tpl->setVariable('THUMBNAIL_URL', $xoctEvent->getThumbnailUrl());
         if ($mode == self::MODE_PRESENTATION) {
             $tpl->setVariable('TARGET', '_blank');
-            $tpl->setVariable('VIDEO_LINK', $use_modal ? $xoctEvent->getPlayerLink() : '#');
+            $tpl->setVariable('VIDEO_LINK', $use_modal ? '#' : $xoctEvent->getPlayerLink());
             $tpl->touchBlock('overlay');
             $this->dic->ui()->mainTemplate()->addCss($this->getPlugin()->getDirectory() . '/templates/css/presentation.css');
             if ($use_modal) {
