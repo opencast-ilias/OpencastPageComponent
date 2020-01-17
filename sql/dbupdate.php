@@ -20,3 +20,7 @@
     150
 );
 ?>
+<#2>
+<?php
+\srag\Plugins\OpencastPageComponent\Authorization\TokenAR::updateDB();
+?>

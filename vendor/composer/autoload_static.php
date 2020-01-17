@@ -52,11 +52,11 @@ class ComposerStaticInit3af4b1f150e4ec7dc807fd66dfd254e7
 
     public static $classMap = array (
         'OpencastPageComponentRemoveDataConfirm' => __DIR__ . '/../..' . '/classes/uninstall/class.OpencastPageComponentRemoveDataConfirm.php',
-        'VideoSearchTable' => __DIR__ . '/../..' . '/src/Table/VideoSearchTable.php',
         'VideoSearchTableGUI' => __DIR__ . '/../..' . '/src/Table/VideoSearchTableGUI.php',
         'ilOpencastPageComponentConfigGUI' => __DIR__ . '/../..' . '/classes/class.ilOpencastPageComponentConfigGUI.php',
         'ilOpencastPageComponentPlugin' => __DIR__ . '/../..' . '/classes/class.ilOpencastPageComponentPlugin.php',
         'ilOpencastPageComponentPluginGUI' => __DIR__ . '/../..' . '/classes/class.ilOpencastPageComponentPluginGUI.php',
+        'ocpcRouterGUI' => __DIR__ . '/../..' . '/classes/class.ocpcRouterGUI.php',
         'srag\\ActiveRecordConfig\\OpencastPageComponent\\ActiveRecordConfig' => __DIR__ . '/..' . '/srag/activerecordconfig/src/ActiveRecordConfig.php',
         'srag\\ActiveRecordConfig\\OpencastPageComponent\\ActiveRecordConfigFormGUI' => __DIR__ . '/..' . '/srag/activerecordconfig/src/ActiveRecordConfigFormGUI.php',
         'srag\\ActiveRecordConfig\\OpencastPageComponent\\ActiveRecordConfigGUI' => __DIR__ . '/..' . '/srag/activerecordconfig/src/ActiveRecordConfigGUI.php',
@@ -188,6 +188,9 @@ class ComposerStaticInit3af4b1f150e4ec7dc807fd66dfd254e7
         'srag\\LibrariesNamespaceChanger\\Libraries' => __DIR__ . '/..' . '/srag/librariesnamespacechanger/src/Libraries.php',
         'srag\\LibrariesNamespaceChanger\\LibrariesNamespaceChanger' => __DIR__ . '/..' . '/srag/librariesnamespacechanger/src/LibrariesNamespaceChanger.php',
         'srag\\LibrariesNamespaceChanger\\PHP7Backport' => __DIR__ . '/..' . '/srag/librariesnamespacechanger/src/PHP7Backport.php',
+        'srag\\Plugins\\OpencastPageComponent\\Authorization\\Token' => __DIR__ . '/../..' . '/src/Authorization/Token.php',
+        'srag\\Plugins\\OpencastPageComponent\\Authorization\\TokenAR' => __DIR__ . '/../..' . '/src/Authorization/TokenAR.php',
+        'srag\\Plugins\\OpencastPageComponent\\Authorization\\TokenRepository' => __DIR__ . '/../..' . '/src/Authorization/TokenRepository.php',
         'srag\\Plugins\\OpencastPageComponent\\Config\\Config' => __DIR__ . '/../..' . '/src/Config/Config.php',
         'srag\\Plugins\\OpencastPageComponent\\Config\\ConfigFormGUI' => __DIR__ . '/../..' . '/src/Config/ConfigFormGUI.php',
         'srag\\Plugins\\OpencastPageComponent\\Utils\\OpencastPageComponentTrait' => __DIR__ . '/../..' . '/src/Utils/OpencastPageComponentTrait.php',

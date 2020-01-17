@@ -1,7 +1,7 @@
-tr.ocpc_table_row {
+tr.ocpc_table_row_selectable {
 	cursor: pointer;
 }
 
-tr.ocpc_table_row:hover {
+tr.ocpc_table_row_selectable:hover {
 	background-color: #557196 !important;
 }
