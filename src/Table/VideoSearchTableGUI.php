@@ -76,6 +76,12 @@ class VideoSearchTableGUI extends TableGUI
      */
     protected function fillRow(/*array*/ $row)/*: void*/
     {
+        /** @var xoctEvent $object */
+        $object = $row['object'];
+        if ($object->getProcessingState() == xoctEvent::STATE_SUCCEEDED) {
+            $this->tpl->setVariable('ADDITIONAL_CSS_CLASSES', 'ocpc_table_row_selectable');
+        }
+
         $this->tpl->setCurrentBlock("column");
 
         $this->tpl->setVariable('CMD_URL', $this->command_url . '&' . self::GET_PARAM_EVENT_ID . '=' . $row['identifier']);
@@ -114,7 +120,10 @@ class VideoSearchTableGUI extends TableGUI
 
                 return '<img height="107.5px" width="200px" src="' . $object->getThumbnailUrl() . '">';
             case 'title':
-                return $row['title'];
+                /** @var xoctEvent $object */
+                $object = $row['object'];
+                $renderer = new xoctEventRenderer($object);
+                return $row['title'] . $renderer->getStateHTML();
             case 'description':
                 return $row['description'];
             case 'series':
@@ -152,13 +161,21 @@ class VideoSearchTableGUI extends TableGUI
     protected function initData()
     {
         // the api doesn't deliver a max count, so we fetch (limit + 1) to see if there should be a 'next' page
-        $events = (array) xoctEvent::getFiltered(
-            $this->buildFilterArray(),
-            xoctUser::getInstance($this->dic->user())->getIdentifier(),
-            [],
-            $this->getOffset(),
-            $this->getLimit() + 1
-        );
+        try {
+            $events = (array) xoctEvent::getFiltered(
+                $this->buildFilterArray(),
+                xoctUser::getInstance($this->dic->user())->getIdentifier(),
+                [],
+                $this->getOffset(),
+                $this->getLimit() + 1
+            );
+        } catch (xoctException $e) {
+            xoctLog::getInstance()->write($e->getMessage());
+            $events = [];
+            if ($e->getCode() !== xoctException::API_CALL_STATUS_403) {
+                ilUtil::sendFailure(self::plugin()->translate('failed_loading_events', 'msg', [$e->getMessage()]));
+            }
+        }
         $this->setMaxCount($this->getOffset() + count($events));
         if (count($events) == ($this->getLimit() + 1)) {
             array_pop($events);

@@ -10,3 +10,4 @@ as_iframe_info#:#Wenn aktiv, wird das Video direkt als iframe eingebunden. Anson
 config_default_width#:#Standard-Breite
 config_default_height#:#Standard-Höhe
 config_default_as_iframe#:# Standardmässig "Als iframe darstellen"
+msg_failed_loading_events#:#Beim Laden der Events ist ein Fehler aufgetreten: %s

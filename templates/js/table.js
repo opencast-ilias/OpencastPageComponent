@@ -1,6 +1,6 @@
 $(document).ready(function() {
     // init clickable table rows
-    $(".ocpc_table_row").click(function() {
+    $(".ocpc_table_row_selectable").click(function() {
         window.location = $(this).data("href");
     });
     // hide page selector

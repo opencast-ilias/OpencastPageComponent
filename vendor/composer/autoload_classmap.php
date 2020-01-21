@@ -7,11 +7,11 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'OpencastPageComponentRemoveDataConfirm' => $baseDir . '/classes/uninstall/class.OpencastPageComponentRemoveDataConfirm.php',
-    'VideoSearchTable' => $baseDir . '/src/Table/VideoSearchTable.php',
     'VideoSearchTableGUI' => $baseDir . '/src/Table/VideoSearchTableGUI.php',
     'ilOpencastPageComponentConfigGUI' => $baseDir . '/classes/class.ilOpencastPageComponentConfigGUI.php',
     'ilOpencastPageComponentPlugin' => $baseDir . '/classes/class.ilOpencastPageComponentPlugin.php',
     'ilOpencastPageComponentPluginGUI' => $baseDir . '/classes/class.ilOpencastPageComponentPluginGUI.php',
+    'ocpcRouterGUI' => $baseDir . '/classes/class.ocpcRouterGUI.php',
     'srag\\ActiveRecordConfig\\OpencastPageComponent\\ActiveRecordConfig' => $vendorDir . '/srag/activerecordconfig/src/ActiveRecordConfig.php',
     'srag\\ActiveRecordConfig\\OpencastPageComponent\\ActiveRecordConfigFormGUI' => $vendorDir . '/srag/activerecordconfig/src/ActiveRecordConfigFormGUI.php',
     'srag\\ActiveRecordConfig\\OpencastPageComponent\\ActiveRecordConfigGUI' => $vendorDir . '/srag/activerecordconfig/src/ActiveRecordConfigGUI.php',
@@ -143,6 +143,9 @@ return array(
     'srag\\LibrariesNamespaceChanger\\Libraries' => $vendorDir . '/srag/librariesnamespacechanger/src/Libraries.php',
     'srag\\LibrariesNamespaceChanger\\LibrariesNamespaceChanger' => $vendorDir . '/srag/librariesnamespacechanger/src/LibrariesNamespaceChanger.php',
     'srag\\LibrariesNamespaceChanger\\PHP7Backport' => $vendorDir . '/srag/librariesnamespacechanger/src/PHP7Backport.php',
+    'srag\\Plugins\\OpencastPageComponent\\Authorization\\Token' => $baseDir . '/src/Authorization/Token.php',
+    'srag\\Plugins\\OpencastPageComponent\\Authorization\\TokenAR' => $baseDir . '/src/Authorization/TokenAR.php',
+    'srag\\Plugins\\OpencastPageComponent\\Authorization\\TokenRepository' => $baseDir . '/src/Authorization/TokenRepository.php',
     'srag\\Plugins\\OpencastPageComponent\\Config\\Config' => $baseDir . '/src/Config/Config.php',
     'srag\\Plugins\\OpencastPageComponent\\Config\\ConfigFormGUI' => $baseDir . '/src/Config/ConfigFormGUI.php',
     'srag\\Plugins\\OpencastPageComponent\\Utils\\OpencastPageComponentTrait' => $baseDir . '/src/Utils/OpencastPageComponentTrait.php',
