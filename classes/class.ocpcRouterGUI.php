@@ -32,6 +32,7 @@ class ocpcRouterGUI
                     ilUtil::sendFailure('Access Denied.');
                     self::dic()->ctrl()->returnToParent($this);
                 }
+                xoctConf::setApiSettings();
                 $xoctPlayerGUI = new xoctPlayerGUI();
                 // self::dic()->ctrl()->forwardCommand($xoctPlayerGUI);
                 $xoctPlayerGUI->streamVideo();

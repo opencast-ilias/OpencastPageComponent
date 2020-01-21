@@ -11,7 +11,7 @@ use ActiveRecord;
  */
 class TokenAR extends ActiveRecord
 {
-    const TABLE_NAME = 'sr_chat_token';
+    const TABLE_NAME = 'ocpc_token';
 
 
     /**

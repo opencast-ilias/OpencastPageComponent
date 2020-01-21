@@ -161,13 +161,21 @@ class VideoSearchTableGUI extends TableGUI
     protected function initData()
     {
         // the api doesn't deliver a max count, so we fetch (limit + 1) to see if there should be a 'next' page
-        $events = (array) xoctEvent::getFiltered(
-            $this->buildFilterArray(),
-            xoctUser::getInstance($this->dic->user())->getIdentifier(),
-            [],
-            $this->getOffset(),
-            $this->getLimit() + 1
-        );
+        try {
+            $events = (array) xoctEvent::getFiltered(
+                $this->buildFilterArray(),
+                xoctUser::getInstance($this->dic->user())->getIdentifier(),
+                [],
+                $this->getOffset(),
+                $this->getLimit() + 1
+            );
+        } catch (xoctException $e) {
+            xoctLog::getInstance()->write($e->getMessage());
+            $events = [];
+            if ($e->getCode() !== xoctException::API_CALL_STATUS_403) {
+                ilUtil::sendFailure(self::plugin()->translate('failed_loading_events', 'msg', [$e->getMessage()]));
+            }
+        }
         $this->setMaxCount($this->getOffset() + count($events));
         if (count($events) == ($this->getLimit() + 1)) {
             array_pop($events);

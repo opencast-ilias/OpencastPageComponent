@@ -232,8 +232,9 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
             self::PROP_AS_IFRAME => (bool) Config::getField(Config::KEY_DEFAULT_AS_IFRAME)
         ];
         $this->createElement($properties);
-
-        $this->edit();
+        $pc_id = $this->getPCGUI()->getContentObject()->readPCId();
+        self::dic()->ctrl()->setParameter($this, 'pc_id', $pc_id);
+        self::dic()->ctrl()->redirect($this, self::CMD_EDIT);
     }
 
 
@@ -416,7 +417,8 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         if (xoctConf::getConfig(xoctConf::F_INTERNAL_VIDEO_PLAYER) || $xoctEvent->isLiveEvent()) {
             $token = (new TokenRepository())->create(self::dic()->user()->getId(), $xoctEvent->getIdentifier());
             self::dic()->ctrl()->clearParametersByClass(xoctPlayerGUI::class);
-            self::dic()->ctrl()->setParameterByClass(ocpcRouterGUI::class, ocpcRouterGUI::TOKEN, $token->getToken());
+            self::dic()->ctrl()->setParameterByClass(ocpcRouterGUI::class, ocpcRouterGUI::TOKEN, $token->getToken()->toString());
+            self::dic()->ctrl()->setParameterByClass(ocpcRouterGUI::class, xoctPlayerGUI::IDENTIFIER, $xoctEvent->getIdentifier());
             self::dic()->ctrl()->setParameterByClass(xoctPlayerGUI::class, xoctPlayerGUI::IDENTIFIER, $xoctEvent->getIdentifier());
             return self::dic()->ctrl()->getLinkTargetByClass([ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctPlayerGUI::class], xoctPlayerGUI::CMD_STREAM_VIDEO);
         }
