@@ -9,5 +9,6 @@ as_iframe#:#Als iframe darstellen
 as_iframe_info#:#Wenn aktiv, wird das Video direkt als iframe eingebunden. Ansonsten erscheint der Thumbnail als Link zum Video.
 config_default_width#:#Standard-Breite
 config_default_height#:#Standard-Höhe
-config_default_as_iframe#:# Standardmässig "Als iframe darstellen"
+config_default_as_iframe#:#Standardmässig "Als iframe darstellen"
 msg_failed_loading_events#:#Beim Laden der Events ist ein Fehler aufgetreten: %s
+textFilter#:#Textfilter

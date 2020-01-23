@@ -9,4 +9,6 @@ as_iframe#:#Show in iframe
 as_iframe_info#:#If selected, the video will be rendered in an iframe. Otherwise the thumbnail will appear as a link to the video.
 config_default_width#:#Default width
 config_default_height#:#Default height
+config_default_as_iframe#:#"Show in iframe" per default
 msg_failed_loading_events#:#An error occurred while loading events: %s
+textFilter#:#Text Filter
