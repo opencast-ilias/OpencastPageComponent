@@ -16,7 +16,7 @@ class VideoSearchTableGUI extends TableGUI
     const GET_PARAM_EVENT_ID = 'event_id';
     const ID_PREFIX = 'oc_pc_';
     const ROW_TEMPLATE = '/templates/html/table_row.html';
-    const F_TITLE = 'title';
+    const F_TEXTFILTER = 'textFilter';
     const F_SERIES = 'series';
     const F_START_FROM = 'start_from';
     const F_START_TO = 'start_to';
@@ -191,8 +191,8 @@ class VideoSearchTableGUI extends TableGUI
     {
         $filter = ['status' => 'EVENTS.EVENTS.STATUS.PROCESSED'];
 
-        if ($title_filter = $this->filter[self::F_TITLE]) {
-            $filter[self::F_TITLE] = $title_filter;
+        if ($title_filter = $this->filter[self::F_TEXTFILTER]) {
+            $filter[self::F_TEXTFILTER] = $title_filter;
         }
 
         if ($series_filter = $this->filter[self::F_SERIES]) {
@@ -215,8 +215,8 @@ class VideoSearchTableGUI extends TableGUI
      */
     protected function initFilterFields()
     {
-        $title = $this->addFilterItemByMetaType(self::F_TITLE, self::FILTER_TEXT);
-        $this->filter[self::F_TITLE] = $title->getValue();
+        $title = $this->addFilterItemByMetaType(self::F_TEXTFILTER, self::FILTER_TEXT, false, self::plugin()->translate(self::F_TEXTFILTER));
+        $this->filter[self::F_TEXTFILTER] = $title->getValue();
 
         $series = $this->addFilterItemByMetaType(self::F_SERIES, self::FILTER_SELECT, false, $this->opencast_plugin->txt('series_channel_id'));
         $series->setOptions($this->getSeriesFilterOptions());
