@@ -3,6 +3,7 @@
 use ILIAS\DI\Container;
 use srag\CustomInputGUIs\OpencastPageComponent\TableGUI\TableGUI;
 use srag\DIC\OpencastPageComponent\Exception\DICException;
+use srag\Plugins\Opencast\Model\API\Event\EventRepository;
 
 /**
  * Class VideoSearchTableGUI
@@ -37,6 +38,10 @@ class VideoSearchTableGUI extends TableGUI
      * @var ilOpenCastPlugin
      */
     protected $opencast_plugin;
+    /**
+     * @var EventRepository
+     */
+    protected $event_repository;
 
 
     /**
@@ -54,6 +59,7 @@ class VideoSearchTableGUI extends TableGUI
         $this->dic = $dic;
         $this->command_url = $command_url;
         $this->opencast_plugin = ilOpenCastPlugin::getInstance();
+        $this->event_repository = new EventRepository($dic);
         $this->initId();    // this is necessary so the offset and order can be determined
         $this->setLimit(10);
         $this->limit_determined = true;
@@ -162,7 +168,7 @@ class VideoSearchTableGUI extends TableGUI
     {
         // the api doesn't deliver a max count, so we fetch (limit + 1) to see if there should be a 'next' page
         try {
-            $events = (array) xoctEvent::getFiltered(
+            $events = (array) $this->event_repository->getFiltered(
                 $this->buildFilterArray(),
                 xoctUser::getInstance($this->dic->user())->getIdentifier(),
                 [],
