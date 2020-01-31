@@ -3,9 +3,11 @@
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see https://github.com/ILIAS-eLearning/ILIAS/tree/trunk/docs/LICENSE */
 
 use ILIAS\DI\Container;
+use srag\CustomInputGUIs\OpencastPageComponent\PropertyFormGUI\PropertyFormGUI;
 use srag\CustomInputGUIs\OpencastPageComponent\TableGUI\TableGUI;
 use srag\DIC\OpencastPageComponent\DICTrait;
 use srag\DIC\OpencastPageComponent\Exception\DICException;
+use srag\Plugins\Opencast\UI\Input\EventFormGUI;
 use srag\Plugins\OpencastPageComponent\Authorization\TokenRepository;
 use srag\Plugins\OpencastPageComponent\Config\Config;
 use srag\Plugins\OpencastPageComponent\Utils\OpencastPageComponentTrait;
@@ -34,6 +36,8 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     const CMD_UPDATE = "update";
     const CMD_APPLY_FILTER = "applyFilter";
     const CMD_RESET_FILTER = "resetFilter";
+    const CMD_SHOW_UPLOAD_FORM = 'showUploadForm';
+    const CMD_UPLOAD = 'upload';
     const CUSTOM_CMD = 'ocpc_cmd';
     const PROP_EVENT_ID = 'event_id';
     const PROP_WIDTH = 'width';
@@ -97,10 +101,11 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
             case self::CMD_CANCEL:
             case self::CMD_CREATE:
             case self::CMD_EDIT:
-            case self::CMD_INSERT:
             case self::CMD_UPDATE:
             case self::CMD_APPLY_FILTER:
             case self::CMD_RESET_FILTER:
+            case self::CMD_SHOW_UPLOAD_FORM:
+            case self::CMD_UPLOAD:
                 $this->{$cmd}();
                 break;
             default:
@@ -108,6 +113,40 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         }
     }
 
+
+    /**
+     *
+     */
+    protected function addToolbar()
+    {
+        $upload_button = ilLinkButton::getInstance();
+        $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, self::CMD_SHOW_UPLOAD_FORM);
+        $upload_button->setUrl($this->dic->ctrl()->getLinkTarget($this, self::CMD_INSERT));
+        $upload_button->setCaption('upload');
+        $this->dic->toolbar()->addButtonInstance($upload_button);
+    }
+
+    protected function showUploadForm()
+    {
+        self::output()->output($this->getUploadForm()->getHTML());
+    }
+
+    protected function upload()
+    {
+
+    }
+
+
+    /**
+     * @return EventFormGUI
+     * @throws \srag\DIC\OpenCast\Exception\DICException
+     * @throws ilDateTimeException
+     * @throws xoctException
+     */
+    protected function getUploadForm() : EventFormGUI
+    {
+        return new EventFormGUI($this, new xoctEvent());
+    }
 
     /**
      * @return TableGUI
@@ -187,6 +226,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
      */
     public function insert()
     {
+        $this->addToolbar();
         $table = $this->getTable();
         self::output()->output($table->getHTML());
 
@@ -434,11 +474,32 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         return $this->player_url;
     }
 
+
+    /**
+     *
+     * @throws ilException
+     */
+    protected function uploadChunks() {
+        $xoctPlupload = new xoctPlupload();
+        $xoctPlupload->handleUpload();
+    }
+
     /**
      * @return ilOpencastPageComponentPlugin
      */
     public function getPlugin()
     {
         return parent::getPlugin();
+    }
+
+
+    /**
+     * @param $key
+     *
+     * @return string
+     */
+    public function txt($key) : string
+    {
+        return ilOpenCastPlugin::getInstance()->txt('event_' . $key);
     }
 }
