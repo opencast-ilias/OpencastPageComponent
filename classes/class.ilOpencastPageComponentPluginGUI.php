@@ -3,7 +3,6 @@
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see https://github.com/ILIAS-eLearning/ILIAS/tree/trunk/docs/LICENSE */
 
 use ILIAS\DI\Container;
-use srag\CustomInputGUIs\OpencastPageComponent\PropertyFormGUI\PropertyFormGUI;
 use srag\CustomInputGUIs\OpencastPageComponent\TableGUI\TableGUI;
 use srag\DIC\OpencastPageComponent\DICTrait;
 use srag\DIC\OpencastPageComponent\Exception\DICException;
@@ -100,6 +99,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         switch ($cmd) {
             case self::CMD_CANCEL:
             case self::CMD_CREATE:
+            case self::CMD_INSERT:
             case self::CMD_EDIT:
             case self::CMD_UPDATE:
             case self::CMD_APPLY_FILTER:
@@ -120,17 +120,30 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     protected function addToolbar()
     {
         $upload_button = ilLinkButton::getInstance();
+        $this->dic->ctrl()->saveParameter($this, 'rtoken');
         $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, self::CMD_SHOW_UPLOAD_FORM);
         $upload_button->setUrl($this->dic->ctrl()->getLinkTarget($this, self::CMD_INSERT));
         $upload_button->setCaption('upload');
         $this->dic->toolbar()->addButtonInstance($upload_button);
     }
 
+
+    /**
+     * @throws DICException
+     * @throws \srag\DIC\OpenCast\Exception\DICException
+     * @throws ilDateTimeException
+     * @throws ilTemplateException
+     * @throws xoctException
+     */
     protected function showUploadForm()
     {
         self::output()->output($this->getUploadForm()->getHTML());
     }
 
+
+    /**
+     *
+     */
     protected function upload()
     {
 
@@ -145,7 +158,18 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
      */
     protected function getUploadForm() : EventFormGUI
     {
-        return new EventFormGUI($this, new xoctEvent());
+        $this->dic->ctrl()->saveParameter($this, 'rtoken');
+
+        $return_link = self::dic()->ctrl()->getLinkTarget($this, 'insert_plug_OpencastPageComponent');
+        self::dic()->ctrl()->setParameterByClass(ocpcRouterGUI::class, ocpcRouterGUI::P_GET_RETURN_LINK, urlencode($return_link));
+        return new EventFormGUI(
+            new ocpcRouterGUI(),
+            new xoctEvent(),
+            null,
+            false,
+            self::dic()->ctrl()->getFormActionByClass([ilObjPluginDispatchGUI::class, ocpcRouterGUI::class]),
+            self::dic()->ctrl()->getLinkTargetByClass([ilObjPluginDispatchGUI::class, ocpcRouterGUI::class], ocpcRouterGUI::CMD_UPLOAD_CHUNKS)
+        );
     }
 
     /**
@@ -173,6 +197,8 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 
     /**
      * @return ilPropertyFormGUI
+     * @throws ilTemplateException
+     * @throws xoctException
      */
     protected function getForm() : ilPropertyFormGUI
     {
@@ -274,6 +300,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $this->createElement($properties);
         $pc_id = $this->getPCGUI()->getContentObject()->readPCId();
         self::dic()->ctrl()->setParameter($this, 'pc_id', $pc_id);
+        self::dic()->ctrl()->setParameter($this, 'hier_id', 1);
         self::dic()->ctrl()->redirect($this, self::CMD_EDIT);
     }
 
@@ -474,15 +501,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         return $this->player_url;
     }
 
-
-    /**
-     *
-     * @throws ilException
-     */
-    protected function uploadChunks() {
-        $xoctPlupload = new xoctPlupload();
-        $xoctPlupload->handleUpload();
-    }
 
     /**
      * @return ilOpencastPageComponentPlugin
