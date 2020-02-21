@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.1.0]
+- Feature: video upload
+
 ## [1.0.1]
 - Bugfix: fixed link to video
 - Bugfix: fixed redirect to 'edit' after 'create'

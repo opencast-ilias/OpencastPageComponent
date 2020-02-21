@@ -137,7 +137,9 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
      */
     protected function showUploadForm()
     {
-        self::output()->output($this->getUploadForm()->getHTML());
+        $form = $this->getUploadForm();
+        $form->fillForm();
+        self::output()->output($form->getHTML());
     }
 
 

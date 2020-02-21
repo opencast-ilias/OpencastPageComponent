@@ -11,4 +11,5 @@ config_default_width#:#Default width
 config_default_height#:#Default height
 config_default_as_iframe#:#"Show in iframe" per default
 msg_failed_loading_events#:#An error occurred while loading events: %s
+msg_created#:#Upload complete. Note that the video must be processed before it appears in the list below. This can take several minutes.
 textFilter#:#Text Filter

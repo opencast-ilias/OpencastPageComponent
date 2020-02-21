@@ -59,8 +59,8 @@ class ocpcRouterGUI
                     case self::CMD_UPLOAD_CHUNKS:
                     case self::CMD_CREATE:
                     case self::CMD_CANCEL:
-                        // $this->checkAdminAccess();
-                        self::dic()->ctrl()->saveParameter($this, self::P_GET_RETURN_LINK);
+                        $return_link = filter_input(INPUT_GET, self::P_GET_RETURN_LINK, FILTER_SANITIZE_STRING);
+                        self::dic()->ctrl()->setParameter($this, self::P_GET_RETURN_LINK, urlencode($return_link));
                         $this->{$cmd}();
                 }
         }
@@ -107,7 +107,7 @@ class ocpcRouterGUI
         $xoctEventFormGUI->getObject()->setAcl($xoctAclStandardSets->getAcls());
 
         if ($xoctEventFormGUI->saveObject()) {
-            ilUtil::sendSuccess($this->txt('msg_created'), true);
+            ilUtil::sendSuccess(self::plugin()->translate('msg_created'), true);
             $this->cancel();
         }
         $xoctEventFormGUI->setValuesByPost();

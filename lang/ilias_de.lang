@@ -11,4 +11,5 @@ config_default_width#:#Standard-Breite
 config_default_height#:#Standard-Höhe
 config_default_as_iframe#:#Standardmässig "Als iframe darstellen"
 msg_failed_loading_events#:#Beim Laden der Events ist ein Fehler aufgetreten: %s
+msg_created#:#Upload abgeschlossen. Hinweis: Es kann einige Minuten dauern, bis das Video verarbeitet wurde und in der Liste unten erscheint.
 textFilter#:#Textfilter
