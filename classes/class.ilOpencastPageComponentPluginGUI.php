@@ -6,6 +6,8 @@ use ILIAS\DI\Container;
 use srag\CustomInputGUIs\OpencastPageComponent\TableGUI\TableGUI;
 use srag\DIC\OpencastPageComponent\DICTrait;
 use srag\DIC\OpencastPageComponent\Exception\DICException;
+use srag\Plugins\Opencast\Model\Config\PublicationUsage\PublicationSelector;
+use srag\Plugins\Opencast\Model\Config\PublicationUsage\PublicationUsage;
 use srag\Plugins\Opencast\UI\Input\EventFormGUI;
 use srag\Plugins\OpencastPageComponent\Authorization\TokenRepository;
 use srag\Plugins\OpencastPageComponent\Config\Config;
@@ -215,7 +217,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 
         // thumbnail
         $thumbnail = new ilNonEditableValueGUI($this->dic->language()->txt('preview'), '', true);
-        $thumbnail->setValue('<img width="' . $prop['width'] . 'px" height="' . $prop['height'] . 'px" id="ocpc_thumbnail" src="' . $xoctEvent->getThumbnailUrl() . '">');
+        $thumbnail->setValue('<img width="' . $prop['width'] . 'px" height="' . $prop['height'] . 'px" id="ocpc_thumbnail" src="' . $xoctEvent->publications()->getThumbnailUrl() . '">');
         $form->addItem($thumbnail);
 
         // width height
@@ -427,7 +429,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $tpl = $this->getPlugin()->getTemplate('html/component_as_link.html');
         $tpl->setVariable('HEIGHT', $properties[self::PROP_HEIGHT]);
         $tpl->setVariable('WIDTH', $properties[self::PROP_WIDTH]);
-        $tpl->setVariable('THUMBNAIL_URL', $xoctEvent->getThumbnailUrl());
+        $tpl->setVariable('THUMBNAIL_URL', $xoctEvent->publications()->getThumbnailUrl());
         if ($mode == self::MODE_PRESENTATION) {
             $tpl->setVariable('TARGET', '_blank');
             $tpl->setVariable('VIDEO_LINK', $use_modal ? '#' : $this->getPlayerLink($xoctEvent));
@@ -492,7 +494,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
             return self::dic()->ctrl()->getLinkTargetByClass([ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctPlayerGUI::class], xoctPlayerGUI::CMD_STREAM_VIDEO);
         }
         if (!isset($this->player_url)) {
-            $url = $xoctEvent->getFirstPublicationMetadataForUsage(xoctPublicationUsage::find(xoctPublicationUsage::USAGE_PLAYER))->getUrl();
+            $url = $xoctEvent->publications()->getFirstPublicationMetadataForUsage(PublicationUsage::find(PublicationUsage::USAGE_PLAYER))->getUrl();
             if (xoctConf::getConfig(xoctConf::F_SIGN_PLAYER_LINKS)) {
                 $this->player_url = xoctSecureLink::sign($url);
             } else {

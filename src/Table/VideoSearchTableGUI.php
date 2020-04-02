@@ -4,6 +4,7 @@ use ILIAS\DI\Container;
 use srag\CustomInputGUIs\OpencastPageComponent\TableGUI\TableGUI;
 use srag\DIC\OpencastPageComponent\Exception\DICException;
 use srag\Plugins\Opencast\Model\API\Event\EventRepository;
+use srag\Plugins\Opencast\Model\Config\PublicationUsage\PublicationSelector;
 
 /**
  * Class VideoSearchTableGUI
@@ -124,7 +125,7 @@ class VideoSearchTableGUI extends TableGUI
                 /** @var xoctEvent $object */
                 $object = $row['object'];
 
-                return '<img height="107.5px" width="200px" src="' . $object->getThumbnailUrl() . '">';
+                return '<img height="107.5px" width="200px" src="' . $object->publications()->getThumbnailUrl() . '">';
             case 'title':
                 /** @var xoctEvent $object */
                 $object = $row['object'];
