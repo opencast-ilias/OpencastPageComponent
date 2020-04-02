@@ -5,6 +5,7 @@ require_once './Customizing/global/plugins/Services/Repository/RepositoryObject/
 use srag\DIC\OpenCast\Exception\DICException;
 use srag\DIC\OpencastPageComponent\DICTrait;
 use srag\Plugins\Opencast\UI\Input\EventFormGUI;
+use srag\Plugins\Opencast\UI\Input\Plupload;
 use srag\Plugins\OpencastPageComponent\Authorization\TokenRepository;
 use srag\Plugins\OpencastPageComponent\Utils\OpencastPageComponentTrait;
 
@@ -85,7 +86,7 @@ class ocpcRouterGUI
      */
     protected function uploadChunks()
     {
-        $xoctPlupload = new xoctPlupload();
+        $xoctPlupload = new Plupload();
         $xoctPlupload->handleUpload();
     }
 
