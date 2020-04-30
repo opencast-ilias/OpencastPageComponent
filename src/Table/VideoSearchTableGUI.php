@@ -154,8 +154,8 @@ class VideoSearchTableGUI extends TableGUI
         return [
             'thumbnail'   => ['txt' => '', 'id' => 'thumbnail', 'default' => true],
             'title'       => ['txt' => $this->dic->language()->txt('title'), 'id' => 'title', 'default' => true],
-            'description' => ['txt' => $this->dic->language()->txt('description'), 'id' => 'description', 'default' => true],
-            'series'      => ['txt' => $this->opencast_plugin->txt('series_channel_id'), 'id' => 'series', 'default' => true],
+            'description' => ['txt' => $this->opencast_plugin->txt('event_description'), 'id' => 'description', 'default' => true],
+            'series'      => ['txt' => $this->opencast_plugin->txt('event_series'), 'id' => 'series', 'default' => true],
             'start'       => ['txt' => $this->opencast_plugin->txt('event_start'), 'id' => 'start', 'default' => true],
             'location'    => ['txt' => $this->opencast_plugin->txt('event_location'), 'id' => 'location', 'default' => true],
         ];
@@ -271,6 +271,8 @@ class VideoSearchTableGUI extends TableGUI
         foreach (xoctSeries::getAllForUser(xoctUser::getInstance($this->dic->user())->getUserRoleName()) as $serie) {
             $series_options[$serie->getIdentifier()] = $serie->getTitle() . ' (...' . substr($serie->getIdentifier(), -4, 4) . ')';
         }
+
+        asort($series_options);
 
         return $series_options;
     }
