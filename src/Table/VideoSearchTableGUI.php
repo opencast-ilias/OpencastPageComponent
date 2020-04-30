@@ -208,9 +208,11 @@ class VideoSearchTableGUI extends TableGUI
 
         /** @var $start_filter_from ilDateTime */
         /** @var $start_filter_to ilDateTime */
-        if (($start_filter_from = $this->filter[self::F_START_FROM]) || ($start_filter_to = $this->filter[self::F_START_TO])) {
+        $start_filter_from = $this->filter[self::F_START_FROM];
+        $start_filter_to = $this->filter[self::F_START_TO];
+        if ($start_filter_from || $start_filter_to) {
             $filter['start'] = ($start_filter_from ? $start_filter_from->get(IL_CAL_FKT_DATE, 'Y-m-d\TH:i:s') : '1970-01-01T00:00:00')
-                . '/' . ($start_filter_to ? $start_filter_to->get(IL_CAL_FKT_DATE, 'Y-m-d\TH:i:s') : '2200-01-01T00:00:00');
+                . '/' . ($start_filter_to ? $start_filter_to->get(IL_CAL_FKT_DATE, 'Y-m-d\T23:59:59') : '2200-01-01T00:00:00');
         }
 
         return $filter;
