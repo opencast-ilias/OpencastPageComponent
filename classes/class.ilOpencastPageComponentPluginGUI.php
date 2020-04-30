@@ -272,6 +272,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $table = $this->getTable();
         $table->setFilterCommand(self::CMD_INSERT);
         $table->resetOffset();
+        $table->storeProperty('offset', 0);
         $table->writeFilterToSession();
         $this->redirect(self::CMD_INSERT);
     }
@@ -284,6 +285,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     {
         $table = $this->getTable();
         $table->resetOffset();
+        $table->storeProperty('offset', 0);
         $table->resetFilter();
         $this->redirect(self::CMD_INSERT);
     }
