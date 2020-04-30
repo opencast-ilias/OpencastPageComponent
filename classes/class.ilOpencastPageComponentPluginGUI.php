@@ -43,7 +43,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     const PROP_EVENT_ID = 'event_id';
     const PROP_WIDTH = 'width';
     const PROP_HEIGHT = 'height';
-    const PROP_AS_IFRAME = 'as_iframe';
+    const PROP_AS_LINK = 'as_link';
     const POST_SIZE = 'size';
     const MODE_EDIT = 'edit';
     const MODE_PRESENTATION = 'presentation';
@@ -236,9 +236,9 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $form->addItem($slider);
 
         // as iframe
-        $as_iframe = new ilCheckboxInputGUI($this->getPlugin()->txt(self::PROP_AS_IFRAME), self::PROP_AS_IFRAME);
-        $as_iframe->setInfo($this->getPlugin()->txt(self::PROP_AS_IFRAME . '_info'));
-        $as_iframe->setChecked($prop[self::PROP_AS_IFRAME]);
+        $as_iframe = new ilCheckboxInputGUI($this->getPlugin()->txt(self::PROP_AS_LINK), self::PROP_AS_LINK);
+        $as_iframe->setInfo($this->getPlugin()->txt(self::PROP_AS_LINK . '_info'));
+        $as_iframe->setChecked($prop[self::PROP_AS_LINK]);
         $form->addItem($as_iframe);
 
         $form->addCommandButton(self::CMD_UPDATE, $this->dic->language()->txt("save"));
@@ -299,7 +299,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
             self::PROP_EVENT_ID  => $event_id,
             self::PROP_HEIGHT    => Config::getField(Config::KEY_DEFAULT_HEIGHT),
             self::PROP_WIDTH     => Config::getField(Config::KEY_DEFAULT_WIDTH),
-            self::PROP_AS_IFRAME => (bool) Config::getField(Config::KEY_DEFAULT_AS_IFRAME)
+            self::PROP_AS_LINK => (bool) Config::getField(Config::KEY_DEFAULT_AS_LINK)
         ];
         $this->createElement($properties);
         $pc_id = $this->getPCGUI()->getContentObject()->readPCId();
@@ -340,7 +340,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $size = $form->getInput(self::POST_SIZE);
         $properties[self::PROP_HEIGHT] = $size[self::PROP_HEIGHT];
         $properties[self::PROP_WIDTH] = $size[self::PROP_WIDTH];
-        $properties[self::PROP_AS_IFRAME] = $form->getInput(self::PROP_AS_IFRAME);
+        $properties[self::PROP_AS_LINK] = $form->getInput(self::PROP_AS_LINK);
 
         $this->updateElement($properties);
 
@@ -373,8 +373,8 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         } catch (Exception $e) {
             return $this->getExceptionHTML($a_properties);
         }
-        $as_iframe = (bool) $a_properties[self::PROP_AS_IFRAME];
-        if ($as_iframe && ($a_mode == self::MODE_PRESENTATION)) {
+        $as_link = (bool) $a_properties[self::PROP_AS_LINK];
+        if (!$as_link && ($a_mode == self::MODE_PRESENTATION)) {
             return $this->getIframeHTML($a_properties, $xoctEvent);
         } else {
             return $this->getStandardElementHTML($a_mode, $a_properties, $xoctEvent);

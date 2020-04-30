@@ -26,7 +26,7 @@ class Config extends ActiveRecordConfig
     const PLUGIN_CLASS_NAME = ilOpencastPageComponentPlugin::class;
     const KEY_DEFAULT_WIDTH = "default_width";
     const KEY_DEFAULT_HEIGHT = "default_height";
-    const KEY_DEFAULT_AS_IFRAME = "default_as_iframe";
+    const KEY_DEFAULT_AS_LINK = "default_as_link";
     /**
      * @var array
      */
@@ -34,6 +34,6 @@ class Config extends ActiveRecordConfig
         = [
             self::KEY_DEFAULT_WIDTH     => self::TYPE_INTEGER,
             self::KEY_DEFAULT_HEIGHT    => self::TYPE_INTEGER,
-            self::KEY_DEFAULT_AS_IFRAME => self::TYPE_BOOLEAN
+            self::KEY_DEFAULT_AS_LINK => self::TYPE_BOOLEAN
         ];
 }
