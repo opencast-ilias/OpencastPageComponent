@@ -152,8 +152,8 @@ class VideoSearchTableGUI extends TableGUI
     protected function getSelectableColumns2()
     {
         return [
-            'thumbnail'   => ['txt' => '', 'id' => 'thumbnail', 'default' => true],
-            'title'       => ['txt' => $this->dic->language()->txt('title'), 'id' => 'title', 'default' => true],
+            'thumbnail'   => ['txt' => $this->opencast_plugin->txt('event_preview'), 'id' => 'thumbnail', 'default' => true],
+            'title'       => ['txt' => $this->opencast_plugin->txt('event_title'), 'id' => 'title', 'default' => true],
             'description' => ['txt' => $this->opencast_plugin->txt('event_description'), 'id' => 'description', 'default' => true],
             'series'      => ['txt' => $this->opencast_plugin->txt('event_series'), 'id' => 'series', 'default' => true],
             'start'       => ['txt' => $this->opencast_plugin->txt('event_start'), 'id' => 'start', 'default' => true],
