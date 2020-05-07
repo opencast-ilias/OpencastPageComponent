@@ -5,3 +5,10 @@ tr.ocpc_table_row_selectable {
 tr.ocpc_table_row_selectable:hover {
 	background-color: #557196 !important;
 }
+
+table.ilTableFilter td:nth-child(2) {
+	min-width: 350px;
+}
+table.ilTableFilter td:nth-child(2) select {
+	min-width: 350px;
+}
