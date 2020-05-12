@@ -274,7 +274,7 @@ class VideoSearchTableGUI extends TableGUI
             $series_options[$serie->getIdentifier()] = $serie->getTitle() . ' (...' . substr($serie->getIdentifier(), -4, 4) . ')';
         }
 
-        asort($series_options);
+        natcasesort($series_options);
 
         return $series_options;
     }
