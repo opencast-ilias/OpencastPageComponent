@@ -251,7 +251,7 @@ class VideoSearchTableGUI extends TableGUI
      */
     protected function initTitle()
     {
-        // TODO: Implement initTitle() method.
+        $this->setTitle(self::plugin()->translate('table_title'));
     }
 
 
