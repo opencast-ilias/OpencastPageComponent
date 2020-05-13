@@ -14,3 +14,4 @@ msg_failed_loading_events#:#An error occurred while loading events: %s
 msg_created#:#Upload complete. Note that the video must be processed before it appears in the list below. This can take several minutes.
 textFilter#:#Text Filter
 table_title#:#Insert existing video from Opencast
+btn_upload#:#Upload new video

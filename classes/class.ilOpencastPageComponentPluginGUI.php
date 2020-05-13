@@ -122,10 +122,11 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     protected function addToolbar()
     {
         $upload_button = ilLinkButton::getInstance();
+        $upload_button->setPrimary(true);
         $this->dic->ctrl()->saveParameter($this, 'rtoken');
         $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, self::CMD_SHOW_UPLOAD_FORM);
         $upload_button->setUrl($this->dic->ctrl()->getLinkTarget($this, self::CMD_INSERT));
-        $upload_button->setCaption('upload');
+        $upload_button->setCaption(self::plugin()->translate('btn_upload'), false);
         $this->dic->toolbar()->addButtonInstance($upload_button);
     }
 
