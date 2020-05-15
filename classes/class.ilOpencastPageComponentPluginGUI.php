@@ -499,7 +499,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         if (!isset($this->player_url)) {
             $url = $xoctEvent->publications()->getFirstPublicationMetadataForUsage(PublicationUsage::find(PublicationUsage::USAGE_PLAYER))->getUrl();
             if (xoctConf::getConfig(xoctConf::F_SIGN_PLAYER_LINKS)) {
-                $this->player_url = xoctSecureLink::sign($url);
+                $this->player_url = xoctSecureLink::signPlayer($url);
             } else {
                 $this->player_url = $url;
             }
