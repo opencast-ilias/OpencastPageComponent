@@ -2,6 +2,7 @@
 
 ## [1.1.0]
 - Feature: video upload
+- Improvement: show success message when adding video
 
 ## [1.0.1]
 - Bugfix: fixed link to video

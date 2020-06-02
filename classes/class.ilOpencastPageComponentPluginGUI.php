@@ -305,6 +305,8 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
             self::PROP_AS_LINK => (bool) Config::getField(Config::KEY_DEFAULT_AS_LINK)
         ];
         $this->createElement($properties);
+        ilUtil::sendSuccess(self::plugin()->translate('msg_added'), true);
+
         $pc_id = $this->getPCGUI()->getContentObject()->readPCId();
         self::dic()->ctrl()->setParameter($this, 'pc_id', $pc_id);
         self::dic()->ctrl()->setParameter($this, 'hier_id', 1);

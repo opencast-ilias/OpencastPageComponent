@@ -12,6 +12,7 @@ config_default_height#:#Standard-Höhe
 config_default_as_link#:#Standardmässig "Vorschaubild verlinkt auf Video"
 msg_failed_loading_events#:#Beim Laden der Events ist ein Fehler aufgetreten: %s
 msg_created#:#Upload abgeschlossen. Hinweis: Es kann einige Minuten dauern, bis das Video verarbeitet wurde und in der Liste unten erscheint.
+msg_added#:#Video wurde erfolgreich zur Seite hinzugefügt.
 textFilter#:#Textfilter
 table_title#:#Bestehendes Video aus Opencast einfügen
 btn_upload#:#Neues Video hochladen
