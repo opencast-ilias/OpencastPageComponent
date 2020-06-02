@@ -6,6 +6,9 @@ use ILIAS\DI\Container;
 use srag\CustomInputGUIs\OpencastPageComponent\TableGUI\TableGUI;
 use srag\DIC\OpencastPageComponent\DICTrait;
 use srag\DIC\OpencastPageComponent\Exception\DICException;
+use srag\Plugins\Opencast\Model\Config\PublicationUsage\PublicationSelector;
+use srag\Plugins\Opencast\Model\Config\PublicationUsage\PublicationUsage;
+use srag\Plugins\Opencast\UI\Input\EventFormGUI;
 use srag\Plugins\OpencastPageComponent\Authorization\TokenRepository;
 use srag\Plugins\OpencastPageComponent\Config\Config;
 use srag\Plugins\OpencastPageComponent\Utils\OpencastPageComponentTrait;
@@ -34,11 +37,13 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     const CMD_UPDATE = "update";
     const CMD_APPLY_FILTER = "applyFilter";
     const CMD_RESET_FILTER = "resetFilter";
+    const CMD_SHOW_UPLOAD_FORM = 'showUploadForm';
+    const CMD_UPLOAD = 'upload';
     const CUSTOM_CMD = 'ocpc_cmd';
     const PROP_EVENT_ID = 'event_id';
     const PROP_WIDTH = 'width';
     const PROP_HEIGHT = 'height';
-    const PROP_AS_IFRAME = 'as_iframe';
+    const PROP_AS_LINK = 'as_link';
     const POST_SIZE = 'size';
     const MODE_EDIT = 'edit';
     const MODE_PRESENTATION = 'presentation';
@@ -96,11 +101,13 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         switch ($cmd) {
             case self::CMD_CANCEL:
             case self::CMD_CREATE:
-            case self::CMD_EDIT:
             case self::CMD_INSERT:
+            case self::CMD_EDIT:
             case self::CMD_UPDATE:
             case self::CMD_APPLY_FILTER:
             case self::CMD_RESET_FILTER:
+            case self::CMD_SHOW_UPLOAD_FORM:
+            case self::CMD_UPLOAD:
                 $this->{$cmd}();
                 break;
             default:
@@ -108,6 +115,67 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         }
     }
 
+
+    /**
+     *
+     */
+    protected function addToolbar()
+    {
+        $upload_button = ilLinkButton::getInstance();
+        $upload_button->setPrimary(true);
+        $this->dic->ctrl()->saveParameter($this, 'rtoken');
+        $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, self::CMD_SHOW_UPLOAD_FORM);
+        $upload_button->setUrl($this->dic->ctrl()->getLinkTarget($this, self::CMD_INSERT));
+        $upload_button->setCaption(self::plugin()->translate('btn_upload'), false);
+        $this->dic->toolbar()->addButtonInstance($upload_button);
+    }
+
+
+    /**
+     * @throws DICException
+     * @throws \srag\DIC\OpenCast\Exception\DICException
+     * @throws ilDateTimeException
+     * @throws ilTemplateException
+     * @throws xoctException
+     */
+    protected function showUploadForm()
+    {
+        $form = $this->getUploadForm();
+        $form->fillForm();
+        self::output()->output($form->getHTML());
+    }
+
+
+    /**
+     *
+     */
+    protected function upload()
+    {
+
+    }
+
+
+    /**
+     * @return EventFormGUI
+     * @throws \srag\DIC\OpenCast\Exception\DICException
+     * @throws ilDateTimeException
+     * @throws xoctException
+     */
+    protected function getUploadForm() : EventFormGUI
+    {
+        $this->dic->ctrl()->saveParameter($this, 'rtoken');
+
+        $return_link = self::dic()->ctrl()->getLinkTarget($this, 'insert_plug_OpencastPageComponent');
+        self::dic()->ctrl()->setParameterByClass(ocpcRouterGUI::class, ocpcRouterGUI::P_GET_RETURN_LINK, urlencode($return_link));
+        return new EventFormGUI(
+            new ocpcRouterGUI(),
+            new xoctEvent(),
+            null,
+            false,
+            self::dic()->ctrl()->getFormActionByClass([ilObjPluginDispatchGUI::class, ocpcRouterGUI::class]),
+            self::dic()->ctrl()->getLinkTargetByClass([ilObjPluginDispatchGUI::class, ocpcRouterGUI::class], ocpcRouterGUI::CMD_UPLOAD_CHUNKS)
+        );
+    }
 
     /**
      * @return TableGUI
@@ -134,6 +202,8 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 
     /**
      * @return ilPropertyFormGUI
+     * @throws ilTemplateException
+     * @throws xoctException
      */
     protected function getForm() : ilPropertyFormGUI
     {
@@ -148,7 +218,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 
         // thumbnail
         $thumbnail = new ilNonEditableValueGUI($this->dic->language()->txt('preview'), '', true);
-        $thumbnail->setValue('<img width="' . $prop['width'] . 'px" height="' . $prop['height'] . 'px" id="ocpc_thumbnail" src="' . $xoctEvent->getThumbnailUrl() . '">');
+        $thumbnail->setValue('<img width="' . $prop['width'] . 'px" height="' . $prop['height'] . 'px" id="ocpc_thumbnail" src="' . $xoctEvent->publications()->getThumbnailUrl() . '">');
         $form->addItem($thumbnail);
 
         // width height
@@ -167,9 +237,9 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $form->addItem($slider);
 
         // as iframe
-        $as_iframe = new ilCheckboxInputGUI($this->getPlugin()->txt(self::PROP_AS_IFRAME), self::PROP_AS_IFRAME);
-        $as_iframe->setInfo($this->getPlugin()->txt(self::PROP_AS_IFRAME . '_info'));
-        $as_iframe->setChecked($prop[self::PROP_AS_IFRAME]);
+        $as_iframe = new ilCheckboxInputGUI($this->getPlugin()->txt(self::PROP_AS_LINK), self::PROP_AS_LINK);
+        $as_iframe->setInfo($this->getPlugin()->txt(self::PROP_AS_LINK . '_info'));
+        $as_iframe->setChecked($prop[self::PROP_AS_LINK]);
         $form->addItem($as_iframe);
 
         $form->addCommandButton(self::CMD_UPDATE, $this->dic->language()->txt("save"));
@@ -187,6 +257,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
      */
     public function insert()
     {
+        $this->addToolbar();
         $table = $this->getTable();
         self::output()->output($table->getHTML());
 
@@ -202,6 +273,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $table = $this->getTable();
         $table->setFilterCommand(self::CMD_INSERT);
         $table->resetOffset();
+        $table->storeProperty('offset', 0);
         $table->writeFilterToSession();
         $this->redirect(self::CMD_INSERT);
     }
@@ -214,6 +286,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     {
         $table = $this->getTable();
         $table->resetOffset();
+        $table->storeProperty('offset', 0);
         $table->resetFilter();
         $this->redirect(self::CMD_INSERT);
     }
@@ -229,11 +302,14 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
             self::PROP_EVENT_ID  => $event_id,
             self::PROP_HEIGHT    => Config::getField(Config::KEY_DEFAULT_HEIGHT),
             self::PROP_WIDTH     => Config::getField(Config::KEY_DEFAULT_WIDTH),
-            self::PROP_AS_IFRAME => (bool) Config::getField(Config::KEY_DEFAULT_AS_IFRAME)
+            self::PROP_AS_LINK => (bool) Config::getField(Config::KEY_DEFAULT_AS_LINK)
         ];
         $this->createElement($properties);
+        ilUtil::sendSuccess(self::plugin()->translate('msg_added'), true);
+
         $pc_id = $this->getPCGUI()->getContentObject()->readPCId();
         self::dic()->ctrl()->setParameter($this, 'pc_id', $pc_id);
+        self::dic()->ctrl()->setParameter($this, 'hier_id', 1);
         self::dic()->ctrl()->redirect($this, self::CMD_EDIT);
     }
 
@@ -269,7 +345,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $size = $form->getInput(self::POST_SIZE);
         $properties[self::PROP_HEIGHT] = $size[self::PROP_HEIGHT];
         $properties[self::PROP_WIDTH] = $size[self::PROP_WIDTH];
-        $properties[self::PROP_AS_IFRAME] = $form->getInput(self::PROP_AS_IFRAME);
+        $properties[self::PROP_AS_LINK] = $form->getInput(self::PROP_AS_LINK);
 
         $this->updateElement($properties);
 
@@ -302,8 +378,8 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         } catch (Exception $e) {
             return $this->getExceptionHTML($a_properties);
         }
-        $as_iframe = (bool) $a_properties[self::PROP_AS_IFRAME];
-        if ($as_iframe && ($a_mode == self::MODE_PRESENTATION)) {
+        $as_link = (bool) $a_properties[self::PROP_AS_LINK];
+        if (!$as_link && ($a_mode == self::MODE_PRESENTATION)) {
             return $this->getIframeHTML($a_properties, $xoctEvent);
         } else {
             return $this->getStandardElementHTML($a_mode, $a_properties, $xoctEvent);
@@ -358,7 +434,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $tpl = $this->getPlugin()->getTemplate('html/component_as_link.html');
         $tpl->setVariable('HEIGHT', $properties[self::PROP_HEIGHT]);
         $tpl->setVariable('WIDTH', $properties[self::PROP_WIDTH]);
-        $tpl->setVariable('THUMBNAIL_URL', $xoctEvent->getThumbnailUrl());
+        $tpl->setVariable('THUMBNAIL_URL', $xoctEvent->publications()->getThumbnailUrl());
         if ($mode == self::MODE_PRESENTATION) {
             $tpl->setVariable('TARGET', '_blank');
             $tpl->setVariable('VIDEO_LINK', $use_modal ? '#' : $this->getPlayerLink($xoctEvent));
@@ -423,9 +499,9 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
             return self::dic()->ctrl()->getLinkTargetByClass([ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctPlayerGUI::class], xoctPlayerGUI::CMD_STREAM_VIDEO);
         }
         if (!isset($this->player_url)) {
-            $url = $xoctEvent->getFirstPublicationMetadataForUsage(xoctPublicationUsage::find(xoctPublicationUsage::USAGE_PLAYER))->getUrl();
+            $url = $xoctEvent->publications()->getFirstPublicationMetadataForUsage(PublicationUsage::find(PublicationUsage::USAGE_PLAYER))->getUrl();
             if (xoctConf::getConfig(xoctConf::F_SIGN_PLAYER_LINKS)) {
-                $this->player_url = xoctSecureLink::sign($url);
+                $this->player_url = xoctSecureLink::signPlayer($url);
             } else {
                 $this->player_url = $url;
             }
@@ -434,11 +510,23 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         return $this->player_url;
     }
 
+
     /**
      * @return ilOpencastPageComponentPlugin
      */
     public function getPlugin()
     {
         return parent::getPlugin();
+    }
+
+
+    /**
+     * @param $key
+     *
+     * @return string
+     */
+    public function txt($key) : string
+    {
+        return ilOpenCastPlugin::getInstance()->txt('event_' . $key);
     }
 }

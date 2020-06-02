@@ -124,7 +124,7 @@ class VideoSearchTableGUI extends TableGUI
                 /** @var xoctEvent $object */
                 $object = $row['object'];
 
-                return '<img height="107.5px" width="200px" src="' . $object->getThumbnailUrl() . '">';
+                return '<img height="107.5px" width="200px" src="' . $object->publications()->getThumbnailUrl() . '">';
             case 'title':
                 /** @var xoctEvent $object */
                 $object = $row['object'];
@@ -151,10 +151,10 @@ class VideoSearchTableGUI extends TableGUI
     protected function getSelectableColumns2()
     {
         return [
-            'thumbnail'   => ['txt' => '', 'id' => 'thumbnail', 'default' => true],
-            'title'       => ['txt' => $this->dic->language()->txt('title'), 'id' => 'title', 'default' => true],
-            'description' => ['txt' => $this->dic->language()->txt('description'), 'id' => 'description', 'default' => true],
-            'series'      => ['txt' => $this->opencast_plugin->txt('series_channel_id'), 'id' => 'series', 'default' => true],
+            'thumbnail'   => ['txt' => $this->opencast_plugin->txt('event_preview'), 'id' => 'thumbnail', 'default' => true],
+            'title'       => ['txt' => $this->opencast_plugin->txt('event_title'), 'id' => 'title', 'default' => true],
+            'description' => ['txt' => $this->opencast_plugin->txt('event_description'), 'id' => 'description', 'default' => true],
+            'series'      => ['txt' => $this->opencast_plugin->txt('event_series'), 'id' => 'series', 'default' => true],
             'start'       => ['txt' => $this->opencast_plugin->txt('event_start'), 'id' => 'start', 'default' => true],
             'location'    => ['txt' => $this->opencast_plugin->txt('event_location'), 'id' => 'location', 'default' => true],
         ];
@@ -207,9 +207,11 @@ class VideoSearchTableGUI extends TableGUI
 
         /** @var $start_filter_from ilDateTime */
         /** @var $start_filter_to ilDateTime */
-        if (($start_filter_from = $this->filter[self::F_START_FROM]) || ($start_filter_to = $this->filter[self::F_START_TO])) {
+        $start_filter_from = $this->filter[self::F_START_FROM];
+        $start_filter_to = $this->filter[self::F_START_TO];
+        if ($start_filter_from || $start_filter_to) {
             $filter['start'] = ($start_filter_from ? $start_filter_from->get(IL_CAL_FKT_DATE, 'Y-m-d\TH:i:s') : '1970-01-01T00:00:00')
-                . '/' . ($start_filter_to ? $start_filter_to->get(IL_CAL_FKT_DATE, 'Y-m-d\TH:i:s') : '2200-01-01T00:00:00');
+                . '/' . ($start_filter_to ? $start_filter_to->get(IL_CAL_FKT_DATE, 'Y-m-d\T23:59:59') : '2200-01-01T00:00:00');
         }
 
         return $filter;
@@ -248,7 +250,7 @@ class VideoSearchTableGUI extends TableGUI
      */
     protected function initTitle()
     {
-        // TODO: Implement initTitle() method.
+        $this->setTitle(self::plugin()->translate('table_title'));
     }
 
 
@@ -270,6 +272,8 @@ class VideoSearchTableGUI extends TableGUI
         foreach (xoctSeries::getAllForUser(xoctUser::getInstance($this->dic->user())->getUserRoleName()) as $serie) {
             $series_options[$serie->getIdentifier()] = $serie->getTitle() . ' (...' . substr($serie->getIdentifier(), -4, 4) . ')';
         }
+
+        natcasesort($series_options);
 
         return $series_options;
     }

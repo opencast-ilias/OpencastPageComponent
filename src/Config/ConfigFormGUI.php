@@ -42,9 +42,8 @@ class ConfigFormGUI extends ActiveRecordConfigFormGUI
                 self::PROPERTY_CLASS    => ilNumberInputGUI::class,
                 self::PROPERTY_REQUIRED => true
             ],
-            Config::KEY_DEFAULT_AS_IFRAME => [
+            Config::KEY_DEFAULT_AS_LINK => [
                 self::PROPERTY_CLASS    => ilCheckboxInputGUI::class,
-                self::PROPERTY_REQUIRED => true
             ],
         ];
     }
