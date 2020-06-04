@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.2.0]
+- Change: ILIAS 6 supported
+
 ## [1.1.0]
 - Feature: video upload
 - Improvement: show success message when adding video
