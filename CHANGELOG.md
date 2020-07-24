@@ -1,5 +1,8 @@
 # Changelog
 
+## [x]
+- Remove possible iframe border
+
 ## [1.2.0]
 - Change: ILIAS 6 supported
 
