@@ -1,6 +1,7 @@
 # Changelog
 
 ## [x]
+- Add line break after each iframe
 - Remove possible iframe border
 
 ## [1.2.0]
