@@ -2,12 +2,12 @@
 
 namespace srag\CustomInputGUIs\OpencastPageComponent\TabsInputGUI;
 
-use ilFormException;
 use ilFormPropertyGUI;
 use ilTableFilterItem;
 use ilTemplate;
 use ilToolbarItem;
-use ilUtil;
+use srag\CustomInputGUIs\OpencastPageComponent\PropertyFormGUI\Items\Items;
+use srag\CustomInputGUIs\OpencastPageComponent\Template\Template;
 use srag\DIC\OpencastPageComponent\DICTrait;
 
 /**
@@ -21,24 +21,66 @@ class TabsInputGUI extends ilFormPropertyGUI implements ilTableFilterItem, ilToo
 {
 
     use DICTrait;
+
+    const SHOW_INPUT_LABEL_ALWAYS = 3;
+    const SHOW_INPUT_LABEL_AUTO = 2;
+    const SHOW_INPUT_LABEL_NONE = 1;
+    /**
+     * @var bool
+     */
+    protected static $init = false;
     /**
      * @var int
      */
-    protected static $counter = 0;
+    protected $show_input_label = self::SHOW_INPUT_LABEL_AUTO;
     /**
      * @var TabsInputGUITab[]
      */
     protected $tabs = [];
+    /**
+     * @var array
+     */
+    protected $value = [];
 
 
     /**
      * TabsInputGUI constructor
      *
      * @param string $title
+     * @param string $post_var
      */
-    public function __construct(string $title = "")
+    public function __construct(string $title = "", string $post_var = "")
     {
-        parent::__construct($title, "");
+        parent::__construct($title, $post_var);
+
+        self::init();
+    }
+
+
+    /**
+     *
+     */
+    public static function init()/*: void*/
+    {
+        if (self::$init === false) {
+            self::$init = true;
+
+            $dir = __DIR__;
+            $dir = "./" . substr($dir, strpos($dir, "/Customizing/") + 1);
+
+            self::dic()->ui()->mainTemplate()->addCss($dir . "/css/tabs_input_gui.css");
+        }
+    }
+
+
+    /**
+     *
+     */
+    public function __clone()/*:void*/
+    {
+        $this->tabs = array_map(function (TabsInputGUITab $tab) : TabsInputGUITab {
+            return clone $tab;
+        }, $this->tabs);
     }
 
 
@@ -52,20 +94,27 @@ class TabsInputGUI extends ilFormPropertyGUI implements ilTableFilterItem, ilToo
 
 
     /**
-     * @return bool
+     * @inheritDoc
      */
     public function checkInput() : bool
     {
         $ok = true;
 
         foreach ($this->tabs as $tab) {
-            foreach ($tab->getInputs() as $input) {
+            foreach ($tab->getInputs($this->getPostVar(), $this->getValue()) as $org_post_var => $input) {
+                $b_value = $_POST[$input->getPostVar()];
+
+                $_POST[$input->getPostVar()] = $_POST[$this->getPostVar()][$tab->getPostVar()][$org_post_var];
+
                 /*if ($this->getRequired()) {
-                    $input->setRequired(true);
-                }*/
+                   $input->setRequired(true);
+               }*/
+
                 if (!$input->checkInput()) {
                     $ok = false;
                 }
+
+                $_POST[$input->getPostVar()] = $b_value;
             }
         }
 
@@ -80,11 +129,20 @@ class TabsInputGUI extends ilFormPropertyGUI implements ilTableFilterItem, ilToo
 
 
     /**
-     * @return TabsInputGUITab[]
+     * @return int
      */
-    public function getTabs() : array
+    public function getShowInputLabel() : int
     {
-        return $this->tabs;
+        return $this->show_input_label;
+    }
+
+
+    /**
+     * @param int $show_input_label
+     */
+    public function setShowInputLabel(int $show_input_label)/* : void*/
+    {
+        $this->show_input_label = $show_input_label;
     }
 
 
@@ -94,6 +152,24 @@ class TabsInputGUI extends ilFormPropertyGUI implements ilTableFilterItem, ilToo
     public function getTableFilterHTML() : string
     {
         return $this->render();
+    }
+
+
+    /**
+     * @return TabsInputGUITab[]
+     */
+    public function getTabs() : array
+    {
+        return $this->tabs;
+    }
+
+
+    /**
+     * @param TabsInputGUITab[] $tabs
+     */
+    public function setTabs(array $tabs)/*: void*/
+    {
+        $this->tabs = $tabs;
     }
 
 
@@ -108,21 +184,30 @@ class TabsInputGUI extends ilFormPropertyGUI implements ilTableFilterItem, ilToo
 
     /**
      * @return array
-     *
-     * @throws ilFormException
      */
     public function getValue() : array
     {
-        //throw new ilFormException("TabsInputGUI self does not supports a value!");
+        return $this->value;
+    }
 
-        return [];
+
+    /**
+     * @param array $value
+     */
+    public function setValue(/*array*/ $value)/*: void*/
+    {
+        if (is_array($value)) {
+            $this->value = $value;
+        } else {
+            $this->value = [];
+        }
     }
 
 
     /**
      * @param ilTemplate $tpl
      */
-    public function insert(ilTemplate $tpl) /*: void*/
+    public function insert(ilTemplate $tpl)/*: void*/
     {
         $html = $this->render();
 
@@ -137,46 +222,53 @@ class TabsInputGUI extends ilFormPropertyGUI implements ilTableFilterItem, ilToo
      */
     public function render() : string
     {
-        $counter = ++self::$counter;
+        $tpl = new Template(__DIR__ . "/templates/tabs_input_gui.html");
 
-        $tpl = new ilTemplate(__DIR__ . "/templates/tabs_input_gui.html", true, true);
-
-        foreach ($this->tabs as $i => $tab) {
-            $tab_id = "tabsinputgui_tab_" . $counter . "_" . $i;
-            $tab_content_id = "tabsinputgui_tab_content_" . $counter . "_" . $i;
+        foreach ($this->getTabs() as $tab) {
+            $inputs = $tab->getInputs($this->getPostVar(), $this->getValue());
 
             $tpl->setCurrentBlock("tab");
-            $tpl->setVariable("TAB_ID", $tab_id);
-            $tpl->setVariable("TAB_CONTENT_ID", $tab_content_id);
-            $tpl->setVariable("TITLE", $tab->getTitle());
+
+            $post_var = str_replace(["[", "]"], "__", $this->getPostVar() . "_" . $tab->getPostVar());
+            $tab_id = "tabsinputgui_tab_" . $post_var;
+            $tab_content_id = "tabsinputgui_tab_content_" . $post_var;
+
+            $tpl->setVariableEscaped("TAB_ID", $tab_id);
+            $tpl->setVariableEscaped("TAB_CONTENT_ID", $tab_content_id);
+
+            $tpl->setVariableEscaped("TITLE", $tab->getTitle());
+
             if ($tab->isActive()) {
-                $tpl->setVariable("ACTIVE", " active");
+                $tpl->setVariableEscaped("ACTIVE", " active");
             }
+
             $tpl->parseCurrentBlock();
 
             $tpl->setCurrentBlock("tab_content");
+
+            if ($this->getShowInputLabel() === self::SHOW_INPUT_LABEL_AUTO) {
+                $tpl->setVariableEscaped("SHOW_INPUT_LABEL", (count($inputs) > 1 ? self::SHOW_INPUT_LABEL_ALWAYS : self::SHOW_INPUT_LABEL_NONE));
+            } else {
+                $tpl->setVariableEscaped("SHOW_INPUT_LABEL", $this->getShowInputLabel());
+            }
+
             if ($tab->isActive()) {
-                $tpl->setVariable("ACTIVE", " active");
+                $tpl->setVariableEscaped("ACTIVE", " active");
             }
-            $tpl->setVariable("TAB_ID", $tab_id);
-            $tpl->setVariable("TAB_CONTENT_ID", $tab_content_id);
-            $tpl->setVariable("INFO", $tab->getInfo());
-            $input_tpl = new ilTemplate(__DIR__ . "/templates/tabs_input_gui_input.html", true, true);
-            foreach ($tab->getInputs() as $input) {
-                $input_tpl->setCurrentBlock("input");
-                $input_tpl->setVariable("TITLE", $input->getTitle());
-                $input_tpl->setVariable("INPUT", self::output()->getHTML($input));
-                $input_tpl->setVariable("INFO", $input->getInfo());
-                if ($input->getAlert()) {
-                    $input_alert_tpl = new ilTemplate(__DIR__ . "/templates/tabs_input_gui_input_alert.html", true, true);
-                    $input_alert_tpl->setVariable("IMG",
-                        self::output()->getHTML(self::dic()->ui()->factory()->image()->standard(ilUtil::getImagePath("icon_alert.svg"), self::dic()->language()->txt("alert"))));
-                    $input_alert_tpl->setVariable("TXT", $input->getAlert());
-                    $input_tpl->setVariable("ALERT", self::output()->getHTML($input_alert_tpl));
-                }
-                $input_tpl->parseCurrentBlock();
+
+            $tpl->setVariableEscaped("TAB_ID", $tab_id);
+            $tpl->setVariableEscaped("TAB_CONTENT_ID", $tab_content_id);
+
+            if (!empty($tab->getInfo())) {
+                $info_tpl = new Template(__DIR__ . "/../PropertyFormGUI/Items/templates/input_gui_input_info.html");
+
+                $info_tpl->setVariableEscaped("INFO", $tab->getInfo());
+
+                $tpl->setVariable("INFO", self::output()->getHTML($info_tpl));
             }
-            $tpl->setVariable("INPUTS", self::output()->getHTML($input_tpl));
+
+            $tpl->setVariable("INPUTS", Items::renderInputs($inputs));
+
             $tpl->parseCurrentBlock();
         }
 
@@ -185,51 +277,10 @@ class TabsInputGUI extends ilFormPropertyGUI implements ilTableFilterItem, ilToo
 
 
     /**
-     * @param string $post_var
-     *
-     * @throws ilFormException
-     */
-    public function setPostVar(/*string*/
-        $post_var
-    )/*: void*/
-    {
-        //throw new ilFormException("TabsInputGUI self does not supports a value!");
-    }
-
-
-    /**
-     * @param TabsInputGUITab[] $tabs
-     */
-    public function setTabs(array $tabs) /*: void*/
-    {
-        $this->tabs = $tabs;
-    }
-
-
-    /**
-     * @param array $values
-     *
-     * @throws ilFormException
-     */
-    public function setValue(/*array*/
-        $values
-    )/*: void*/
-    {
-        //throw new ilFormException("TabsInputGUI self does not supports a value!");
-    }
-
-
-    /**
      * @param array $values
      */
-    public function setValueByArray(/*array*/
-        $values
-    )/*: void*/
+    public function setValueByArray(/*array*/ $values)/*: void*/
     {
-        foreach ($this->tabs as $tab) {
-            foreach ($tab->getInputs() as $input) {
-                $input->setValueByArray($values);
-            }
-        }
+        $this->setValue($values[$this->getPostVar()]);
     }
 }

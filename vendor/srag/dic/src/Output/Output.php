@@ -3,7 +3,7 @@
 namespace srag\DIC\OpencastPageComponent\Output;
 
 use ILIAS\UI\Component\Component;
-use ILIAS\UI\Implementation\Render\ilTemplateWrapper;
+use ILIAS\UI\Implementation\Render\Template;
 use ilTable2GUI;
 use ilTemplate;
 use JsonSerializable;
@@ -23,7 +23,6 @@ final class Output implements OutputInterface
 
     use DICTrait;
 
-
     /**
      * Output constructor
      */
@@ -34,7 +33,7 @@ final class Output implements OutputInterface
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function getHTML($value) : string
     {
@@ -71,7 +70,7 @@ final class Output implements OutputInterface
 
                 // Template instance
                 case ($value instanceof ilTemplate):
-                case ($value instanceof ilTemplateWrapper):
+                case ($value instanceof Template):
                     $html = $value->get();
                     break;
 
@@ -87,7 +86,7 @@ final class Output implements OutputInterface
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function output($value, bool $show = false, bool $main_template = true)/*: void*/
     {
@@ -99,22 +98,24 @@ final class Output implements OutputInterface
             exit;
         } else {
             if ($main_template) {
-                if (self::version()->is60()) {
-                    self::dic()->mainTemplate()->loadStandardTemplate();
+                if (self::version()->is6()) {
+                    self::dic()->ui()->mainTemplate()->loadStandardTemplate();
                 } else {
-                    self::dic()->mainTemplate()->getStandardTemplate();
+                    self::dic()->ui()->mainTemplate()->getStandardTemplate();
                 }
             }
 
-            self::dic()->mainTemplate()->setLocator();
+            self::dic()->ui()->mainTemplate()->setLocator();
 
-            self::dic()->mainTemplate()->setContent($html);
+            if (!empty($html)) {
+                self::dic()->ui()->mainTemplate()->setContent($html);
+            }
 
             if ($show) {
-                if (self::version()->is60()) {
-                    self::dic()->mainTemplate()->printToStdout();
+                if (self::version()->is6()) {
+                    self::dic()->ui()->mainTemplate()->printToStdout();
                 } else {
-                    self::dic()->mainTemplate()->show();
+                    self::dic()->ui()->mainTemplate()->show();
                 }
             }
         }
@@ -122,7 +123,7 @@ final class Output implements OutputInterface
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function outputJSON($value)/*: void*/
     {

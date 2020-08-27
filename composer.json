@@ -34,6 +34,9 @@
     "classmap": [
       "classes/",
       "src/"
+    ],
+    "files": [
+      "../../../Repository/RepositoryObject/OpenCast/vendor/autoload.php"
     ]
   },
   "config": {
@@ -42,6 +45,9 @@
     "sort-packages": true
   },
   "scripts": {
-    "pre-autoload-dump": "srag\\LibrariesNamespaceChanger\\LibrariesNamespaceChanger::rewriteLibrariesNamespaces"
+    "pre-autoload-dump": [
+      "srag\\LibrariesNamespaceChanger\\LibrariesNamespaceChanger::rewriteLibrariesNamespaces",
+      "srag\\LibrariesNamespaceChanger\\PHP72Backport::PHP72Backport"
+    ]
   }
 }

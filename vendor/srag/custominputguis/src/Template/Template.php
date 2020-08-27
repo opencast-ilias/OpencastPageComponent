@@ -15,8 +15,20 @@ class Template extends ilTemplate
 {
 
     /**
-     * @param bool $a_force
+     * Template constructor
+     *
+     * @param string $template_file
+     * @param bool   $remove_unknown_variables
+     * @param bool   $remove_empty_blocks
      */
+    public function __construct(string $template_file, bool $remove_unknown_variables = true, bool $remove_empty_blocks = true)
+    {
+        parent::__construct($template_file, $remove_unknown_variables, $remove_empty_blocks);
+    }
+
+    /* *
+     * @param bool $a_force
+     * /
     public function fillJavaScriptFiles($a_force = false)
     {
         parent::fillJavaScriptFiles($a_force);
@@ -30,5 +42,14 @@ class Template extends ilTemplate
                 }
             }
         }
+    }*/
+
+    /**
+     * @param string $key
+     * @param mixed  $value
+     */
+    public function setVariableEscaped(string $key, $value)/*:void*/
+    {
+        $this->setVariable($key, htmlspecialchars($value));
     }
 }
