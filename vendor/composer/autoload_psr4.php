@@ -6,11 +6,10 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'srag\\RemovePluginDataConfirm\\OpencastPageComponent\\' => array($vendorDir . '/srag/removeplugindataconfirm/src'),
+    'srag\\RemovePluginDataConfirm\\' => array($vendorDir . '/srag/removeplugindataconfirm/src'),
     'srag\\Plugins\\OpencastPageComponent\\' => array($baseDir . '/src'),
     'srag\\LibrariesNamespaceChanger\\' => array($vendorDir . '/srag/librariesnamespacechanger/src'),
-    'srag\\DataTable\\OpencastPageComponent\\' => array($vendorDir . '/srag/datatable/src'),
-    'srag\\DIC\\OpencastPageComponent\\' => array($vendorDir . '/srag/dic/src'),
-    'srag\\CustomInputGUIs\\OpencastPageComponent\\' => array($vendorDir . '/srag/custominputguis/src'),
-    'srag\\ActiveRecordConfig\\OpencastPageComponent\\' => array($vendorDir . '/srag/activerecordconfig/src'),
+    'srag\\DIC\\' => array($vendorDir . '/srag/dic/src'),
+    'srag\\CustomInputGUIs\\' => array($vendorDir . '/srag/custominputguis/src'),
+    'srag\\ActiveRecordConfig\\' => array($vendorDir . '/srag/activerecordconfig/src'),
 );

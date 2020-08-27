@@ -18,14 +18,13 @@ use srag\DIC\OpencastPageComponent\Plugin\PluginInterface;
  * @package srag\CustomInputGUIs\OpencastPageComponent\ScreenshotsInputGUI
  *
  * @author  studer + raimann ag - Team Custom 1 <support-custom1@studer-raimann.ch>
- *
- * @since   ILIAS 5.3
  */
 class ScreenshotsInputGUI extends ilFormPropertyGUI implements Pluginable
 {
 
     use DICTrait;
-    const LANG_MODULE_SCREENSHOTSINPUTGUI = "screenshotsinputgui";
+
+    const LANG_MODULE = "screenshotsinputgui";
     /**
      * @var bool
      */
@@ -35,13 +34,13 @@ class ScreenshotsInputGUI extends ilFormPropertyGUI implements Pluginable
      */
     protected $allowed_formats = ["bmp", "gif", "jpg", "png"];
     /**
-     * @var UploadResult[]
-     */
-    protected $screenshots = [];
-    /**
      * @var PluginInterface|null
      */
     protected $plugin = null;
+    /**
+     * @var UploadResult[]
+     */
+    protected $screenshots = [];
 
 
     /**
@@ -57,13 +56,15 @@ class ScreenshotsInputGUI extends ilFormPropertyGUI implements Pluginable
 
 
     /**
-     * @return bool
+     * @inheritDoc
      */
     public function checkInput() : bool
     {
         $this->processScreenshots();
 
-        if ($this->getRequired() && count($this->screenshots) === 0) {
+        if ($this->getRequired() && empty($this->getValue())) {
+            $this->setAlert(self::dic()->language()->txt("msg_input_is_required"));
+
             return false;
         }
 
@@ -81,24 +82,37 @@ class ScreenshotsInputGUI extends ilFormPropertyGUI implements Pluginable
 
 
     /**
+     * @param string[] $allowed_formats
+     *
+     * @return self
+     */
+    public function setAllowedFormats(array $allowed_formats) : self
+    {
+        $this->allowed_formats = $allowed_formats;
+
+        return $this;
+    }
+
+
+    /**
      * @return string
      */
     public function getJSOnLoadCode() : string
     {
         $screenshot_tpl = $this->getPlugin()->template(__DIR__ . "/templates/screenshot.html", true, true, false);
-        $screenshot_tpl->setVariable("TXT_REMOVE_SCREENSHOT", $this->getPlugin()
-            ->translate("remove_screenshot", self::LANG_MODULE_SCREENSHOTSINPUTGUI));
-        $screenshot_tpl->setVariable("TXT_PREVIEW_SCREENSHOT", $this->getPlugin()
-            ->translate("preview_screenshot", self::LANG_MODULE_SCREENSHOTSINPUTGUI));
+        $screenshot_tpl->setVariableEscaped("TXT_REMOVE_SCREENSHOT", $this->getPlugin()
+            ->translate("remove_screenshot", self::LANG_MODULE));
+        $screenshot_tpl->setVariableEscaped("TXT_PREVIEW_SCREENSHOT", $this->getPlugin()
+            ->translate("preview_screenshot", self::LANG_MODULE));
 
         return 'il.ScreenshotsInputGUI.PAGE_SCREENSHOT_NAME = ' . json_encode($this->getPlugin()
-                ->translate("page_screenshot", self::LANG_MODULE_SCREENSHOTSINPUTGUI)) . ';
+                ->translate("page_screenshot", self::LANG_MODULE)) . ';
 		il.ScreenshotsInputGUI.SCREENSHOT_TEMPLATE = ' . json_encode(self::output()->getHTML($screenshot_tpl)) . ';';
     }
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function getPlugin() : PluginInterface
     {
@@ -111,6 +125,8 @@ class ScreenshotsInputGUI extends ilFormPropertyGUI implements Pluginable
      */
     public function getValue() : array
     {
+        $this->processScreenshots();
+
         return $this->screenshots;
     }
 
@@ -118,7 +134,7 @@ class ScreenshotsInputGUI extends ilFormPropertyGUI implements Pluginable
     /**
      *
      */
-    public function initJS()/*: void*/
+    public function init()/*: void*/
     {
         if (self::$init === false) {
             self::$init = true;
@@ -126,12 +142,12 @@ class ScreenshotsInputGUI extends ilFormPropertyGUI implements Pluginable
             $dir = __DIR__;
             $dir = "./" . substr($dir, strpos($dir, "/Customizing/") + 1);
 
-            self::dic()->mainTemplate()->addJavaScript($dir . "/../../node_modules/es6-promise/dist/es6-promise.auto.min.js");
-            self::dic()->mainTemplate()->addJavaScript($dir . "/../../node_modules/canvas-toBlob/canvas-toBlob.js");
-            self::dic()->mainTemplate()->addJavaScript($dir . "/../../node_modules/html2canvas/dist/html2canvas.min.js");
+            self::dic()->ui()->mainTemplate()->addJavaScript($dir . "/../../node_modules/es6-promise/dist/es6-promise.auto.min.js");
+            self::dic()->ui()->mainTemplate()->addJavaScript($dir . "/../../node_modules/canvas-toBlob/canvas-toBlob.js");
+            self::dic()->ui()->mainTemplate()->addJavaScript($dir . "/../../node_modules/html2canvas/dist/html2canvas.min.js");
 
-            self::dic()->mainTemplate()->addJavaScript($dir . "/js/ScreenshotsInputGUI.min.js", false);
-            self::dic()->mainTemplate()->addOnLoadCode($this->getJSOnLoadCode());
+            self::dic()->ui()->mainTemplate()->addJavaScript($dir . "/js/ScreenshotsInputGUI.min.js", false);
+            self::dic()->ui()->mainTemplate()->addOnLoadCode($this->getJSOnLoadCode());
         }
     }
 
@@ -139,13 +155,93 @@ class ScreenshotsInputGUI extends ilFormPropertyGUI implements Pluginable
     /**
      * @param ilTemplate $tpl
      */
-    public function insert(ilTemplate $tpl) /*: void*/
+    public function insert(ilTemplate $tpl)/*: void*/
     {
         $html = $this->render();
 
         $tpl->setCurrentBlock("prop_generic");
         $tpl->setVariable("PROP_GENERIC", $html);
         $tpl->parseCurrentBlock();
+    }
+
+
+    /**
+     * @return string
+     */
+    public function render() : string
+    {
+        $this->init();
+
+        $screenshots_tpl = $this->getPlugin()->template(__DIR__ . "/templates/screenshots.html", true, true, false);
+        $screenshots_tpl->setVariable("TXT_UPLOAD_SCREENSHOT", $this->getPlugin()
+            ->translate("upload_screenshot", self::LANG_MODULE));
+        $screenshots_tpl->setVariable("TXT_TAKE_PAGE_SCREENSHOT", $this->getPlugin()
+            ->translate("take_page_screenshot", self::LANG_MODULE));
+        $screenshots_tpl->setVariable("POST_VAR", $this->getPostVar());
+        $screenshots_tpl->setVariable("ALLOWED_FORMATS", implode(",", array_map(function (string $format) : string {
+            return "." . $format;
+        }, $this->getAllowedFormats())));
+
+        return self::output()->getHTML($screenshots_tpl);
+    }
+
+
+    /**
+     * @param string $post_var
+     *
+     * @return self
+     */
+    public function setPostVar(/*string*/ $post_var) : self
+    {
+        $this->postvar = $post_var;
+
+        return $this;
+    }
+
+
+    /**
+     * @param string $title
+     *
+     * @return self
+     */
+    public function setTitle(/*string*/ $title) : self
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+
+    /**
+     * @param UploadResult[] $screenshots
+     *
+     * @throws ilFormException
+     */
+    public function setValue(/*array*/ $screenshots)/*: void*/
+    {
+        //throw new ilFormException("ScreenshotsInputGUI does not support set screenshots!");
+    }
+
+
+    /**
+     * @param array $values
+     *
+     * @throws ilFormException
+     */
+    public function setValueByArray(/*array*/ $values)/*: void*/
+    {
+        //throw new ilFormException("ScreenshotsInputGUI does not support set screenshots!");
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function withPlugin(PluginInterface $plugin) : self
+    {
+        $this->plugin = $plugin;
+
+        return $this;
     }
 
 
@@ -169,7 +265,7 @@ class ScreenshotsInputGUI extends ilFormPropertyGUI implements Pluginable
                 }, $uploads)));
 
                 $this->screenshots = array_values(array_filter(self::dic()->upload()
-                    ->getResults(), function (UploadResult $file) use (&$uploads): bool {
+                    ->getResults(), function (UploadResult $file) use (&$uploads) : bool {
                     $ext = pathinfo($file->getName(), PATHINFO_EXTENSION);
 
                     return ($file->getStatus()->getCode() === ProcessingStatus::OK && in_array($file->getPath(), $uploads)
@@ -177,104 +273,5 @@ class ScreenshotsInputGUI extends ilFormPropertyGUI implements Pluginable
                 }));
             }
         }
-    }
-
-
-    /**
-     * @return string
-     */
-    public function render() : string
-    {
-        $this->initJS();
-
-        $screenshots_tpl = $this->getPlugin()->template(__DIR__ . "/templates/screenshots.html", true, true, false);
-        $screenshots_tpl->setVariable("TXT_UPLOAD_SCREENSHOT", $this->getPlugin()
-            ->translate("upload_screenshot", self::LANG_MODULE_SCREENSHOTSINPUTGUI));
-        $screenshots_tpl->setVariable("TXT_TAKE_PAGE_SCREENSHOT", $this->getPlugin()
-            ->translate("take_page_screenshot", self::LANG_MODULE_SCREENSHOTSINPUTGUI));
-        $screenshots_tpl->setVariable("POST_VAR", $this->getPostVar());
-        $screenshots_tpl->setVariable("ALLOWED_FORMATS", implode(",", array_map(function (string $format) : string {
-            return "." . $format;
-        }, $this->allowed_formats)));
-
-        return self::output()->getHTML($screenshots_tpl);
-    }
-
-
-    /**
-     * @param string[] $allowed_formats
-     *
-     * @return self
-     */
-    public function setAllowedFormats(array $allowed_formats) : self
-    {
-        $this->allowed_formats = $allowed_formats;
-
-        return $this;
-    }
-
-
-    /**
-     * @param string $post_var
-     *
-     * @return self
-     */
-    public function setPostVar(/*string*/
-        $post_var
-    ) : self {
-        $this->postvar = $post_var;
-
-        return $this;
-    }
-
-
-    /**
-     * @param string $title
-     *
-     * @return self
-     */
-    public function setTitle(/*string*/
-        $title
-    ) : self {
-        $this->title = $title;
-
-        return $this;
-    }
-
-
-    /**
-     * @param UploadResult[] $screenshots
-     *
-     * @throws ilFormException
-     */
-    public function setValue(/*array*/
-        $screenshots
-    )/*: void*/
-    {
-        //throw new ilFormException("ScreenshotsInputGUI does not support set screenshots!");
-    }
-
-
-    /**
-     * @param array $values
-     *
-     * @throws ilFormException
-     */
-    public function setValueByArray(/*array*/
-        $values
-    )/*: void*/
-    {
-        //throw new ilFormException("ScreenshotsInputGUI does not support set screenshots!");
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function withPlugin(PluginInterface $plugin) : self
-    {
-        $this->plugin = $plugin;
-
-        return $this;
     }
 }

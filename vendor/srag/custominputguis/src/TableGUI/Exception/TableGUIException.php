@@ -10,12 +10,16 @@ use ilException;
  * @package srag\CustomInputGUIs\OpencastPageComponent\TableGUI\Exception
  *
  * @author  studer + raimann ag - Team Custom 1 <support-custom1@studer-raimann.ch>
+ *
+ * @deprecated
  */
 final class TableGUIException extends ilException
 {
 
     /**
      * @var int
+     *
+     * @deprecated
      */
     const CODE_INVALID_FIELD = 1;
 
@@ -25,11 +29,11 @@ final class TableGUIException extends ilException
      *
      * @param string $message
      * @param int    $code
+     *
+     * @deprecated
      */
-    public function __construct(/*string*/
-        $message, /*int*/
-        $code
-    ) {
+    public function __construct(string $message, int $code)
+    {
         parent::__construct($message, $code);
     }
 }

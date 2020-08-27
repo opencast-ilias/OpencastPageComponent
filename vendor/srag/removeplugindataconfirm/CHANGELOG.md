@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.6.4]
+- `shouldUseOneUpdateStepOnly`
+
+## [0.6.3]
+- `installRemovePluginDataConfirmLanguages`
+
+## [0.6.2]
+- Min. PHP 7.0
+
+## [0.6.1]
+- Fix
+
+## [0.6.0]
+- Automatic ctrl class
+
+## [0.5.0]
+- Some improvments
+
 ## [0.4.1]
 - Fix
 

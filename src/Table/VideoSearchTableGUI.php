@@ -117,7 +117,7 @@ class VideoSearchTableGUI extends TableGUI
      * @throws xoctException
      * @inheritDoc
      */
-    protected function getColumnValue($column, $row, $format = self::DEFAULT_FORMAT)
+    protected function getColumnValue(string $column, /*array*/ $row, int $format = self::DEFAULT_FORMAT) : string
     {
         switch ($column) {
             case 'thumbnail':
@@ -148,7 +148,7 @@ class VideoSearchTableGUI extends TableGUI
     /**
      * @inheritDoc
      */
-    protected function getSelectableColumns2()
+    protected function getSelectableColumns2() : array
     {
         return [
             'thumbnail'   => ['txt' => $this->opencast_plugin->txt('event_preview'), 'id' => 'thumbnail', 'default' => true],

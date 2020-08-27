@@ -7,26 +7,74 @@ use ilUtil;
 /**
  * Class MultiSelectSearchInput2GUI
  *
- * TODO: Merge this class with MultiSelectSearchInput2GUI - almost identical
+ * @package    srag\CustomInputGUIs\OpencastPageComponent\MultiSelectSearchInputGUI
  *
- * @package srag\CustomInputGUIs\OpencastPageComponent\MultiSelectSearchInputGUI
+ * @author     studer + raimann ag - Team Custom 1 <support-custom1@studer-raimann.ch>
+ * @author     Oskar Truffer <ot@studer-raimann.ch>
  *
- * @author  studer + raimann ag - Team Custom 1 <support-custom1@studer-raimann.ch>
- * @author  Oskar Truffer <ot@studer-raimann.ch>
+ * @deprecated Please switch to `MultiSelectSearchNewInputGUI`
  */
 class MultiSelectSearchInput2GUI extends MultiSelectSearchInputGUI
 {
 
     /**
      * @var string
+     *
+     * @deprecated
      */
     protected $placeholder = "";
 
 
     /**
-     * @return array
+     * @return string
+     *
+     * @deprecated
      */
-    public function getValue()/*: array*/
+    public function getContainerType() : string
+    {
+        return 'crs';
+    }
+
+
+    /**
+     * @return string
+     *
+     * @deprecated
+     */
+    public function getPlaceholder() : string
+    {
+        return $this->placeholder;
+    }
+
+
+    /**
+     * @param string $placeholder
+     *
+     * @deprecated
+     */
+    public function setPlaceholder(string $placeholder)/*: void*/
+    {
+        $this->placeholder = $placeholder;
+    }
+
+
+    /**
+     * @return array
+     *
+     * @deprecated
+     */
+    public function getSubItems() : array
+    {
+        return array();
+    }
+
+
+    /**
+     * @return array
+     *
+     * @deprecated
+     */
+    public function getValue() : array
     {
         $val = parent::getValue();
         if (is_array($val)) {
@@ -40,27 +88,11 @@ class MultiSelectSearchInput2GUI extends MultiSelectSearchInputGUI
 
 
     /**
-     * @return array
-     */
-    public function getSubItems()/*: array*/
-    {
-        return array();
-    }
-
-
-    /**
      * @return string
+     *
+     * @deprecated
      */
-    public function getContainerType()/*: string*/
-    {
-        return 'crs';
-    }
-
-
-    /**
-     * @return string
-     */
-    public function render()/*: string*/
+    public function render() : string
     {
         $tpl = $this->getInputTemplate();
         $json_values = $this->getValueAsJson();
@@ -75,10 +107,11 @@ class MultiSelectSearchInput2GUI extends MultiSelectSearchInputGUI
         $tpl->setVariable('HEIGHT', $this->getHeight());
         $tpl->setVariable('PLACEHOLDER', $this->getPlaceholder());
         $tpl->setVariable('MINIMUM_INPUT_LENGTH', $this->getMinimumInputLength());
+        $tpl->setVariable("LIMIT_COUNT", $this->getLimitCount());
         $tpl->setVariable('CONTAINER_TYPE', $this->getContainerType());
         $tpl->setVariable('Class', $this->getCssClass());
 
-        if (isset($this->ajax_link)) {
+        if (!empty($this->getAjaxLink())) {
             $tpl->setVariable('AJAX_LINK', $this->getAjaxLink());
         }
 
@@ -88,11 +121,17 @@ class MultiSelectSearchInput2GUI extends MultiSelectSearchInputGUI
 
         if ($options) {
             foreach ($options as $option_value => $option_text) {
+                $selected = in_array($option_value, $values);
+
+                if (!empty($this->getAjaxLink()) && !$selected) {
+                    continue;
+                }
+
                 $tpl->setCurrentBlock('item');
                 if ($this->getDisabled()) {
                     $tpl->setVariable('DISABLED', ' disabled=\'disabled\'');
                 }
-                if (in_array($option_value, $values)) {
+                if ($selected) {
                     $tpl->setVariable('SELECTED', 'selected');
                 }
 
@@ -107,22 +146,13 @@ class MultiSelectSearchInput2GUI extends MultiSelectSearchInputGUI
 
 
     /**
-     * @return string
-     */
-    protected function getValueAsJson()/*: string*/
-    {
-        return json_encode(array());
-    }
-
-
-    /**
      * @param string $postVar
      *
      * @return string
+     *
+     * @deprecated
      */
-    protected function escapePostVar(/*string*/
-        $postVar
-    )/*: string*/
+    protected function escapePostVar(string $postVar) : string
     {
         $postVar = $this->stripLastStringOccurrence($postVar, "[]");
         $postVar = str_replace("[", '\\\\[', $postVar);
@@ -133,15 +163,25 @@ class MultiSelectSearchInput2GUI extends MultiSelectSearchInputGUI
 
 
     /**
+     * @return string
+     *
+     * @deprecated
+     */
+    protected function getValueAsJson() : string
+    {
+        return json_encode(array());
+    }
+
+
+    /**
      * @param string $text
      * @param string $string
      *
      * @return string
+     *
+     * @deprecated
      */
-    private function stripLastStringOccurrence(/*string*/
-        $text, /*string*/
-        $string
-    )/*: string*/
+    private function stripLastStringOccurrence(string $text, string $string) : string
     {
         $pos = strrpos($text, $string);
         if ($pos !== false) {
@@ -149,25 +189,5 @@ class MultiSelectSearchInput2GUI extends MultiSelectSearchInputGUI
         }
 
         return $text;
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getPlaceholder()/*: string*/
-    {
-        return $this->placeholder;
-    }
-
-
-    /**
-     * @param string $placeholder
-     */
-    public function setPlaceholder(/*string*/
-        $placeholder
-    )/*: void*/
-    {
-        $this->placeholder = $placeholder;
     }
 }

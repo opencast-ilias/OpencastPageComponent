@@ -1,8 +1,10 @@
+# LibrariesNamespaceChanger Library for ILIAS Plugins
+
 Change the namespace of the libraries on dump-autoload to a plugin specific namespace
 
-### Usage
+## Usage
 
-#### Composer
+### Composer
 First add the following to your `composer.json` file:
 ```json
 "require": {
@@ -29,34 +31,82 @@ So you have to adjust it's namespaces in your code such in `classes` or `src` fo
 So you can force to use your libraries classes in the `vendor` folder of your plugin and come not in conflict to other plugins with different library versions and you don't need to adjust your plugins to newer library versions until you run `composer update` on your plugin.
 
 It support the follow libraries:
-* [srag/activerecordconfig](https://packagist.org/packages/srag/activerecordconfig)
-* [srag/assessmentquestion](https://packagist.org/packages/srag/assessmentquestion)
-* [srag/bexiocurl](https://packagist.org/packages/srag/bexiocurl)
-* [srag/commentsui](https://packagist.org/packages/srag/commentsui)
-* [srag/cqrs](https://packagist.org/packages/srag/cqrs)
-* [srag/custominputguis](https://packagist.org/packages/srag/custominputguis)
-* [srag/dclextensions](https://packagist.org/packages/srag/dclextension)
-* [srag/dic](https://packagist.org/packages/srag/dic)
-* [srag/gitcurl](https://packagist.org/packages/srag/gitcurl)
-* [srag/iliascomponent](https://packagist.org/packages/srag/iliascomponent)
-* [srag/jasperreport](https://packagist.org/packages/srag/jasperreport)
-* [srag/jiracurl](https://packagist.org/packages/srag/jiracurl)
-* [srag/notifications4plugin](https://packagist.org/packages/srag/notifications4plugin)
-* [srag/removeplugindataconfirm](https://packagist.org/packages/srag/removeplugindataconfirm)
-* [srag/tableui](https://packagist.org/packages/srag/tableui)
+* [srag libraries](https://packagist.org/packages/srag)
 
-### php7backport
-If your plugin needs a PHP 5.6 compatible of version of the library, you can also add additionally the follow composer script:
+## PHP72Backport
+If your plugin needs a PHP 7.0 compatible of version of a PHP 7.2/7.1 library, you can also add additionally the follow composer script:
+```json
+ "pre-autoload-dump": [
+    ...,
+      "srag\\LibrariesNamespaceChanger\\PHP72Backport::PHP72Backport"
+    ]
+```
+
+It works with RegExp and affects your whole plugin workspace (`classes`, `src`, `vendor`, ...)
+
+## php7backport
+If your plugin needs a PHP 5.6 compatible of version of a PHP 7.0 library, you can also add additionally the follow composer script:
 ```json
  "post-update-cmd": "srag\\LibrariesNamespaceChanger\\PHP7Backport::PHP7Backport"
 ```
 
 It uses the https://github.com/ondrejbouda/php7backport.git repo, but provides it as a composer script and patches it, amongst other things, it fix interfaces
 
-### Requirements
-* PHP >=5.6
+## GeneratePluginPhpAndXml
+Generate `plugin.php` and `plugin.xml` and `LuceneObjectDefinition.xml` for ILIAS plugins from `composer.json`
+```json
+ "pre-autoload-dump": [
+    ...,
+      "srag\\LibrariesNamespaceChanger\\GeneratePluginPhpAndXml::generatePluginPhpAndXml"
+    ]
+```
 
-### Adjustment suggestions
+Complete your `composer.json` with
+```json
+  ...
+  "version": "x.y.z",
+  ...
+  "ilias_plugin": {
+    "id": "x",
+    "name" => "X",
+    "ilias_min_version": "x.y.z",
+    "ilias_max_version": "x.y.z",
+    "learning_progress": true,
+    "lucene_search": true,
+    "supports_export": true,
+    "slot": "x/y/z"
+    "events": [
+      {
+        "id": "X/Y",
+        "type": "listen|raise"
+      }
+    ]
+  },
+  ...
+  "authors": [
+    {
+      "name": "...",
+      "email": "...",
+      "homepage": "...",
+      "role": "Developer"
+    }
+  ],
+  ...
+```
+
+## UpdatePluginReadme
+Update ILIAS min./max. versions and min. PHP version and slot path in `README.md`
+```json
+ "pre-autoload-dump": [
+    ...,
+     "srag\\LibrariesNamespaceChanger\\UpdatePluginReadme::updatePluginReadme"
+    ]
+```
+
+## Requirements
+* PHP >=7.0
+
+## Adjustment suggestions
 * External users can report suggestions and bugs at https://plugins.studer-raimann.ch/goto.php?target=uihk_srsu_LNAMESPACECHANGER
 * Adjustment suggestions by pull requests via github
 * Customer of studer + raimann ag: 

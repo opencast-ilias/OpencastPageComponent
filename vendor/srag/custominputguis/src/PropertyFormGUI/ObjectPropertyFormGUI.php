@@ -9,19 +9,25 @@ use srag\CustomInputGUIs\OpencastPageComponent\PropertyFormGUI\Items\Items;
 /**
  * Class ObjectPropertyFormGUI
  *
- * @package srag\CustomInputGUIs\OpencastPageComponent\PropertyFormGUI
+ * @package    srag\CustomInputGUIs\OpencastPageComponent\PropertyFormGUI
  *
- * @author  studer + raimann ag - Team Custom 1 <support-custom1@studer-raimann.ch>
+ * @author     studer + raimann ag - Team Custom 1 <support-custom1@studer-raimann.ch>
+ *
+ * @deprecated Please use PropertyFormGUI instead
  */
 abstract class ObjectPropertyFormGUI extends PropertyFormGUI
 {
 
     /**
      * @var ilObject|ActiveRecord|object|null
+     *
+     * @deprecated
      */
     protected $object;
     /**
      * @var bool
+     *
+     * @deprecated
      */
     protected $object_auto_store;
 
@@ -32,8 +38,10 @@ abstract class ObjectPropertyFormGUI extends PropertyFormGUI
      * @param object                            $parent
      * @param ilObject|ActiveRecord|object|null $object
      * @param bool                              $object_auto_store
+     *
+     * @deprecated
      */
-    public function __construct($parent, $object = null,/*bool*/ $object_auto_store = true)
+    public function __construct(/*object*/ $parent, $object = null, bool $object_auto_store = true)
     {
         $this->object = $object;
         $this->object_auto_store = $object_auto_store;
@@ -43,39 +51,22 @@ abstract class ObjectPropertyFormGUI extends PropertyFormGUI
 
 
     /**
-     * @inheritdoc
+     * @return ilObject|ActiveRecord|object
+     *
+     * @deprecated
      */
-    protected function getValue(/*string*/ $key)
+    public final function getObject()
     {
-        if ($this->object !== null) {
-            switch ($key) {
-                default:
-                    return Items::getter($this->object, $key);
-                    break;
-            }
-        }
-
-        return null;
+        return $this->object;
     }
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
+     *
+     * @deprecated
      */
-    protected function storeValue(/*string*/ $key, $value)/*: void*/
-    {
-        switch ($key) {
-            default:
-                Items::setter($this->object, $key, $value);
-                break;
-        }
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function storeForm()/*: bool*/
+    public function storeForm() : bool
     {
         if ($this->object === null) {
             // TODO:
@@ -113,10 +104,35 @@ abstract class ObjectPropertyFormGUI extends PropertyFormGUI
 
 
     /**
-     * @return ilObject|ActiveRecord|object
+     * @inheritDoc
+     *
+     * @deprecated
      */
-    public final function getObject()
+    protected function getValue(string $key)
     {
-        return $this->object;
+        if ($this->object !== null) {
+            switch ($key) {
+                default:
+                    return Items::getter($this->object, $key);
+                    break;
+            }
+        }
+
+        return null;
+    }
+
+
+    /**
+     * @inheritDoc
+     *
+     * @deprecated
+     */
+    protected function storeValue(string $key, $value)/*: void*/
+    {
+        switch ($key) {
+            default:
+                Items::setter($this->object, $key, $value);
+                break;
+        }
     }
 }

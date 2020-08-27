@@ -7,47 +7,89 @@ use Composer\Script\Event;
 /**
  * Class PHP7Backport
  *
- * @package srag\LibrariesNamespaceChanger
+ * @package    srag\LibrariesNamespaceChanger
  *
- * @author  studer + raimann ag - Team Custom 1 <support-custom1@studer-raimann.ch>
+ * @author     studer + raimann ag - Team Custom 1 <support-custom1@studer-raimann.ch>
  *
  * @internal
+ *
+ * @deprecated Will be removed with the end of ILIAS 5.3 support
  */
 final class PHP7Backport
 {
 
     /**
      * @var string
-     */
-    const PHP7BACKPORT_REPO = "https://github.com/ondrejbouda/php7backport.git";
-    /**
-     * @var string
+     *
+     * @deprecated
      */
     const PHP7BACKPORT_PATCH = __DIR__ . "/php7backport.patch";
     /**
      * @var string
+     *
+     * @deprecated
      */
-    const TEMP_FOLDER_PHP7BACKPORT = "/tmp/php7backport";
+    const PHP7BACKPORT_REPO = "https://github.com/ondrejbouda/php7backport.git";
     /**
      * @var string
+     *
+     * @deprecated
      */
     const TEMP_FOLDER_LIBRARIES = "/tmp/php7backport_srag";
     /**
-     * @var self
+     * @var string
+     *
+     * @deprecated
+     */
+    const TEMP_FOLDER_PHP7BACKPORT = "/tmp/php7backport";
+    /**
+     * @var self|null
+     *
+     * @deprecated
      */
     private static $instance = null;
     /**
-     * @var array
+     * @var Event
+     *
+     * @deprecated
      */
-    private static $libraries = Libraries::LIBRARIES;
+    private $event;
+
+
+    /**
+     * PHP7Backport constructor
+     *
+     * @param Event $event
+     *
+     * @deprecated
+     */
+    private function __construct(Event $event)
+    {
+        $this->event = $event;
+    }
+
+
+    /**
+     * @param Event $event
+     *
+     * @internal
+     *
+     * @deprecated
+     */
+    public static function PHP7Backport(Event $event)/*: void*/
+    {
+        self::getInstance($event)->doPHP7Backport();
+    }
 
 
     /**
      * @param Event $event
      *
      * @return self
+     *
+     * @deprecated
      */
-    private static function getInstance(Event $event)/*: self*/
+    private static function getInstance(Event $event) : self
     {
         if (self::$instance === null) {
             self::$instance = new self($event);
@@ -58,35 +100,7 @@ final class PHP7Backport
 
 
     /**
-     * @param Event $event
-     *
-     * @internal
-     */
-    public static function PHP7Backport(Event $event)/*: void*/
-    {
-        self::getInstance($event)->doPHP7Backport();
-    }
-
-
-    /**
-     * @var Event
-     */
-    private $event;
-
-
-    /**
-     * PHP7Backport constructor
-     *
-     * @param Event $event
-     */
-    private function __construct(Event $event)
-    {
-        $this->event = $event;
-    }
-
-
-    /**
-     *
+     * @deprecated
      */
     private function doPHP7Backport()/*: void*/
     {
@@ -109,23 +123,21 @@ final class PHP7Backport
         }
         mkdir(self::TEMP_FOLDER_LIBRARIES);
 
-        $libraries = array_map(function (/*string*/
-            $library
-        )/*: string*/ {
+        $libraries = array_map(function (string $library) : string {
             return __DIR__ . "/../../" . strtolower($library);
-        }, self::$libraries);
+        }, array_filter(scandir(__DIR__ . "/../../"), function (string $folder) : bool {
+            return (!in_array($folder, [".", ".."]));
+        }));
 
         // Apply php7backport for each library
         foreach ($libraries as $library => $folder) {
-            if (is_dir($folder)) {
 
-                exec("cp -r " . escapeshellarg($folder) . " " . escapeshellarg(self::TEMP_FOLDER_LIBRARIES . "/" . strtolower($library)));
+            exec("cp -r " . escapeshellarg($folder) . " " . escapeshellarg(self::TEMP_FOLDER_LIBRARIES . "/" . strtolower($library)));
 
-                $result = [];
-                exec("php " . escapeshellarg(self::TEMP_FOLDER_PHP7BACKPORT . "/convert.php") . " " . escapeshellarg(self::TEMP_FOLDER_LIBRARIES . "/"
-                        . strtolower($library)) . " " . escapeshellarg($folder), $result);
-                print_r($result);
-            }
+            $result = [];
+            exec("php " . escapeshellarg(self::TEMP_FOLDER_PHP7BACKPORT . "/convert.php") . " " . escapeshellarg(self::TEMP_FOLDER_LIBRARIES . "/"
+                    . strtolower($library)) . " " . escapeshellarg($folder), $result);
+            print_r($result);
         }
 
         // Clean libraries tmp folder

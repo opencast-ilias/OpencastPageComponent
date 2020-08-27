@@ -34,7 +34,7 @@ class DatabaseDetector extends AbstractILIASDatabaseDetector
      *
      * @throws DICException DatabaseDetector only supports ilDBPdoInterface!
      */
-    public static function getInstance(ilDBInterface $db)
+    public static function getInstance(ilDBInterface $db) : self
     {
         if (!($db instanceof ilDBPdoInterface)) {
             throw new DICException("DatabaseDetector only supports ilDBPdoInterface!");
@@ -49,7 +49,7 @@ class DatabaseDetector extends AbstractILIASDatabaseDetector
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function createAutoIncrement(string $table_name, string $field)/*: void*/
     {
@@ -74,7 +74,27 @@ class DatabaseDetector extends AbstractILIASDatabaseDetector
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
+     */
+    public function createOrUpdateTable(string $table_name, array $columns, array $primary_columns)/*: void*/
+    {
+        if (!$this->tableExists($table_name)) {
+            $this->createTable($table_name, $columns);
+            if (!empty($primary_columns)) {
+                $this->addPrimaryKey($table_name, $primary_columns);
+            }
+        } else {
+            foreach ($columns as $column_name => $column) {
+                if (!$this->tableColumnExists($table_name, $column_name)) {
+                    $this->addTableColumn($table_name, $column_name, $column);
+                }
+            }
+        }
+    }
+
+
+    /**
+     * @inheritDoc
      */
     public function dropAutoIncrementTable(string $table_name)/*: void*/
     {
@@ -94,7 +114,7 @@ class DatabaseDetector extends AbstractILIASDatabaseDetector
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function fetchAllCallback(ilDBStatement $stm, callable $callback) : array
     {
@@ -103,7 +123,7 @@ class DatabaseDetector extends AbstractILIASDatabaseDetector
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function fetchAllClass(ilDBStatement $stm, string $class_name) : array
     {
@@ -112,7 +132,7 @@ class DatabaseDetector extends AbstractILIASDatabaseDetector
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function fetchObjectCallback(ilDBStatement $stm, callable $callback)/*:?object*/
     {
@@ -127,7 +147,7 @@ class DatabaseDetector extends AbstractILIASDatabaseDetector
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function fetchObjectClass(ilDBStatement $stm, string $class_name)/*:?object*/
     {
@@ -142,7 +162,24 @@ class DatabaseDetector extends AbstractILIASDatabaseDetector
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
+     */
+    public function multipleInsert(string $table_name, array $columns, array $values)/*:void*/
+    {
+        if (empty($columns) || empty($values)) {
+            return;
+        }
+
+        $this->manipulate('INSERT INTO ' . $this->quoteIdentifier($table_name) . ' (' . implode(',', $columns) . ') VALUES ' . implode(',', array_map(function (array $values2) : string {
+                return '(' . implode(',', array_map(function (array $value) : string {
+                        return $this->quote($value[0], $value[1]);
+                    }, $values2)) . ')';
+            }, $values)));
+    }
+
+
+    /**
+     * @inheritDoc
      */
     public function resetAutoIncrement(string $table_name, string $field)/*: void*/
     {
@@ -163,7 +200,7 @@ class DatabaseDetector extends AbstractILIASDatabaseDetector
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function store(string $table_name, array $values, string $primary_key_field,/*?*/ int $primary_key_value = 0) : int
     {
