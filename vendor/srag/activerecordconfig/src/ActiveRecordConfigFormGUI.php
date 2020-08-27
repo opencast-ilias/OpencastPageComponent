@@ -7,19 +7,25 @@ use srag\CustomInputGUIs\OpencastPageComponent\PropertyFormGUI\ConfigPropertyFor
 /**
  * Class ActiveRecordConfigFormGUI
  *
- * @package srag\ActiveRecordConfig\OpencastPageComponent
+ * @package    srag\ActiveRecordConfig\OpencastPageComponent
  *
- * @author  studer + raimann ag - Team Custom 1 <support-custom1@studer-raimann.ch>
+ * @author     studer + raimann ag - Team Custom 1 <support-custom1@studer-raimann.ch>
+ *
+ * @deprecated Please use PropertyFormGUI from CustomInputGUIs instead
  */
 abstract class ActiveRecordConfigFormGUI extends ConfigPropertyFormGUI
 {
 
     /**
      * @var string
+     *
+     * @deprecated
      */
     const LANG_MODULE = ActiveRecordConfigGUI::LANG_MODULE_CONFIG;
     /**
      * @var string
+     *
+     * @deprecated
      */
     protected $tab_id;
 
@@ -29,11 +35,11 @@ abstract class ActiveRecordConfigFormGUI extends ConfigPropertyFormGUI
      *
      * @param ActiveRecordConfigGUI $parent
      * @param string                $tab_id
+     *
+     * @deprecated
      */
-    public function __construct(
-        ActiveRecordConfigGUI $parent, /*string*/
-        $tab_id
-    ) {
+    public function __construct(ActiveRecordConfigGUI $parent, string $tab_id)
+    {
         $this->tab_id = $tab_id;
 
         parent::__construct($parent);
@@ -41,7 +47,9 @@ abstract class ActiveRecordConfigFormGUI extends ConfigPropertyFormGUI
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
+     *
+     * @deprecated
      */
     protected function initCommands()/*: void*/
     {
@@ -50,7 +58,9 @@ abstract class ActiveRecordConfigFormGUI extends ConfigPropertyFormGUI
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
+     *
+     * @deprecated
      */
     protected function initId()/*: void*/
     {
@@ -59,7 +69,9 @@ abstract class ActiveRecordConfigFormGUI extends ConfigPropertyFormGUI
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
+     *
+     * @deprecated
      */
     protected function initTitle()/*: void*/
     {

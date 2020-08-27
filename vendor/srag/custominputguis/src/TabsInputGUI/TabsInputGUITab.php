@@ -3,6 +3,7 @@
 namespace srag\CustomInputGUIs\OpencastPageComponent\TabsInputGUI;
 
 use ilFormPropertyGUI;
+use srag\CustomInputGUIs\OpencastPageComponent\PropertyFormGUI\Items\Items;
 use srag\DIC\OpencastPageComponent\DICTrait;
 
 /**
@@ -16,6 +17,7 @@ class TabsInputGUITab
 {
 
     use DICTrait;
+
     /**
      * @var bool
      */
@@ -29,6 +31,14 @@ class TabsInputGUITab
      */
     protected $inputs = [];
     /**
+     * @var ilFormPropertyGUI[]|null
+     */
+    protected $inputs_generated = null;
+    /**
+     * @var string
+     */
+    protected $post_var = "";
+    /**
      * @var string
      */
     protected $title = "";
@@ -36,10 +46,27 @@ class TabsInputGUITab
 
     /**
      * TabsInputGUITab constructor
+     *
+     * @param string $title
+     * @param string $post_var
      */
-    public function __construct()
+    public function __construct(string $title = "", string $post_var = "")
     {
+        $this->title = $title;
+        $this->post_var = $post_var;
+    }
 
+
+    /**
+     *
+     */
+    public function __clone()/*:void*/
+    {
+        if ($this->inputs_generated !== null) {
+            $this->inputs_generated = array_map(function (ilFormPropertyGUI $input) : ilFormPropertyGUI {
+                return clone $input;
+            }, $this->inputs_generated);
+        }
     }
 
 
@@ -49,6 +76,7 @@ class TabsInputGUITab
     public function addInput(ilFormPropertyGUI $input)/*: void*/
     {
         $this->inputs[] = $input;
+        $this->inputs_generated = null;
     }
 
 
@@ -62,11 +90,69 @@ class TabsInputGUITab
 
 
     /**
+     * @param string $info
+     */
+    public function setInfo(string $info)/* : void*/
+    {
+        $this->info = $info;
+    }
+
+
+    /**
+     * @param string $post_var
+     * @param array  $init_value
+     *
      * @return ilFormPropertyGUI[]
      */
-    public function getInputs() : array
+    public function getInputs(string $post_var, array $init_value) : array
     {
-        return $this->inputs;
+        if ($this->inputs_generated === null) {
+            $this->inputs_generated = [];
+
+            foreach ($this->inputs as $input) {
+                $input = clone $input;
+
+                $org_post_var = $input->getPostVar();
+
+                if (is_array($init_value[$this->post_var]) && isset($init_value[$this->post_var][$org_post_var])) {
+                    Items::setValueToItem($input, $init_value[$this->post_var][$org_post_var]);
+                }
+
+                $input->setPostVar($post_var . "[" . $this->post_var . "][" . $org_post_var . "]");
+
+                $this->inputs_generated[$org_post_var] = $input;
+            }
+        }
+
+        return $this->inputs_generated;
+    }
+
+
+    /**
+     * @param ilFormPropertyGUI[] $inputs
+     */
+    public function setInputs(array $inputs)/* : void*/
+    {
+        $this->inputs = $inputs;
+        $this->inputs_generated = null;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getPostVar() : string
+    {
+        return $this->post_var;
+    }
+
+
+    /**
+     * @param string $post_var
+     */
+    public function setPostVar(string $post_var)/* : void*/
+    {
+        $this->post_var = $post_var;
     }
 
 
@@ -76,6 +162,15 @@ class TabsInputGUITab
     public function getTitle() : string
     {
         return $this->title;
+    }
+
+
+    /**
+     * @param string $title
+     */
+    public function setTitle(string $title)/* : void*/
+    {
+        $this->title = $title;
     }
 
 
@@ -94,33 +189,6 @@ class TabsInputGUITab
     public function setActive(bool $active)/* : void*/
     {
         $this->active = $active;
-    }
-
-
-    /**
-     * @param string $info
-     */
-    public function setInfo(string $info)/* : void*/
-    {
-        $this->info = $info;
-    }
-
-
-    /**
-     * @param ilFormPropertyGUI[] $inputs
-     */
-    public function setInputs(array $inputs)/* : void*/
-    {
-        $this->inputs = $inputs;
-    }
-
-
-    /**
-     * @param string $title
-     */
-    public function setTitle(string $title)/* : void*/
-    {
-        $this->title = $title;
     }
 }
 

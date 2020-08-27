@@ -15,31 +15,19 @@ final class Waiter
 {
 
     use DICTrait;
+
+    /**
+     * @var string
+     */
+    const TYPE_PERCENTAGE = "percentage";
     /**
      * @var string
      */
     const TYPE_WAITER = "waiter";
     /**
-     * @var string
+     * @var bool
      */
-    const TYPE_PERCENTAGE = "percentage";
-
-
-    /**
-     * @param string $type
-     */
-    public static final function init(/*string*/
-        $type
-    )/*: void*/
-    {
-        $dir = __DIR__;
-        $dir = "./" . substr($dir, strpos($dir, "/Customizing/") + 1);
-
-        self::dic()->mainTemplate()->addJavaScript($dir . "/js/waiter.min.js");
-        self::dic()->mainTemplate()->addCss($dir . "/css/waiter.css");
-
-        self::dic()->mainTemplate()->addOnLoadCode('il.waiter.init("' . $type . '");');
-    }
+    protected static $init = false;
 
 
     /**
@@ -48,5 +36,25 @@ final class Waiter
     private function __construct()
     {
 
+    }
+
+
+    /**
+     * @param string $type
+     */
+    public static final function init(string $type)/*: void*/
+    {
+        if (self::$init === false) {
+            self::$init = true;
+
+            $dir = __DIR__;
+            $dir = "./" . substr($dir, strpos($dir, "/Customizing/") + 1);
+
+            self::dic()->ui()->mainTemplate()->addCss($dir . "/css/waiter.css");
+
+            self::dic()->ui()->mainTemplate()->addJavaScript($dir . "/js/waiter.min.js");
+        }
+
+        self::dic()->ui()->mainTemplate()->addOnLoadCode('il.waiter.init("' . $type . '");');
     }
 }

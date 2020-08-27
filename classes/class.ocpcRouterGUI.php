@@ -112,9 +112,17 @@ class ocpcRouterGUI
             $this->cancel();
         }
         $xoctEventFormGUI->setValuesByPost();
+        if (self::version()->is6()) {
+            self::dic()->mainTemplate()->loadStandardTemplate();
+        } else {
         self::dic()->mainTemplate()->getStandardTemplate();
+        }
         self::dic()->mainTemplate()->setContent($xoctEventFormGUI->getHTML());
+        if (self::version()->is6()) {
+            self::dic()->mainTemplate()->printToStdout();
+        } else {
         self::dic()->mainTemplate()->show();
+        }
     }
 
 

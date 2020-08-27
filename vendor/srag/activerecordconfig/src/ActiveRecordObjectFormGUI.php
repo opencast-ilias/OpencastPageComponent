@@ -9,19 +9,25 @@ use srag\CustomInputGUIs\OpencastPageComponent\PropertyFormGUI\ObjectPropertyFor
 /**
  * Class ActiveRecordObjectFormGUI
  *
- * @package srag\ActiveRecordConfig\OpencastPageComponent
+ * @package    srag\ActiveRecordConfig\OpencastPageComponent
  *
- * @author  studer + raimann ag - Team Custom 1 <support-custom1@studer-raimann.ch>
+ * @author     studer + raimann ag - Team Custom 1 <support-custom1@studer-raimann.ch>
+ *
+ * @deprecated Please use PropertyFormGUI from CustomInputGUIs instead
  */
 abstract class ActiveRecordObjectFormGUI extends ObjectPropertyFormGUI
 {
 
     /**
      * @var string
+     *
+     * @deprecated
      */
     const LANG_MODULE = ActiveRecordConfigGUI::LANG_MODULE_CONFIG;
     /**
      * @var string
+     *
+     * @deprecated
      */
     protected $tab_id;
 
@@ -29,16 +35,15 @@ abstract class ActiveRecordObjectFormGUI extends ObjectPropertyFormGUI
     /**
      * ActiveRecordObjectFormGUI constructor
      *
-     * @param object                            $parent
+     * @param ActiveRecordConfigGUI             $parent
+     * @param string                            $tab_id
      * @param ilObject|ActiveRecord|object|null $object
      * @param bool                              $object_auto_store
+     *
+     * @deprecated
      */
-    public function __construct(
-        $parent,
-        $tab_id,
-        $object = null,/*bool*/
-        $object_auto_store = true
-    ) {
+    public function __construct(ActiveRecordConfigGUI $parent, string $tab_id, $object = null, bool $object_auto_store = true)
+    {
         $this->tab_id = $tab_id;
 
         parent::__construct($parent, $object, $object_auto_store);
@@ -46,7 +51,9 @@ abstract class ActiveRecordObjectFormGUI extends ObjectPropertyFormGUI
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
+     *
+     * @deprecated
      */
     protected function initCommands()/*: void*/
     {
@@ -55,7 +62,9 @@ abstract class ActiveRecordObjectFormGUI extends ObjectPropertyFormGUI
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
+     *
+     * @deprecated
      */
     protected function initId()/*: void*/
     {
@@ -64,7 +73,9 @@ abstract class ActiveRecordObjectFormGUI extends ObjectPropertyFormGUI
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
+     *
+     * @deprecated
      */
     protected function initTitle()/*: void*/
     {

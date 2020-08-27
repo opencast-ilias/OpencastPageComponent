@@ -7,23 +7,31 @@ use srag\CustomInputGUIs\OpencastPageComponent\TableGUI\TableGUI;
 /**
  * Class ActiveRecordConfigTableGUI
  *
- * @package srag\ActiveRecordConfig\OpencastPageComponent
+ * @package    srag\ActiveRecordConfig\OpencastPageComponent
  *
- * @author  studer + raimann ag - Team Custom 1 <support-custom1@studer-raimann.ch>
+ * @author     studer + raimann ag - Team Custom 1 <support-custom1@studer-raimann.ch>
+ *
+ * @deprecated Please use TableGUI from CustomInputGUIs instead
  */
 abstract class ActiveRecordConfigTableGUI extends TableGUI
 {
 
     /**
      * @var string
+     *
+     * @deprecated
      */
     const LANG_MODULE = ActiveRecordConfigGUI::LANG_MODULE_CONFIG;
     /**
      * @var ActiveRecordConfigGUI
+     *
+     * @deprecated
      */
     protected $parent_obj;
     /**
      * @var string
+     *
+     * @deprecated
      */
     protected $tab_id;
 
@@ -34,12 +42,11 @@ abstract class ActiveRecordConfigTableGUI extends TableGUI
      * @param ActiveRecordConfigGUI $parent
      * @param string                $parent_cmd
      * @param string                $tab_id
+     *
+     * @deprecated
      */
-    public function __construct(
-        ActiveRecordConfigGUI $parent, /*string*/
-        $parent_cmd, /*string*/
-        $tab_id
-    ) {
+    public function __construct(ActiveRecordConfigGUI $parent, string $parent_cmd, string $tab_id)
+    {
         $this->tab_id = $tab_id;
 
         parent::__construct($parent, $parent_cmd);
@@ -47,7 +54,9 @@ abstract class ActiveRecordConfigTableGUI extends TableGUI
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
+     *
+     * @deprecated
      */
     protected function initFilterFields()/*: void*/
     {
@@ -57,7 +66,9 @@ abstract class ActiveRecordConfigTableGUI extends TableGUI
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
+     *
+     * @deprecated
      */
     protected function initId()/*: void*/
     {
@@ -66,7 +77,9 @@ abstract class ActiveRecordConfigTableGUI extends TableGUI
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
+     *
+     * @deprecated
      */
     protected function initTitle()/*: void*/
     {

@@ -5,6 +5,7 @@ namespace srag\CustomInputGUIs\OpencastPageComponent\StaticHTMLPresentationInput
 use ilFormException;
 use ilFormPropertyGUI;
 use ilTemplate;
+use srag\CustomInputGUIs\OpencastPageComponent\Template\Template;
 use srag\DIC\OpencastPageComponent\DICTrait;
 
 /**
@@ -18,6 +19,7 @@ class StaticHTMLPresentationInputGUI extends ilFormPropertyGUI
 {
 
     use DICTrait;
+
     /**
      * @var string
      */
@@ -36,7 +38,7 @@ class StaticHTMLPresentationInputGUI extends ilFormPropertyGUI
 
 
     /**
-     * @return bool
+     * @inheritDoc
      */
     public function checkInput() : bool
     {
@@ -47,53 +49,9 @@ class StaticHTMLPresentationInputGUI extends ilFormPropertyGUI
     /**
      * @return string
      */
-    protected function getDataUrl() : string
-    {
-        return "data:text/html;charset=UTF-8;base64," . base64_encode($this->html);
-    }
-
-
-    /**
-     * @return string
-     */
     public function getHtml() : string
     {
         return $this->html;
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getValue() : string
-    {
-        return "";
-    }
-
-
-    /**
-     * @param ilTemplate $tpl
-     */
-    public function insert(ilTemplate $tpl) /*: void*/
-    {
-        $html = $this->render();
-
-        $tpl->setCurrentBlock("prop_generic");
-        $tpl->setVariable("PROP_GENERIC", $html);
-        $tpl->parseCurrentBlock();
-    }
-
-
-    /**
-     * @return string
-     */
-    public function render() : string
-    {
-        $iframe_tpl = new ilTemplate(__DIR__ . "/templates/iframe.html", true, true);
-
-        $iframe_tpl->setVariable("URL", $this->getDataUrl());
-
-        return self::output()->getHTML($iframe_tpl);
     }
 
 
@@ -111,13 +69,47 @@ class StaticHTMLPresentationInputGUI extends ilFormPropertyGUI
 
 
     /**
+     * @return string
+     */
+    public function getValue() : string
+    {
+        return "";
+    }
+
+
+    /**
+     * @param ilTemplate $tpl
+     */
+    public function insert(ilTemplate $tpl)/*: void*/
+    {
+        $html = $this->render();
+
+        $tpl->setCurrentBlock("prop_generic");
+        $tpl->setVariable("PROP_GENERIC", $html);
+        $tpl->parseCurrentBlock();
+    }
+
+
+    /**
+     * @return string
+     */
+    public function render() : string
+    {
+        $iframe_tpl = new Template(__DIR__ . "/templates/iframe.html");
+
+        $iframe_tpl->setVariableEscaped("URL", $this->getDataUrl());
+
+        return self::output()->getHTML($iframe_tpl);
+    }
+
+
+    /**
      * @param string $title
      *
      * @return self
      */
-    public function setTitle(/*string*/
-        $title
-    ) : self {
+    public function setTitle(/*string*/ $title) : self
+    {
         $this->title = $title;
 
         return $this;
@@ -129,9 +121,7 @@ class StaticHTMLPresentationInputGUI extends ilFormPropertyGUI
      *
      * @throws ilFormException
      */
-    public function setValue(/*string*/
-        $value
-    )/*: void*/
+    public function setValue(/*string*/ $value)/*: void*/
     {
         //throw new ilFormException("StaticHTMLPresentationInputGUI does not support set screenshots!");
     }
@@ -142,10 +132,17 @@ class StaticHTMLPresentationInputGUI extends ilFormPropertyGUI
      *
      * @throws ilFormException
      */
-    public function setValueByArray(/*string*/
-        $values
-    )/*: void*/
+    public function setValueByArray(/*array*/ $values)/*: void*/
     {
         //throw new ilFormException("StaticHTMLPresentationInputGUI does not support set screenshots!");
+    }
+
+
+    /**
+     * @return string
+     */
+    protected function getDataUrl() : string
+    {
+        return "data:text/html;charset=UTF-8;base64," . base64_encode($this->html);
     }
 }

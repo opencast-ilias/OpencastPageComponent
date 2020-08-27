@@ -2,6 +2,8 @@
 
 namespace srag\LibrariesNamespaceChanger;
 
+use Closure;
+use Composer\Config;
 use Composer\Script\Event;
 
 /**
@@ -17,13 +19,11 @@ final class LibrariesNamespaceChanger
 {
 
     /**
-     * @var self
+     * @var string
+     *
+     * @internal
      */
-    private static $instance = null;
-    /**
-     * @var array
-     */
-    private static $libraries = Libraries::LIBRARIES;
+    const PLUGIN_NAME_REG_EXP = "/\/([A-Za-z0-9_]+)\/vendor\//";
     /**
      * @var array
      */
@@ -35,45 +35,13 @@ final class LibrariesNamespaceChanger
             "xml"
         ];
     /**
-     * @var string
-     *
-     * @internal
+     * @var self|null
      */
-    const PLUGIN_NAME_REG_EXP = "/\/([A-Za-z0-9_]+)\/vendor\//";
+    private static $instance = null;
     /**
      * @var string
-     *
-     * @internal
      */
-    const SRAG = "srag";
-
-
-    /**
-     * @param Event $event
-     *
-     * @return self
-     */
-    private static function getInstance(Event $event)/*: self*/
-    {
-        if (self::$instance === null) {
-            self::$instance = new self($event);
-        }
-
-        return self::$instance;
-    }
-
-
-    /**
-     * @param Event $event
-     *
-     * @internal
-     */
-    public static function rewriteLibrariesNamespaces(Event $event)/*: void*/
-    {
-        self::getInstance($event)->doRewriteLibrariesNamespaces();
-    }
-
-
+    private static $plugin_root = "";
     /**
      * @var Event
      */
@@ -92,65 +60,104 @@ final class LibrariesNamespaceChanger
 
 
     /**
+     * @param Event $event
+     *
+     * @internal
+     */
+    public static function rewriteLibrariesNamespaces(Event $event)/*: void*/
+    {
+        self::$plugin_root = rtrim(Closure::bind(function () : string {
+            return $this->baseDir;
+        }, $event->getComposer()->getConfig(), Config::class)(), "/");
+
+        self::getInstance($event)->doRewriteLibrariesNamespaces();
+    }
+
+
+    /**
+     * @param Event $event
+     *
+     * @return self
+     */
+    private static function getInstance(Event $event) : self
+    {
+        if (self::$instance === null) {
+            self::$instance = new self($event);
+        }
+
+        return self::$instance;
+    }
+
+
+    /**
      *
      */
     private function doRewriteLibrariesNamespaces()/*: void*/
     {
         $plugin_name = $this->getPluginName();
 
-        if (!empty($plugin_name)) {
-
-            $libraries = array_map(function (/*string*/ $library)/*: string*/ {
-                return __DIR__ . "/../../" . strtolower($library);
-            }, self::$libraries);
-
-            $files = [];
-            foreach ($libraries as $library => $folder) {
-                if (is_dir($folder)) {
-                    $this->getFiles($folder, $files);
-                }
-            }
-            $this->getFiles(__DIR__ . "/../../../composer", $files);
-
-            foreach ($libraries as $library => $folder) {
-                if (is_dir($folder)) {
-
-                    foreach ($files as $file) {
-                        $code = file_get_contents($file);
-
-                        $replaces = [
-                            self::SRAG . "\\" . $library   => self::SRAG . "\\" . $library . "\\" . $plugin_name,
-                            self::SRAG . "\\\\" . $library => self::SRAG . "\\\\" . $library . "\\\\" . $plugin_name
-                        ];
-
-                        foreach ($replaces as $search => $replace) {
-                            if (strpos($code, $replace) === false) {
-                                $code = str_replace($search, $replace, $code);
-                            }
-                        }
-
-                        file_put_contents($file, $code);
-                    }
-                }
-            }
+        if (empty($plugin_name)) {
+            return;
         }
-    }
 
+        $libraries = [];
+        foreach (
+            array_filter(scandir(self::$plugin_root . "/vendor/srag"), function (string $folder) : bool {
+                return (!in_array($folder, [".", "..", "librariesnamespacechanger"]));
+            }) as $folder
+        ) {
+            $folder = self::$plugin_root . "/vendor/srag/" . $folder;
 
-    /**
-     * @return string
-     */
-    private function getPluginName()/*: string*/
-    {
-        $matches = [];
-        preg_match(self::PLUGIN_NAME_REG_EXP, __DIR__, $matches);
+            $composer_json = json_decode(file_get_contents($folder . "/composer.json"), true);
 
-        if (is_array($matches) && count($matches) >= 2) {
-            $plugin_name = $matches[1];
+            $namespaces = array_keys($composer_json["autoload"]["psr-4"]);
 
-            return $plugin_name;
-        } else {
-            return "";
+            if (empty($namespaces)) {
+                continue;
+            }
+
+            $namespaces = array_map(function (string $namespace) use ($plugin_name): string {
+                if (substr($namespace, -1) === "\\") {
+                    $namespace = substr($namespace, 0, -1);
+                }
+
+                if (substr($namespace, -strlen("\\" . $plugin_name)) === ("\\" . $plugin_name)) {
+                    $namespace = substr($namespace, 0, -strlen("\\" . $plugin_name));
+                }
+
+                return $namespace;
+            }, $namespaces);
+
+            $libraries[$folder] = $namespaces;
+        }
+
+        $files = [];
+        foreach (array_keys($libraries) as $folder) {
+            $this->getFiles($folder, $files);
+        }
+        $this->getFiles(self::$plugin_root . "/vendor/composer", $files);
+
+        foreach ($libraries as $folder => $namespaces) {
+
+            foreach ($namespaces as $namespace) {
+
+                foreach ($files as $file) {
+                    $code = file_get_contents($file);
+
+                    $replaces = [
+                        $namespace                            => $namespace . "\\" . $plugin_name,
+                        str_replace("\\", "\\\\", $namespace) => str_replace("\\", "\\\\", $namespace) . "\\\\" . $plugin_name
+                    ];
+
+                    foreach ($replaces as $search => $replace) {
+                        if (strpos($code, $replace) === false) {
+                            $code = str_replace($search, $replace, $code);
+                        }
+                    }
+
+                    file_put_contents($file, $code);
+                }
+            }
         }
     }
 
@@ -159,7 +166,7 @@ final class LibrariesNamespaceChanger
      * @param string $folder
      * @param array  $files
      */
-    private function getFiles(/*string*/ $folder, array &$files = [])/*: void*/
+    private function getFiles(string $folder, array &$files = [])/*: void*/
     {
         $paths = scandir($folder);
 
@@ -176,6 +183,24 @@ final class LibrariesNamespaceChanger
                     }
                 }
             }
+        }
+    }
+
+
+    /**
+     * @return string
+     */
+    private function getPluginName() : string
+    {
+        $matches = [];
+        preg_match(self::PLUGIN_NAME_REG_EXP, __DIR__, $matches);
+
+        if (is_array($matches) && count($matches) >= 2) {
+            $plugin_name = $matches[1];
+
+            return $plugin_name;
+        } else {
+            return "";
         }
     }
 }

@@ -1,6 +1,7 @@
 # Changelog
 
 ## [x]
+- Fix ILIAS 6
 - Add line break after each iframe
 - Remove possible iframe border
 

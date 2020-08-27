@@ -19,20 +19,19 @@ class NumberInputGUI extends ilNumberInputGUI implements ilTableFilterItem, ilTo
 
     use DICTrait;
 
-
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function getTableFilterHTML()/*: string*/
+    public function getTableFilterHTML() : string
     {
         return $this->render();
     }
 
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function getToolbarHTML()/*: string*/
+    public function getToolbarHTML() : string
     {
         return $this->render();
     }

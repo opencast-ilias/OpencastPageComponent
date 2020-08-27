@@ -125,4 +125,13 @@ class ilOpencastPageComponentPlugin extends ilPageComponentPlugin
     {
         self::dic()->database()->dropTable(Config::TABLE_NAME, false);
     }
+
+
+    /**
+     * @inheritdoc
+     */
+    protected function shouldUseOneUpdateStepOnly() : bool
+{
+   return false;
+}
 }
