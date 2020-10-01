@@ -168,10 +168,11 @@ class VideoSearchTableGUI extends TableGUI
     {
         // the api doesn't deliver a max count, so we fetch (limit + 1) to see if there should be a 'next' page
         try {
+            $common_idp = xoctConf::getConfig(xoctConf::F_COMMON_IDP);
             $events = (array) $this->event_repository->getFiltered(
                 $this->buildFilterArray(),
-                xoctUser::getInstance($this->dic->user())->getIdentifier(),
-                [],
+                $common_idp ? xoctUser::getInstance($this->dic->user())->getIdentifier() : '',
+                $common_idp ? [] : [xoctUser::getInstance($this->dic->user())->getUserRoleName()],
                 $this->getOffset(),
                 $this->getLimit() + 1
             );
