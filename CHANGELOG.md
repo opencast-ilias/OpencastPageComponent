@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.3.1]
+- Bugfix: Role checking if no common idp is used
+- Compatibility: OpenCast-Plugin >3.3.3
+
 ## [1.3.0]
 - Fix ILIAS 6
 - Add line break after each iframe
