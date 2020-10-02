@@ -227,7 +227,7 @@ class VideoSearchTableGUI extends TableGUI
         $title = $this->addFilterItemByMetaType(self::F_TEXTFILTER, self::FILTER_TEXT, false, self::plugin()->translate(self::F_TEXTFILTER));
         $this->filter[self::F_TEXTFILTER] = $title->getValue();
 
-        $series = $this->addFilterItemByMetaType(self::F_SERIES, self::FILTER_SELECT, false, $this->opencast_plugin->txt('series_channel_id'));
+        $series = $this->addFilterItemByMetaType(self::F_SERIES, self::FILTER_SELECT, false, $this->opencast_plugin->txt('event_series'));
         $series->setOptions($this->getSeriesFilterOptions());
         $this->filter[self::F_SERIES] = $series->getValue();
 

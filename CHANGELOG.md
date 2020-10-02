@@ -1,5 +1,8 @@
 # Changelog
 
+## [x.x.x]
+- Bugfix: Lang var for series filter
+
 ## [1.3.1]
 - Bugfix: Role checking if no common idp is used
 - Compatibility: OpenCast-Plugin >3.3.3
