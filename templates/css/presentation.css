@@ -1,11 +1,33 @@
 iframe.ocpc_iframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border: none;
 	margin: 20px 20px 20px 0;
 }
 
+div.ocpc_iframe_embed {
+	position: relative;
+	height: 0;
+	overflow: hidden;
+	width: 100%;
+	height: auto;
+}
+
+div.ocpc_iframe_container {
+	display: inline-block;
+}
+
 a.ocpc_video_link {
-	display: block;
+	display: inline-block;
 	width: fit-content;
 	height: fit-content;
+}
+
+div.ocpc_container {
+	width: 100%;
 }
 
 div.ocpc_image_container {

@@ -6,7 +6,6 @@ use ILIAS\DI\Container;
 use srag\CustomInputGUIs\OpencastPageComponent\TableGUI\TableGUI;
 use srag\DIC\OpencastPageComponent\DICTrait;
 use srag\DIC\OpencastPageComponent\Exception\DICException;
-use srag\Plugins\Opencast\Model\Config\PublicationUsage\PublicationSelector;
 use srag\Plugins\Opencast\Model\Config\PublicationUsage\PublicationUsage;
 use srag\Plugins\Opencast\UI\Input\EventFormGUI;
 use srag\Plugins\OpencastPageComponent\Authorization\TokenRepository;
@@ -47,6 +46,11 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     const POST_SIZE = 'size';
     const MODE_EDIT = 'edit';
     const MODE_PRESENTATION = 'presentation';
+    const PROP_POSITION = 'position';
+    const POSITION_LEFT = 'left';
+    const POSITION_CENTER = 'center';
+    const POSITION_RIGHT = 'right';
+    const PROP_RESPONSIVE = 'responsive';
     /**
      * @var Container
      */
@@ -63,8 +67,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         xoctConf::setApiSettings();
         parent::__construct();
     }
-
-
     /**
      *
      */
@@ -91,7 +93,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
             $this->dic->ctrl()->returnToParent($this);
         }
     }
-
 
     /**
      * @param string $cmd
@@ -177,6 +178,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         );
     }
 
+
     /**
      * @return TableGUI
      * @throws DICException
@@ -198,7 +200,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 
         return $table;
     }
-
 
     /**
      * @return ilPropertyFormGUI
@@ -235,6 +236,23 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $slider_tpl->setVariable('CONFIG', json_encode($this->getRangeSliderConfig()));
         $slider->setValue($slider_tpl->get());
         $form->addItem($slider);
+
+        // positioning
+        $positioning = new ilSelectInputGUI($this->dic->language()->txt("position"), self::PROP_POSITION);
+        $positioning->setOptions([
+            self::POSITION_LEFT => $this->dic->language()->txt('pos_' . self::POSITION_LEFT),
+            self::POSITION_CENTER => $this->dic->language()->txt('cont_' . self::POSITION_CENTER),
+            self::POSITION_RIGHT => $this->dic->language()->txt('pos_' . self::POSITION_RIGHT),
+        ]);
+        $positioning->setRequired(true);
+        $positioning->setValue($prop[self::PROP_POSITION] ?? self::POSITION_LEFT);
+        $form->addItem($positioning);
+
+        // responsiveness
+        $resp = new ilCheckboxInputGUI($this->plugin->txt("responsiveness"), self::PROP_RESPONSIVE);
+        $resp->setInfo($this->plugin->txt("responsiveness_info"));
+        $resp->setChecked($prop[self::PROP_RESPONSIVE] !== null ? $prop[self::PROP_RESPONSIVE] : true);
+        $form->addItem($resp);
 
         // as iframe
         $as_iframe = new ilCheckboxInputGUI($this->getPlugin()->txt(self::PROP_AS_LINK), self::PROP_AS_LINK);
@@ -299,9 +317,11 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     {
         $event_id = filter_input(INPUT_GET, VideoSearchTableGUI::GET_PARAM_EVENT_ID, FILTER_SANITIZE_STRING);
         $properties = [
-            self::PROP_EVENT_ID  => $event_id,
-            self::PROP_HEIGHT    => Config::getField(Config::KEY_DEFAULT_HEIGHT),
-            self::PROP_WIDTH     => Config::getField(Config::KEY_DEFAULT_WIDTH),
+            self::PROP_EVENT_ID => $event_id,
+            self::PROP_HEIGHT => Config::getField(Config::KEY_DEFAULT_HEIGHT),
+            self::PROP_WIDTH => Config::getField(Config::KEY_DEFAULT_WIDTH),
+            self::PROP_POSITION => self::POSITION_LEFT,
+            self::PROP_RESPONSIVE => true,
             self::PROP_AS_LINK => (bool) Config::getField(Config::KEY_DEFAULT_AS_LINK)
         ];
         $this->createElement($properties);
@@ -345,6 +365,8 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $size = $form->getInput(self::POST_SIZE);
         $properties[self::PROP_HEIGHT] = $size[self::PROP_HEIGHT];
         $properties[self::PROP_WIDTH] = $size[self::PROP_WIDTH];
+        $properties[self::PROP_POSITION] = $form->getInput(self::PROP_POSITION);
+        $properties[self::PROP_RESPONSIVE] = $form->getInput(self::PROP_RESPONSIVE);
         $properties[self::PROP_AS_LINK] = $form->getInput(self::PROP_AS_LINK);
 
         $this->updateElement($properties);
@@ -409,9 +431,9 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     protected function getIframeHTML(array $properties, xoctEvent $xoctEvent) : string
     {
         $tpl = $this->getPlugin()->getTemplate('html/component_as_iframe.html');
+        $this->dic->ui()->mainTemplate()->addCss($this->getPlugin()->getDirectory() . '/templates/css/presentation.css');
         $tpl->setVariable('SRC', $this->getPlayerLink($xoctEvent));
-        $tpl->setVariable('WIDTH', $properties[self::PROP_WIDTH]);
-        $tpl->setVariable('HEIGHT', $properties[self::PROP_HEIGHT]);
+        $this->setStyleFromProps($tpl, $properties);
 
         return $tpl->get();
     }
@@ -432,8 +454,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $renderer = new xoctEventRenderer($xoctEvent);
         $use_modal = (xoctConf::getConfig(xoctConf::F_USE_MODALS));
         $tpl = $this->getPlugin()->getTemplate('html/component_as_link.html');
-        $tpl->setVariable('HEIGHT', $properties[self::PROP_HEIGHT]);
-        $tpl->setVariable('WIDTH', $properties[self::PROP_WIDTH]);
+        $this->setStyleFromProps($tpl, $properties);
         $tpl->setVariable('THUMBNAIL_URL', $xoctEvent->publications()->getThumbnailUrl());
         if ($mode == self::MODE_PRESENTATION) {
             $tpl->setVariable('TARGET', '_blank');
@@ -464,6 +485,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
             'width="' . $properties[self::PROP_WIDTH] . 'px">';
     }
 
+
     /**
      * @return array
      */
@@ -480,7 +502,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
             'postfix' => '%',
         ];
     }
-
 
     /**
      * @param xoctEvent $xoctEvent
@@ -508,6 +529,35 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         }
 
         return $this->player_url;
+    }
+
+
+
+    /**
+     * @param ilTemplate $tpl
+     * @param array      $properties
+     */
+    protected function setStyleFromProps(ilTemplate $tpl, array $properties)
+    {
+        $ratio = $properties[self::PROP_WIDTH] ? ($properties[self::PROP_HEIGHT] / ($properties[self::PROP_WIDTH])) * 100 : 1;
+        $tpl->setVariable('RATIO', $ratio);
+        $tpl->setVariable('MAX-WIDTH', $properties[self::PROP_WIDTH]);
+        $tpl->setVariable('MAX-HEIGHT', $properties[self::PROP_HEIGHT]);
+        if ($properties[self::PROP_RESPONSIVE] !== false) {
+            $tpl->setVariable('WIDTH', 'width:100%;');
+        }
+        switch ($properties[self::PROP_POSITION]) {
+            case self::POSITION_CENTER:
+                $tpl->setVariable('CONTAINER_STYLE', 'text-align:center;');
+                break;
+            case self::POSITION_RIGHT:
+                $tpl->setVariable('CONTAINER_STYLE', 'text-align:right;');
+                break;
+            case self::POSITION_LEFT:
+            default:
+                $tpl->setVariable('CONTAINER_STYLE', 'text-align:left;');
+                break;
+        }
     }
 
 
