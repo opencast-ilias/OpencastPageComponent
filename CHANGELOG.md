@@ -1,6 +1,7 @@
 # Changelog
 
 ## [x.x.x]
+- Feature: responsiveness and positioning
 - Bugfix: Lang var for series filter
 
 ## [1.3.1]
