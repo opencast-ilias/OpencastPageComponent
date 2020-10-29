@@ -1,2 +1,0 @@
-## OpencastPageComponent-Documentation
-
