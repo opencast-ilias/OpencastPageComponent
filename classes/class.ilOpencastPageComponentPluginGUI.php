@@ -456,11 +456,11 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $tpl = $this->getPlugin()->getTemplate('html/component_as_link.html');
         $this->setStyleFromProps($tpl, $properties);
         $tpl->setVariable('THUMBNAIL_URL', $xoctEvent->publications()->getThumbnailUrl());
+        $this->dic->ui()->mainTemplate()->addCss($this->getPlugin()->getDirectory() . '/templates/css/presentation.css');
         if ($mode == self::MODE_PRESENTATION) {
             $tpl->setVariable('TARGET', '_blank');
             $tpl->setVariable('VIDEO_LINK', $use_modal ? '#' : $this->getPlayerLink($xoctEvent));
             $tpl->touchBlock('overlay');
-            $this->dic->ui()->mainTemplate()->addCss($this->getPlugin()->getDirectory() . '/templates/css/presentation.css');
             if ($use_modal) {
                 $tpl->setVariable('MODAL', $renderer->getPlayerModal()->getHTML());
                 $tpl->setVariable('MODAL_LINK', $renderer->getModalLink());
