@@ -1,15 +1,7 @@
 <div class="ocpc_outer_container" style="{CONTAINER_STYLE}">
     <div class="ocpc_inner_container" style="max-width: {MAX-WIDTH}px; width: {MAX-WIDTH}px; {WIDTH}">
         <div class="ocpc_content_embed" style="padding-top: {RATIO}%;">
-            <a class="ocpc_video_link" href="#" onclick="iframe = $(this).parent().find('iframe');iframe.attr('src', iframe.attr('data-src'));$(this).hide();iframe.show();" {ADDITIONAL_LINK_ATTRIBUTES}>
-                <img class="ocpc_thumbnail ocpc_content" src="{THUMBNAIL_URL}">
-                <div class="ocpc_play_overlay">
-                    <div class="ocpc_pseudo_element"></div> <!-- this is necessary to center the following image -->
-                    <img class="ocpc_play_icon" width="32px" height="32px"
-                         src="./Customizing/global/plugins/Services/COPage/PageComponent/OpencastPageComponent/templates/images/play.svg">
-                </div>
-            </a>
-            <iframe class="ocpc_content ocpc_iframe" hidden allowfullscreen="true" src="" data-src="{SRC}"></iframe>
+            <iframe class="ocpc_content ocpc_iframe" allowfullscreen="true" src="{SRC}"></iframe>
         </div>
     </div>
 </div>

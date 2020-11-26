@@ -433,7 +433,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $tpl = $this->getPlugin()->getTemplate('html/component_as_iframe.html');
         $this->dic->ui()->mainTemplate()->addCss($this->getPlugin()->getDirectory() . '/templates/css/presentation.css');
         $tpl->setVariable('SRC', $this->getPlayerLink($xoctEvent));
-        $tpl->setVariable('THUMBNAIL_URL', $xoctEvent->publications()->getThumbnailUrl());
         $this->setStyleFromProps($tpl, $properties);
 
         return $tpl->get();
