@@ -16,5 +16,5 @@ msg_added#:#Video wurde erfolgreich zur Seite hinzugefügt.
 textFilter#:#Textfilter
 table_title#:#Bestehendes Video aus Opencast einfügen
 btn_upload#:#Neues Video hochladen
-responsiveness#:#Automatisch skalierend
+responsiveness#:#Responsiv
 responsiveness_info#:#Wenn aktiv, wird die oben definierte Grösse als Maximalgrösse verwendet, das Video kann aber bei weniger Platz skalieren.
