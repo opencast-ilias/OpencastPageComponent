@@ -5,14 +5,16 @@ config_save#:#Save
 form_title#:#Edit Video Properties
 width#:#Width
 height#:#Height
-as_link#:#Show in iframe
-as_link_info#:#If selected, the video will be rendered in an iframe. Otherwise the thumbnail will appear as a link to the video.
+as_link#:#Thumbnail as link to video
+as_link_info#:#If selected, clicking on the thumbnail will open the video in a new tab. Otherwise, the video is integrated into the page and a click on it starts the video directly.
 config_default_width#:#Default width
 config_default_height#:#Default height
-config_default_as_iframe#:#"Show in iframe" per default
+config_default_as_link#:#"Thumbnail as link to video" per default
 msg_failed_loading_events#:#An error occurred while loading events: %s
 msg_created#:#Upload complete. Note that the video must be processed before it appears in the list below. This can take several minutes.
 msg_added#:#Video successfully added to page.
 textFilter#:#Text Filter
 table_title#:#Insert existing video from Opencast
 btn_upload#:#Upload new video
+responsiveness#:#Responsive
+responsiveness_info#:#If active, the defined size acts as a maximum size while the video can scale down if the window is smaller.
