@@ -14,7 +14,6 @@ iframe.ocpc_iframe {
 div.ocpc_content_embed {
 	position: relative;
 	height: 0;
-	overflow: hidden;
 	width: 100%;
 	height: auto;
 }
