@@ -4,6 +4,7 @@ use ILIAS\DI\Container;
 use srag\CustomInputGUIs\OpencastPageComponent\TableGUI\TableGUI;
 use srag\DIC\OpencastPageComponent\Exception\DICException;
 use srag\Plugins\Opencast\Model\API\Event\EventRepository;
+use srag\Plugins\Opencast\Model\API\Series\SeriesRepository;
 
 /**
  * Class VideoSearchTableGUI
@@ -270,7 +271,9 @@ class VideoSearchTableGUI extends TableGUI
     protected function getSeriesFilterOptions()
     {
         $series_options = ['' => '-'];
-        foreach (xoctSeries::getAllForUser(xoctUser::getInstance($this->dic->user())->getUserRoleName()) as $serie) {
+        $xoctUser = xoctUser::getInstance($this->dic->user());
+        (new SeriesRepository())->getOwnSeries($xoctUser);
+        foreach (xoctSeries::getAllForUser($xoctUser->getUserRoleName()) as $serie) {
             $series_options[$serie->getIdentifier()] = $serie->getTitle() . ' (...' . substr($serie->getIdentifier(), -4, 4) . ')';
         }
 
