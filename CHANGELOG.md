@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.4.1]
+## [1.5.0]
 - Fix: avoid missing own series in filter and upload form (dynamically add producer)
 - Compatability: OpenCast plugin >=v3.5.0
 
