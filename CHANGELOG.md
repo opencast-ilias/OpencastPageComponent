@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.4.1]
+- Fix: avoid missing own series in filter and upload form (dynamically add producer)
+
 ## [1.4.0]
 - Feature: responsiveness and positioning
 - Feature: show thumbnail for iframe and load only on click
