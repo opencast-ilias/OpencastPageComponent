@@ -2,6 +2,7 @@
 
 ## [1.5.0]
 - Fix: avoid missing own series in filter and upload form (dynamically add producer)
+- Fix: styling didn't apply in learning modules
 - Compatability: OpenCast plugin >=v3.5.0
 
 ## [1.4.0]
