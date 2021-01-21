@@ -395,6 +395,10 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
      */
     public function getElementHTML($a_mode, array $a_properties, $plugin_version) : string
     {
+        // Workaround fix learning module override global template
+        $this->dic->offsetUnset("tpl");
+        $this->dic->offsetSet("tpl", $GLOBALS["tpl"]);
+
         try {
             $xoctEvent = xoctEvent::find($a_properties[self::PROP_EVENT_ID]);
         } catch (Exception $e) {
