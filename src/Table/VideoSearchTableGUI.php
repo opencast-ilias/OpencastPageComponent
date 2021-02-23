@@ -62,12 +62,11 @@ class VideoSearchTableGUI extends TableGUI
         $this->opencast_plugin = ilOpenCastPlugin::getInstance();
         $this->event_repository = new EventRepository($dic);
         $this->initId();    // this is necessary so the offset and order can be determined
-        $this->setLimit(10);
-        $this->limit_determined = true;
         $this->setExternalSegmentation(true);
         $this->setExternalSorting(true);
         $this->determineOffsetAndOrder();
         parent::__construct($parent_gui, $parent_cmd);
+        $this->setLimit(10);
         $this->setRowTemplate(self::plugin()->directory() . '/templates/html/table_row.html');
         $this->dic->ui()->mainTemplate()->addCss(self::plugin()->directory() . '/templates/css/table.css');
         $this->dic->ui()->mainTemplate()->addJavaScript(self::plugin()->directory() . '/templates/js/table.js');
@@ -165,7 +164,7 @@ class VideoSearchTableGUI extends TableGUI
     /**
      * @inheritDoc
      */
-    protected function initData()
+    public function initializeData()
     {
         // the api doesn't deliver a max count, so we fetch (limit + 1) to see if there should be a 'next' page
         try {
@@ -280,5 +279,12 @@ class VideoSearchTableGUI extends TableGUI
         natcasesort($series_options);
 
         return $series_options;
+    }
+
+    /**
+     * public method initializeData is used here, because we want to initialize the data after the constructor (for manual limit)
+     */
+    protected function initData()
+    {
     }
 }

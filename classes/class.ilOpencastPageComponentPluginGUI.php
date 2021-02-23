@@ -190,6 +190,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, self::CMD_APPLY_FILTER);
         $table = new VideoSearchTableGUI($this, self::CMD_INSERT, $this->dic, $command_url);
         $table->setFilterCommand(self::CMD_INSERT);
+        $table->initializeData();
 
         $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, self::CMD_RESET_FILTER);
         $reset_filter_url = $this->dic->ctrl()->getLinkTarget($this, self::CMD_INSERT);
