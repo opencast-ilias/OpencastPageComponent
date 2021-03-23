@@ -224,8 +224,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $form->addItem($thumbnail);
 
         // width height
-        $width_height = new ilWidthHeightInputGUI($this->dic->language()->txt("cont_width") .
-            " / " . $this->dic->language()->txt("cont_height"), self::POST_SIZE);
+        $width_height = new ilWidthHeightInputGUI($this->plugin->txt("height_width"), self::POST_SIZE);
         $width_height->setConstrainProportions(true);
         $width_height->setRequired(true);
         $width_height->setValueByArray([self::POST_SIZE => array_merge($prop, ['constr_prop' => true])]);
