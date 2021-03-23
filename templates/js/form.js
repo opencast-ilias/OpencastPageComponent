@@ -42,6 +42,7 @@ OpencastPageComponent = {
     },
 
     updateSlider: function() {
+        this.max_width = $('#ocpc_thumbnail').width() * 2;
         let width = $('input#prop_size_width').val();
         let percentage = (width / OpencastPageComponent.max_width) * 100;
         OpencastPageComponent.slider.update({from: percentage});
