@@ -212,7 +212,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $this->dic->ui()->mainTemplate()->addJavaScript($this->getPlugin()->getDirectory() . '/node_modules/ion-rangeslider/js/ion.rangeSlider.min.js');
         $this->dic->ui()->mainTemplate()->addCss($this->getPlugin()->getDirectory() . '/node_modules/ion-rangeslider/css/ion.rangeSlider.min.css');
         $this->dic->ui()->mainTemplate()->addCss($this->getPlugin()->getDirectory() . '/templates/css/form.css');
-        $this->dic->ui()->mainTemplate()->addJavaScript($this->getPlugin()->getDirectory() . '/templates/js/form.min.js?v=2');
+        $this->dic->ui()->mainTemplate()->addJavaScript($this->getPlugin()->getDirectory() . '/templates/js/form.min.js?v=3');
         $this->dic->ui()->mainTemplate()->addOnLoadCode('OpencastPageComponent.initForm(' .
             Config::getField(Config::KEY_DEFAULT_WIDTH) * 2 .
             ');');
