@@ -14,7 +14,7 @@
     "url": "https://plugins.studer-raimann.ch/goto.php?target=uihk_srsu_PLOPENCAST"
   },
   "dependencies": {
-    "ion-rangeslider": "^2.3.0"
+    "ion-rangeslider": "^2.3.1"
   },
   "private": true
 }

@@ -215,6 +215,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $this->dic->ui()->mainTemplate()->addOnLoadCode('OpencastPageComponent.initForm();');
 
         $form = new ilPropertyFormGUI();
+        $form->setId('ocpc_edit');
         $prop = $this->getProperties();
         $xoctEvent = xoctEvent::find($prop[self::PROP_EVENT_ID]);
 
