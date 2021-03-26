@@ -8,7 +8,8 @@ OpencastPageComponent = {
         $('input[name="cmd[resetFilter]"]').replaceWith('<a class="btn btn-default" href="' + url + '">' + name + '</a>');
     },
 
-    initForm: function() {
+    initForm: function(max_width) {
+        this.max_width = max_width ?? 1000;
         OpencastPageComponent.slider = $("#ocpc_slider").data("ionRangeSlider");
         OpencastPageComponent.updateSlider();
 
@@ -42,8 +43,12 @@ OpencastPageComponent = {
     },
 
     updateSlider: function() {
-        this.max_width = $('#ocpc_thumbnail').width() * 2;
         let width = $('input#prop_size_width').val();
+        if (parseInt(width) > parseInt(OpencastPageComponent.max_width)) {
+            console.log(width);
+            console.log(OpencastPageComponent.max_width);
+            OpencastPageComponent.max_width = width;
+        }
         let percentage = (width / OpencastPageComponent.max_width) * 100;
         OpencastPageComponent.slider.update({from: percentage});
     },
