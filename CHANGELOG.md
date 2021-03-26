@@ -1,7 +1,7 @@
 # Changelog
 
 ## [1.5.2]
-- Improvement: slider percentage is now dynamic and not fixed to 100% = 1000px
+- Improvement: slider 100% is now two times the default width
 - Change: lang var for width/height input
 - Fix: slider got stuck when the vertical scrollbar appeared
 
