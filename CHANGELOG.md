@@ -3,6 +3,7 @@
 ## [1.5.2]
 - Improvement: slider percentage is now dynamic and not fixed to 100% = 1000px
 - Change: lang var for width/height input
+- Fix: slider got stuck when the vertical scrollbar appeared
 
 ## [1.5.1]
 - Change: changed table behavior for InteractiveVideo plugin 
