@@ -8,8 +8,7 @@ The page editor action "Insert Opencast Video" offers a table to search videos f
 
 ### Requirements
 
-* ILIAS 5.4.x / 6.x
-* PHP >= 7.0
+* ILIAS 6.x / 7.x
 
 ### Installation
 

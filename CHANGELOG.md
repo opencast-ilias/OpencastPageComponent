@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.6.0]
+- Change: ILIAS 7 compatibility
+- Change: dropped ILIAS 5.4 compatibility
+
 ## [1.5.2]
 - Improvement: slider 100% is now two times the default width
 - Change: lang var for width/height input
