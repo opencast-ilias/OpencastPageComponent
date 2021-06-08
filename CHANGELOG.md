@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.5.2]
+- Improvement: slider 100% is now two times the default width
+- Change: lang var for width/height input
+- Fix: slider got stuck when the vertical scrollbar appeared
+
 ## [1.5.1]
 - Change: changed table behavior for InteractiveVideo plugin 
 

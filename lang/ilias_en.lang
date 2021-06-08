@@ -5,6 +5,7 @@ config_save#:#Save
 form_title#:#Edit Video Properties
 width#:#Width
 height#:#Height
+height_width#:#Max. width / height in pixels
 as_link#:#Thumbnail as link to video
 as_link_info#:#If selected, clicking on the thumbnail will open the video in a new tab. Otherwise, the video is integrated into the page and a click on it starts the video directly.
 config_default_width#:#Default width

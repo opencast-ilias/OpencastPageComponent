@@ -5,6 +5,7 @@ config_save#:#Speichern
 form_title#:#Videoeigenschaften Bearbeiten
 width#:#Breite
 height#:#Höhe
+height_width#:#Maximale Breite / Höhe in Pixel
 as_link#:#Vorschaubild verlinkt auf Video
 as_link_info#:#Wenn aktiv, wird das Video bei einem Klick auf das Vorschaubild in einem neuen Tab geöffnet. Ansonsten wird das Video in der Seite eingebunden und ein Klick darauf startet das Video direkt.
 config_default_width#:#Standard-Breite

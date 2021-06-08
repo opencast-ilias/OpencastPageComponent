@@ -211,10 +211,14 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     {
         $this->dic->ui()->mainTemplate()->addJavaScript($this->getPlugin()->getDirectory() . '/node_modules/ion-rangeslider/js/ion.rangeSlider.min.js');
         $this->dic->ui()->mainTemplate()->addCss($this->getPlugin()->getDirectory() . '/node_modules/ion-rangeslider/css/ion.rangeSlider.min.css');
-        $this->dic->ui()->mainTemplate()->addJavaScript($this->getPlugin()->getDirectory() . '/templates/js/form.min.js');
-        $this->dic->ui()->mainTemplate()->addOnLoadCode('OpencastPageComponent.initForm();');
+        $this->dic->ui()->mainTemplate()->addCss($this->getPlugin()->getDirectory() . '/templates/css/form.css');
+        $this->dic->ui()->mainTemplate()->addJavaScript($this->getPlugin()->getDirectory() . '/templates/js/form.min.js?v=3');
+        $this->dic->ui()->mainTemplate()->addOnLoadCode('OpencastPageComponent.initForm(' .
+            Config::getField(Config::KEY_DEFAULT_WIDTH) * 2 .
+            ');');
 
         $form = new ilPropertyFormGUI();
+        $form->setId('ocpc_edit');
         $prop = $this->getProperties();
         $xoctEvent = xoctEvent::find($prop[self::PROP_EVENT_ID]);
 
@@ -224,8 +228,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $form->addItem($thumbnail);
 
         // width height
-        $width_height = new ilWidthHeightInputGUI($this->dic->language()->txt("cont_width") .
-            " / " . $this->dic->language()->txt("cont_height"), self::POST_SIZE);
+        $width_height = new ilWidthHeightInputGUI($this->plugin->txt("height_width"), self::POST_SIZE);
         $width_height->setConstrainProportions(true);
         $width_height->setRequired(true);
         $width_height->setValueByArray([self::POST_SIZE => array_merge($prop, ['constr_prop' => true])]);
