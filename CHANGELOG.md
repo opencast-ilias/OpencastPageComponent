@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.5.3]
+- Fix: videos in previews (e.g. in a Blog's admin view) were not playable
+
 ## [1.5.2]
 - Improvement: slider 100% is now two times the default width
 - Change: lang var for width/height input
