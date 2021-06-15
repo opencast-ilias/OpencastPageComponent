@@ -46,6 +46,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     const POST_SIZE = 'size';
     const MODE_EDIT = 'edit';
     const MODE_PRESENTATION = 'presentation';
+    const MODE_PREVIEW = 'preview';
     const PROP_POSITION = 'position';
     const POSITION_LEFT = 'left';
     const POSITION_CENTER = 'center';
@@ -465,7 +466,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $this->setStyleFromProps($tpl, $properties);
         $tpl->setVariable('THUMBNAIL_URL', $xoctEvent->publications()->getThumbnailUrl());
         $this->dic->ui()->mainTemplate()->addCss($this->getPlugin()->getDirectory() . '/templates/css/presentation.css');
-        if ($mode == self::MODE_PRESENTATION) {
+        if ($mode == self::MODE_PRESENTATION || $mode == self::MODE_PREVIEW) {
             $tpl->setVariable('TARGET', '_blank');
             $tpl->setVariable('VIDEO_LINK', $use_modal ? '#' : $this->getPlayerLink($xoctEvent));
             $tpl->touchBlock('overlay');
