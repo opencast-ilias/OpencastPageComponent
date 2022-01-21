@@ -2,6 +2,7 @@
 
 ## [1.7.0]
 - Compatability with Opencast plugin v4.0.0
+- Dropped ILIAS 5.4 support
 
 ## [1.6.0]
 - Change: ILIAS 7 compatability
