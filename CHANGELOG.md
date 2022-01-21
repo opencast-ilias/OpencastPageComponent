@@ -1,7 +1,10 @@
 # Changelog
 
+## [1.7.0]
+- Compatability with Opencast plugin v4.0.0
+
 ## [1.6.0]
-- Change: ILIAS 7 compatibility
+- Change: ILIAS 7 compatability
 
 ## [1.5.3]
 - Fix: videos in previews (e.g. in a Blog's admin view) were not playable

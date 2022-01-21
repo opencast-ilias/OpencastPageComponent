@@ -2,10 +2,24 @@
 require_once __DIR__ . "/../vendor/autoload.php";
 require_once './Customizing/global/plugins/Services/Repository/RepositoryObject/OpenCast/vendor/autoload.php';
 
+use ILIAS\DI\Container;
 use srag\DIC\OpenCast\Exception\DICException;
 use srag\DIC\OpencastPageComponent\DICTrait;
+use srag\Plugins\Opencast\Model\ACL\ACLUtils;
+use srag\Plugins\Opencast\Model\Event\EventAPIRepository;
+use srag\Plugins\Opencast\Model\Event\Request\UploadEventRequest;
+use srag\Plugins\Opencast\Model\Event\Request\UploadEventRequestPayload;
+use srag\Plugins\Opencast\Model\Metadata\Definition\MDDataType;
+use srag\Plugins\Opencast\Model\Metadata\Definition\MDFieldDefinition;
+use srag\Plugins\Opencast\Model\Metadata\Metadata;
+use srag\Plugins\Opencast\Model\Metadata\MetadataField;
+use srag\Plugins\Opencast\Model\Scheduling\Processing;
+use srag\Plugins\Opencast\TermsOfUse\ToUManager;
+use srag\Plugins\Opencast\UI\EventFormBuilder;
 use srag\Plugins\Opencast\UI\Input\EventFormGUI;
 use srag\Plugins\Opencast\UI\Input\Plupload;
+use srag\Plugins\Opencast\Util\DI\OpencastDIC;
+use srag\Plugins\Opencast\Util\Upload\UploadStorageService;
 use srag\Plugins\OpencastPageComponent\Authorization\TokenRepository;
 use srag\Plugins\OpencastPageComponent\Utils\OpencastPageComponentTrait;
 
@@ -14,7 +28,7 @@ use srag\Plugins\OpencastPageComponent\Utils\OpencastPageComponentTrait;
  *
  * @author            Theodor Truffer <tt@studer-raimann.ch>
  *
- * @ilCtrl_Calls      ocpcRouterGUI: xoctPlayerGUI
+ * @ilCtrl_Calls      ocpcRouterGUI: xoctPlayerGUI, xoctFileUploadHandler
  * @ilCtrl_isCalledBy ocpcRouterGUI: ilObjPluginDispatchGUI
  */
 class ocpcRouterGUI
@@ -22,6 +36,7 @@ class ocpcRouterGUI
 
     use DICTrait;
     use OpencastPageComponentTrait;
+
     const PLUGIN_CLASS_NAME = ilOpencastPageComponentPlugin::class;
     const TOKEN = 'token';
     const CMD_UPLOAD_CHUNKS = EventFormGUI::PARENT_CMD_UPLOAD_CHUNKS;
@@ -29,12 +44,39 @@ class ocpcRouterGUI
     const CMD_CANCEL = EventFormGUI::PARENT_CMD_CANCEL;
     const P_GET_RETURN_LINK = 'return_link';
 
-
     /**
-     * ocpcRouterGUI constructor.
+     * @var EventAPIRepository
      */
+    private $event_repository;
+    /**
+     * @var ACLUtils
+     */
+    private $acl_utils;
+    /**
+     * @var OpencastDIC
+     */
+    private $opencast_dic;
+    /**
+     * @var Container
+     */
+    private $dic;
+
     public function __construct()
     {
+        global $DIC;
+        $this->dic = $DIC;
+        $this->opencast_dic = OpencastDIC::getInstance();
+        $this->opencast_dic->overwriteService('upload_handler',
+            new xoctFileUploadHandler(
+                $this->opencast_dic->upload_storage_service(),
+                $this->dic->ctrl()->getLinkTargetByClass(
+                    [ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctFileUploadHandler::class], 'upload'),
+                $this->dic->ctrl()->getLinkTargetByClass(
+                    [ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctFileUploadHandler::class], 'info'),
+                $this->dic->ctrl()->getLinkTargetByClass(
+                    [ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctFileUploadHandler::class], 'remove')));
+        $this->event_repository = $this->opencast_dic->event_repository();
+        $this->acl_utils = new ACLUtils();
         xoctConf::setApiSettings();
     }
 
@@ -46,13 +88,21 @@ class ocpcRouterGUI
         $cmd = self::dic()->ctrl()->getCmd();
         $next_class = self::dic()->ctrl()->getNextClass();
         switch ($next_class) {
+            case strtolower(xoctFileUploadHandler::class):
+                $fileUploadHandler = new xoctFileUploadHandler(
+                    new UploadStorageService(
+                        $this->dic->filesystem()->temp(),
+                        $this->dic->upload())
+                );
+                self::dic()->ctrl()->forwardCommand($fileUploadHandler);
+                break;
             case strtolower(xoctPlayerGUI::class):
                 if (!$this->checkPlayerAccess()) {
                     ilUtil::sendFailure('Access Denied.');
                     self::dic()->ctrl()->returnToParent($this);
                 }
                 xoctConf::setApiSettings();
-                $xoctPlayerGUI = new xoctPlayerGUI();
+                $xoctPlayerGUI = new xoctPlayerGUI($this->event_repository);
                 $xoctPlayerGUI->streamVideo();
                 break;
             default:
@@ -71,7 +121,7 @@ class ocpcRouterGUI
     /**
      * @return bool
      */
-    protected function checkPlayerAccess() : bool
+    protected function checkPlayerAccess(): bool
     {
         $token = filter_input(INPUT_GET, self::TOKEN, FILTER_SANITIZE_STRING);
         $event_id = filter_input(INPUT_GET, xoctPlayerGUI::IDENTIFIER, FILTER_SANITIZE_STRING);
@@ -102,27 +152,55 @@ class ocpcRouterGUI
     protected function create()
     {
         $xoctUser = xoctUser::getInstance(self::dic()->user());
-        $xoctEventFormGUI = new EventFormGUI($this, new xoctEvent());
 
-        $xoctAclStandardSets = new xoctAclStandardSets($xoctUser->getOwnerRoleName() ? array($xoctUser->getOwnerRoleName(), $xoctUser->getUserRoleName()) : array());
-        $xoctEventFormGUI->getObject()->setAcl($xoctAclStandardSets->getAcls());
+        $form = $this->opencast_dic->event_form_builder()->upload(
+            self::dic()->ctrl()->getFormActionByClass([ilObjPluginDispatchGUI::class, ocpcRouterGUI::class], self::CMD_CREATE),
+            !ToUManager::hasAcceptedToU(self::dic()->user()->getId())
+        )->withRequest($this->dic->http()->request());
+        $data = $form->getData();
 
-        if ($xoctEventFormGUI->saveObject()) {
-            ilUtil::sendSuccess(self::plugin()->translate('msg_created'), true);
-            $this->cancel();
+        if (!ToUManager::hasAcceptedToU(self::dic()->user()->getId())) {
+            $eula_accepted = $data[EventFormBuilder::F_ACCEPT_EULA][EventFormBuilder::F_ACCEPT_EULA];
+            if (!$eula_accepted) {
+                // this is necessary because the 'required'-function of the checkbox doesn't work currently
+                // otherwise, $data would just be null
+                ilUtil::sendFailure(self::plugin()->getPluginObject()->txt('event_error_alert_accpet_terms_of_use'));
+                self::dic()->mainTemplate()->loadStandardTemplate();
+                self::dic()->mainTemplate()->setContent($this->dic->ui()->renderer()->render($form));
+                self::dic()->mainTemplate()->printToStdout();                    return;
+            } else {
+                ToUManager::setToUAccepted(self::dic()->user()->getId());
+            }
         }
-        $xoctEventFormGUI->setValuesByPost();
-        if (self::version()->is6()) {
+
+        if (!$data) {
             self::dic()->mainTemplate()->loadStandardTemplate();
-        } else {
-        self::dic()->mainTemplate()->getStandardTemplate();
-        }
-        self::dic()->mainTemplate()->setContent($xoctEventFormGUI->getHTML());
-        if (self::version()->is6()) {
+            self::dic()->mainTemplate()->setContent($this->dic->ui()->renderer()->render($form));
             self::dic()->mainTemplate()->printToStdout();
-        } else {
-        self::dic()->mainTemplate()->show();
+            return;
         }
+
+        $series_id = $data['file'][MDFieldDefinition::F_IS_PART_OF];
+        if ($series_id === 'own_series') {
+            $series_id = $this->opencast_dic->series_repository()->getOrCreateOwnSeries($xoctUser)->getIdentifier();
+        }
+        /** @var Metadata $metadata */
+        $metadata = $data['metadata']['object'];
+        $metadata->addField((new MetadataField(MDFieldDefinition::F_IS_PART_OF, MDDataType::text()))
+            ->withValue($series_id));
+
+        $this->event_repository->upload(new UploadEventRequest(new UploadEventRequestPayload(
+            $metadata,
+            $this->opencast_dic->acl_utils()->getBaseACLForUser(xoctUser::getInstance(self::dic()->user())),
+            new Processing(xoctConf::getConfig(xoctConf::F_WORKFLOW),
+                $data['workflow_configuration']['object']),
+            xoctUploadFile::getInstanceFromFileArray($data['file']['file'])
+        )));
+
+
+
+        ilUtil::sendSuccess(self::plugin()->translate('msg_created'), true);
+        $this->cancel();
     }
 
 
@@ -141,7 +219,7 @@ class ocpcRouterGUI
      *
      * @return string
      */
-    public function txt(string $var) : string
+    public function txt(string $var): string
     {
         return ilOpenCastPlugin::getInstance()->txt('event_' . $var);
     }
