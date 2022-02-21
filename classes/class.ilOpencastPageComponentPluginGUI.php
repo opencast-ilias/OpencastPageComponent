@@ -200,17 +200,19 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 
 
     /**
+     * @param bool $init_data
      * @return TableGUI
-     * @throws DICException
      */
-    protected function getTable() : TableGUI
+    protected function getTable($init_data = true) : TableGUI
     {
         $this->dic->ctrl()->clearParameterByClass(self::class, self::CUSTOM_CMD);
         $command_url = $this->dic->ctrl()->getLinkTarget($this, self::CMD_CREATE);
         $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, self::CMD_APPLY_FILTER);
-        $table = new VideoSearchTableGUI($this, self::CMD_INSERT, $this->dic, $this->opencast_dic, $command_url);
+        $table = new VideoSearchTableGUI($this, self::CMD_INSERT, $this->dic, $command_url);
         $table->setFilterCommand(self::CMD_INSERT);
-        $table->initializeData();
+        if ($init_data) {
+            $table->initializeData();
+        }
 
         $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, self::CMD_RESET_FILTER);
         $reset_filter_url = $this->dic->ctrl()->getLinkTarget($this, self::CMD_INSERT);
@@ -310,7 +312,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
      */
     protected function applyFilter()
     {
-        $table = $this->getTable();
+        $table = $this->getTable(false);
         $table->setFilterCommand(self::CMD_INSERT);
         $table->resetOffset();
         $table->storeProperty('offset', 0);

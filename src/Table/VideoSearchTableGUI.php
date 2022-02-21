@@ -56,12 +56,12 @@ class VideoSearchTableGUI extends TableGUI
     public function __construct($parent_gui,
                                 string $parent_cmd,
                                 Container $dic,
-                                OpencastDIC $opencast_dic,
                                 string $command_url)
     {
         $this->dic = $dic;
         $this->command_url = $command_url;
         $this->opencast_plugin = ilOpenCastPlugin::getInstance();
+        $opencast_dic = OpencastDIC::getInstance();
         $this->event_repository = $opencast_dic->event_repository();
         $this->series_repository = $opencast_dic->series_repository();
         $this->initId();    // this is necessary so the offset and order can be determined
