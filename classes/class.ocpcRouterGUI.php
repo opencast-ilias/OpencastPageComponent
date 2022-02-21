@@ -6,6 +6,7 @@ use ILIAS\DI\Container;
 use srag\DIC\OpenCast\Exception\DICException;
 use srag\DIC\OpencastPageComponent\DICTrait;
 use srag\Plugins\Opencast\Model\ACL\ACLUtils;
+use srag\Plugins\Opencast\Model\Config\PluginConfig;
 use srag\Plugins\Opencast\Model\Event\EventAPIRepository;
 use srag\Plugins\Opencast\Model\Event\Request\UploadEventRequest;
 use srag\Plugins\Opencast\Model\Event\Request\UploadEventRequestPayload;
@@ -14,9 +15,9 @@ use srag\Plugins\Opencast\Model\Metadata\Definition\MDFieldDefinition;
 use srag\Plugins\Opencast\Model\Metadata\Metadata;
 use srag\Plugins\Opencast\Model\Metadata\MetadataField;
 use srag\Plugins\Opencast\Model\Scheduling\Processing;
+use srag\Plugins\Opencast\Model\User\xoctUser;
 use srag\Plugins\Opencast\TermsOfUse\ToUManager;
 use srag\Plugins\Opencast\UI\EventFormBuilder;
-use srag\Plugins\Opencast\UI\Input\EventFormGUI;
 use srag\Plugins\Opencast\UI\Input\Plupload;
 use srag\Plugins\Opencast\Util\DI\OpencastDIC;
 use srag\Plugins\Opencast\Util\Upload\UploadStorageService;
@@ -39,9 +40,9 @@ class ocpcRouterGUI
 
     const PLUGIN_CLASS_NAME = ilOpencastPageComponentPlugin::class;
     const TOKEN = 'token';
-    const CMD_UPLOAD_CHUNKS = EventFormGUI::PARENT_CMD_UPLOAD_CHUNKS;
-    const CMD_CREATE = EventFormGUI::PARENT_CMD_CREATE;
-    const CMD_CANCEL = EventFormGUI::PARENT_CMD_CANCEL;
+    const CMD_UPLOAD_CHUNKS = 'uploadChunks';
+    const CMD_CREATE = 'create';
+    const CMD_CANCEL = 'cancel';
     const P_GET_RETURN_LINK = 'return_link';
 
     /**
@@ -77,7 +78,7 @@ class ocpcRouterGUI
                     [ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctFileUploadHandler::class], 'remove')));
         $this->event_repository = $this->opencast_dic->event_repository();
         $this->acl_utils = new ACLUtils();
-        xoctConf::setApiSettings();
+        PluginConfig::setApiSettings();
     }
 
 
@@ -101,7 +102,7 @@ class ocpcRouterGUI
                     ilUtil::sendFailure('Access Denied.');
                     self::dic()->ctrl()->returnToParent($this);
                 }
-                xoctConf::setApiSettings();
+                PluginConfig::setApiSettings();
                 $xoctPlayerGUI = new xoctPlayerGUI($this->event_repository,
                     $this->opencast_dic->paella_config_storage_service());
                 $xoctPlayerGUI->streamVideo();
@@ -193,7 +194,7 @@ class ocpcRouterGUI
         $this->event_repository->upload(new UploadEventRequest(new UploadEventRequestPayload(
             $metadata,
             $this->opencast_dic->acl_utils()->getBaseACLForUser(xoctUser::getInstance(self::dic()->user())),
-            new Processing(xoctConf::getConfig(xoctConf::F_WORKFLOW),
+            new Processing(PluginConfig::getConfig(PluginConfig::F_WORKFLOW),
                 $data['workflow_configuration']['object']),
             xoctUploadFile::getInstanceFromFileArray($data['file']['file'])
         )));

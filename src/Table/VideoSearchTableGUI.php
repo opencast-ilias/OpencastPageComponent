@@ -2,14 +2,12 @@
 
 use ILIAS\DI\Container;
 use srag\CustomInputGUIs\OpencastPageComponent\TableGUI\TableGUI;
-use srag\DIC\OpencastPageComponent\Exception\DICException;
+use srag\Plugins\Opencast\Model\Config\PluginConfig;
 use srag\Plugins\Opencast\Model\Event\Event;
 use srag\Plugins\Opencast\Model\Event\EventAPIRepository;
-use srag\Plugins\Opencast\Model\Event\EventRepository;
 use srag\Plugins\Opencast\Model\Metadata\Definition\MDFieldDefinition;
-use srag\Plugins\Opencast\Model\Series\Series;
-use srag\Plugins\Opencast\Model\Series\SeriesAPIRepository;
 use srag\Plugins\Opencast\Model\Series\SeriesRepository;
+use srag\Plugins\Opencast\Model\User\xoctUser;
 use srag\Plugins\Opencast\Util\DI\OpencastDIC;
 
 /**
@@ -173,7 +171,7 @@ class VideoSearchTableGUI extends TableGUI
     {
         // the api doesn't deliver a max count, so we fetch (limit + 1) to see if there should be a 'next' page
         try {
-            $common_idp = xoctConf::getConfig(xoctConf::F_COMMON_IDP);
+            $common_idp = PluginConfig::getConfig(PluginConfig::F_COMMON_IDP);
             $events = (array)$this->event_repository->getFiltered(
                 $this->buildFilterArray(),
                 $common_idp ? xoctUser::getInstance($this->dic->user())->getIdentifier() : '',

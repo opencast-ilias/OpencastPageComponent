@@ -7,6 +7,7 @@ use ILIAS\UI\Component\Input\Container\Form\Form;
 use srag\CustomInputGUIs\OpencastPageComponent\TableGUI\TableGUI;
 use srag\DIC\OpencastPageComponent\DICTrait;
 use srag\DIC\OpencastPageComponent\Exception\DICException;
+use srag\Plugins\Opencast\Model\Config\PluginConfig;
 use srag\Plugins\Opencast\Model\Event\Event;
 use srag\Plugins\Opencast\Model\Event\EventAPIRepository;
 use srag\Plugins\Opencast\Model\Publication\Config\PublicationUsage;
@@ -88,7 +89,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
                 $this->dic->ctrl()->getLinkTargetByClass(
                     [ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctFileUploadHandler::class], 'remove')));
         $this->event_repository = $this->opencast_dic->event_repository();
-        xoctConf::setApiSettings();
+        PluginConfig::setApiSettings();
         parent::__construct();
     }
     /**
@@ -477,7 +478,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     protected function getStandardElementHTML(string $mode, array $properties, Event $event) : string
     {
         $renderer = new xoctEventRenderer($event);
-        $use_modal = (xoctConf::getConfig(xoctConf::F_USE_MODALS));
+        $use_modal = (PluginConfig::getConfig(PluginConfig::F_USE_MODALS));
         $tpl = $this->getPlugin()->getTemplate('html/component_as_link.html');
         $this->setStyleFromProps($tpl, $properties);
         $tpl->setVariable('THUMBNAIL_URL', $event->publications()->getThumbnailUrl());
@@ -536,7 +537,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
      */
     protected function getPlayerLink(Event $event) : string
     {
-        if (xoctConf::getConfig(xoctConf::F_INTERNAL_VIDEO_PLAYER) || $event->isLiveEvent()) {
+        if (PluginConfig::getConfig(PluginConfig::F_INTERNAL_VIDEO_PLAYER) || $event->isLiveEvent()) {
             $token = (new TokenRepository())->create(self::dic()->user()->getId(), $event->getIdentifier());
             self::dic()->ctrl()->clearParametersByClass(xoctPlayerGUI::class);
             self::dic()->ctrl()->setParameterByClass(ocpcRouterGUI::class, ocpcRouterGUI::TOKEN, $token->getToken()->toString());
@@ -546,7 +547,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         }
         if (!isset($this->player_url)) {
             $url = $event->publications()->getFirstPublicationMetadataForUsage(PublicationUsage::find(PublicationUsage::USAGE_PLAYER))->getUrl();
-            if (xoctConf::getConfig(xoctConf::F_SIGN_PLAYER_LINKS)) {
+            if (PluginConfig::getConfig(PluginConfig::F_SIGN_PLAYER_LINKS)) {
                 $this->player_url = xoctSecureLink::signPlayer($url);
             } else {
                 $this->player_url = $url;
