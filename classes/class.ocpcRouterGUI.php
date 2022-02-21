@@ -102,7 +102,8 @@ class ocpcRouterGUI
                     self::dic()->ctrl()->returnToParent($this);
                 }
                 xoctConf::setApiSettings();
-                $xoctPlayerGUI = new xoctPlayerGUI($this->event_repository);
+                $xoctPlayerGUI = new xoctPlayerGUI($this->event_repository,
+                    $this->opencast_dic->paella_config_storage_service());
                 $xoctPlayerGUI->streamVideo();
                 break;
             default:
@@ -196,7 +197,7 @@ class ocpcRouterGUI
                 $data['workflow_configuration']['object']),
             xoctUploadFile::getInstanceFromFileArray($data['file']['file'])
         )));
-
+        $this->opencast_dic->upload_storage_service()->delete($data['file']['file']['id']);
 
 
         ilUtil::sendSuccess(self::plugin()->translate('msg_created'), true);
