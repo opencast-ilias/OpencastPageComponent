@@ -8,7 +8,7 @@ use srag\Plugins\Opencast\Model\Event\EventAPIRepository;
 use srag\Plugins\Opencast\Model\Metadata\Definition\MDFieldDefinition;
 use srag\Plugins\Opencast\Model\Series\SeriesRepository;
 use srag\Plugins\Opencast\Model\User\xoctUser;
-use srag\Plugins\Opencast\Util\DI\OpencastDIC;
+use srag\Plugins\Opencast\DI\OpencastDIC;
 
 /**
  * Class VideoSearchTableGUI
