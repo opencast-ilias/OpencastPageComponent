@@ -19,8 +19,8 @@ use srag\Plugins\Opencast\Model\User\xoctUser;
 use srag\Plugins\Opencast\TermsOfUse\ToUManager;
 use srag\Plugins\Opencast\UI\EventFormBuilder;
 use srag\Plugins\Opencast\UI\Input\Plupload;
-use srag\Plugins\Opencast\Util\DI\OpencastDIC;
-use srag\Plugins\Opencast\Util\Upload\UploadStorageService;
+use srag\Plugins\Opencast\DI\OpencastDIC;
+use srag\Plugins\Opencast\Util\FileTransfer\UploadStorageService;
 use srag\Plugins\OpencastPageComponent\Authorization\TokenRepository;
 use srag\Plugins\OpencastPageComponent\Utils\OpencastPageComponentTrait;
 
@@ -103,8 +103,11 @@ class ocpcRouterGUI
                     self::dic()->ctrl()->returnToParent($this);
                 }
                 PluginConfig::setApiSettings();
-                $xoctPlayerGUI = new xoctPlayerGUI($this->event_repository,
-                    $this->opencast_dic->paella_config_storage_service());
+                $xoctPlayerGUI = new xoctPlayerGUI(
+                    $this->event_repository,
+                    $this->opencast_dic->paella_config_storage_service(),
+                    $this->opencast_dic->paella_config_service_factory()
+                );
                 $xoctPlayerGUI->streamVideo();
                 break;
             default:
