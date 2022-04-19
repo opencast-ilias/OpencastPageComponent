@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.7.1]
+- Added flux publish utils
+
 ## [1.7.0]
 - Compatability with Opencast plugin v4.0.0
 - Dropped ILIAS 5.4 support
