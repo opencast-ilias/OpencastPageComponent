@@ -1,24 +1,23 @@
 {
-  "name": "srag/Plugins/OpencastPageComponent",
+  "name": "fluxapps/opencast-page-component",
+  "version": "1.7.1",
   "description": "",
   "type": "project",
   "keywords": [
-    "ILIAS",
-    "Plugin"
+    "ilias",
+    "plugin",
+    "opencast"
   ],
-  "homepage": "https://github.com/studer-raimann/OpencastPageComponent",
+  "homepage": "https://github.com/fluxapps/OpencastPageComponent",
   "license": "GPL-3.0-only",
   "authors": [
     {
-      "name": "studer + raimann ag - Team Custom 1",
-      "email": "info@studer-raimann.ch",
-      "homepage": "https://studer-raimann.ch",
-      "role": "Developer"
+      "name": "fluxlabs ag",
+      "email": "support@fluxlabs.ch",
+      "homepage": "https://fluxlabs.ch",
+      "role": "Developer, Maintainer"
     }
   ],
-  "support": {
-    "issues": "https://plugins.studer-raimann.ch/goto.php?target=uihk_srsu_PLOPENCAST"
-  },
   "require": {
     "srag/activerecordconfig": ">=0.1.0",
     "srag/custominputguis": ">=0.1.0",
