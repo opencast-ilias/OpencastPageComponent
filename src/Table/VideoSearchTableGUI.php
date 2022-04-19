@@ -2,9 +2,13 @@
 
 use ILIAS\DI\Container;
 use srag\CustomInputGUIs\OpencastPageComponent\TableGUI\TableGUI;
-use srag\DIC\OpencastPageComponent\Exception\DICException;
-use srag\Plugins\Opencast\Model\API\Event\EventRepository;
-use srag\Plugins\Opencast\Model\API\Series\SeriesRepository;
+use srag\Plugins\Opencast\Model\Config\PluginConfig;
+use srag\Plugins\Opencast\Model\Event\Event;
+use srag\Plugins\Opencast\Model\Event\EventAPIRepository;
+use srag\Plugins\Opencast\Model\Metadata\Definition\MDFieldDefinition;
+use srag\Plugins\Opencast\Model\Series\SeriesRepository;
+use srag\Plugins\Opencast\Model\User\xoctUser;
+use srag\Plugins\Opencast\DI\OpencastDIC;
 
 /**
  * Class VideoSearchTableGUI
@@ -40,27 +44,26 @@ class VideoSearchTableGUI extends TableGUI
      */
     protected $opencast_plugin;
     /**
-     * @var EventRepository
+     * @var EventAPIRepository
      */
     protected $event_repository;
-
-
     /**
-     * VideoSearchTableGUI constructor.
-     *
-     * @param           $parent_gui
-     * @param string    $parent_cmd
-     * @param Container $dic
-     * @param string    $command_url will be executed when choosing a video (with the event_id as GET parameter)
-     *
-     * @throws DICException
+     * @var SeriesRepository
      */
-    public function __construct($parent_gui, $parent_cmd, $dic, $command_url)
+    private $series_repository;
+
+
+    public function __construct($parent_gui,
+                                string $parent_cmd,
+                                Container $dic,
+                                string $command_url)
     {
         $this->dic = $dic;
         $this->command_url = $command_url;
         $this->opencast_plugin = ilOpenCastPlugin::getInstance();
-        $this->event_repository = new EventRepository($dic);
+        $opencast_dic = OpencastDIC::getInstance();
+        $this->event_repository = $opencast_dic->event_repository();
+        $this->series_repository = $opencast_dic->series_repository();
         $this->initId();    // this is necessary so the offset and order can be determined
         $this->setExternalSegmentation(true);
         $this->setExternalSorting(true);
@@ -82,9 +85,9 @@ class VideoSearchTableGUI extends TableGUI
      */
     protected function fillRow(/*array*/ $row)/*: void*/
     {
-        /** @var xoctEvent $object */
+        /** @var Event $object */
         $object = $row['object'];
-        if ($object->getProcessingState() == xoctEvent::STATE_SUCCEEDED) {
+        if ($object->getProcessingState() == Event::STATE_SUCCEEDED) {
             $this->tpl->setVariable('ADDITIONAL_CSS_CLASSES', 'ocpc_table_row_selectable');
         }
 
@@ -111,29 +114,29 @@ class VideoSearchTableGUI extends TableGUI
     /**
      * @param       $column
      * @param array $row
-     * @param int   $format
+     * @param int $format
      *
      * @return false|mixed|string
      * @throws xoctException
      * @inheritDoc
      */
-    protected function getColumnValue(string $column, /*array*/ $row, int $format = self::DEFAULT_FORMAT) : string
+    protected function getColumnValue(string $column, /*array*/ $row, int $format = self::DEFAULT_FORMAT): string
     {
         switch ($column) {
             case 'thumbnail':
-                /** @var xoctEvent $object */
+                /** @var Event $object */
                 $object = $row['object'];
 
                 return '<img height="107.5px" width="200px" src="' . $object->publications()->getThumbnailUrl() . '">';
             case 'title':
-                /** @var xoctEvent $object */
+                /** @var Event $object */
                 $object = $row['object'];
                 $renderer = new xoctEventRenderer($object);
                 return $row['title'] . $renderer->getStateHTML();
             case 'description':
                 return $row['description'];
             case 'series':
-                /** @var xoctEvent $object */
+                /** @var Event $object */
                 $object = $row['object'];
 
                 return $object->getSeries();
@@ -148,15 +151,15 @@ class VideoSearchTableGUI extends TableGUI
     /**
      * @inheritDoc
      */
-    protected function getSelectableColumns2() : array
+    protected function getSelectableColumns2(): array
     {
         return [
-            'thumbnail'   => ['txt' => $this->opencast_plugin->txt('event_preview'), 'id' => 'thumbnail', 'default' => true],
-            'title'       => ['txt' => $this->opencast_plugin->txt('event_title'), 'id' => 'title', 'default' => true],
+            'thumbnail' => ['txt' => $this->opencast_plugin->txt('event_preview'), 'id' => 'thumbnail', 'default' => true],
+            'title' => ['txt' => $this->opencast_plugin->txt('event_title'), 'id' => 'title', 'default' => true],
             'description' => ['txt' => $this->opencast_plugin->txt('event_description'), 'id' => 'description', 'default' => true],
-            'series'      => ['txt' => $this->opencast_plugin->txt('event_series'), 'id' => 'series', 'default' => true],
-            'start'       => ['txt' => $this->opencast_plugin->txt('event_start'), 'id' => 'start', 'default' => true],
-            'location'    => ['txt' => $this->opencast_plugin->txt('event_location'), 'id' => 'location', 'default' => true],
+            'series' => ['txt' => $this->opencast_plugin->txt('event_series'), 'id' => 'series', 'default' => true],
+            'start' => ['txt' => $this->opencast_plugin->txt('event_start'), 'id' => 'start', 'default' => true],
+            'location' => ['txt' => $this->opencast_plugin->txt('event_location'), 'id' => 'location', 'default' => true],
         ];
     }
 
@@ -168,8 +171,8 @@ class VideoSearchTableGUI extends TableGUI
     {
         // the api doesn't deliver a max count, so we fetch (limit + 1) to see if there should be a 'next' page
         try {
-            $common_idp = xoctConf::getConfig(xoctConf::F_COMMON_IDP);
-            $events = (array) $this->event_repository->getFiltered(
+            $common_idp = PluginConfig::getConfig(PluginConfig::F_COMMON_IDP);
+            $events = (array)$this->event_repository->getFiltered(
                 $this->buildFilterArray(),
                 $common_idp ? xoctUser::getInstance($this->dic->user())->getIdentifier() : '',
                 $common_idp ? [] : [xoctUser::getInstance($this->dic->user())->getUserRoleName()],
@@ -194,7 +197,7 @@ class VideoSearchTableGUI extends TableGUI
     /**
      * @return array
      */
-    protected function buildFilterArray() : array
+    protected function buildFilterArray(): array
     {
         $filter = ['status' => 'EVENTS.EVENTS.STATUS.PROCESSED'];
 
@@ -271,9 +274,11 @@ class VideoSearchTableGUI extends TableGUI
     {
         $series_options = ['' => '-'];
         $xoctUser = xoctUser::getInstance($this->dic->user());
-        (new SeriesRepository())->getOwnSeries($xoctUser);
-        foreach (xoctSeries::getAllForUser($xoctUser->getUserRoleName()) as $serie) {
-            $series_options[$serie->getIdentifier()] = $serie->getTitle() . ' (...' . substr($serie->getIdentifier(), -4, 4) . ')';
+        $this->series_repository->getOwnSeries($xoctUser);
+        foreach ($this->series_repository->getAllForUser($xoctUser->getUserRoleName()) as $series) {
+            $series_options[$series->getIdentifier()] =
+                $series->getMetadata()->getField(MDFieldDefinition::F_TITLE)->getValue()
+                . ' (...' . substr($series->getIdentifier(), -4, 4) . ')';
         }
 
         natcasesort($series_options);
