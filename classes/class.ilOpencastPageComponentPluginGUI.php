@@ -3,15 +3,19 @@
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see https://github.com/ILIAS-eLearning/ILIAS/tree/trunk/docs/LICENSE */
 
 use ILIAS\DI\Container;
+use ILIAS\UI\Component\Input\Container\Form\Form;
 use srag\CustomInputGUIs\OpencastPageComponent\TableGUI\TableGUI;
 use srag\DIC\OpencastPageComponent\DICTrait;
 use srag\DIC\OpencastPageComponent\Exception\DICException;
-use srag\Plugins\Opencast\Model\Config\PublicationUsage\PublicationUsage;
-use srag\Plugins\Opencast\UI\Input\EventFormGUI;
+use srag\Plugins\Opencast\Model\Config\PluginConfig;
+use srag\Plugins\Opencast\Model\Event\Event;
+use srag\Plugins\Opencast\Model\Event\EventAPIRepository;
+use srag\Plugins\Opencast\Model\Publication\Config\PublicationUsage;
+use srag\Plugins\Opencast\TermsOfUse\ToUManager;
+use srag\Plugins\Opencast\DI\OpencastDIC;
 use srag\Plugins\OpencastPageComponent\Authorization\TokenRepository;
 use srag\Plugins\OpencastPageComponent\Config\Config;
 use srag\Plugins\OpencastPageComponent\Utils\OpencastPageComponentTrait;
-
 /**
  * Class ilOpencastPageComponentPluginGUI
  *
@@ -56,6 +60,14 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
      * @var Container
      */
     protected $dic;
+    /**
+     * @var OpencastDIC
+     */
+    protected $opencast_dic;
+    /**
+     * @var EventAPIRepository
+     */
+    protected $event_repository;
 
 
     /**
@@ -65,7 +77,18 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     {
         global $DIC;
         $this->dic = $DIC;
-        xoctConf::setApiSettings();
+        $this->opencast_dic = OpencastDIC::getInstance();
+        $this->opencast_dic->overwriteService('upload_handler',
+            new xoctFileUploadHandler(
+                $this->opencast_dic->upload_storage_service(),
+                $this->dic->ctrl()->getLinkTargetByClass(
+                    [ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctFileUploadHandler::class], 'upload'),
+                $this->dic->ctrl()->getLinkTargetByClass(
+                    [ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctFileUploadHandler::class], 'info'),
+                $this->dic->ctrl()->getLinkTargetByClass(
+                    [ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctFileUploadHandler::class], 'remove')));
+        $this->event_repository = $this->opencast_dic->event_repository();
+        PluginConfig::setApiSettings();
         parent::__construct();
     }
     /**
@@ -143,8 +166,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     protected function showUploadForm()
     {
         $form = $this->getUploadForm();
-        $form->fillForm();
-        self::output()->output($form->getHTML());
+        self::output()->output($form);
     }
 
 
@@ -158,40 +180,38 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 
 
     /**
-     * @return EventFormGUI
+     * @return Form
      * @throws \srag\DIC\OpenCast\Exception\DICException
      * @throws ilDateTimeException
      * @throws xoctException
      */
-    protected function getUploadForm() : EventFormGUI
+    protected function getUploadForm() : Form
     {
         $this->dic->ctrl()->saveParameter($this, 'rtoken');
 
         $return_link = self::dic()->ctrl()->getLinkTarget($this, 'insert_plug_OpencastPageComponent');
         self::dic()->ctrl()->setParameterByClass(ocpcRouterGUI::class, ocpcRouterGUI::P_GET_RETURN_LINK, urlencode($return_link));
-        return new EventFormGUI(
-            new ocpcRouterGUI(),
-            new xoctEvent(),
-            null,
-            false,
-            self::dic()->ctrl()->getFormActionByClass([ilObjPluginDispatchGUI::class, ocpcRouterGUI::class]),
-            self::dic()->ctrl()->getLinkTargetByClass([ilObjPluginDispatchGUI::class, ocpcRouterGUI::class], ocpcRouterGUI::CMD_UPLOAD_CHUNKS)
+        return $this->opencast_dic->event_form_builder()->upload(
+            self::dic()->ctrl()->getFormActionByClass([ilObjPluginDispatchGUI::class, ocpcRouterGUI::class], self::CMD_CREATE),
+            !ToUManager::hasAcceptedToU(self::dic()->user()->getId())
         );
     }
 
 
     /**
+     * @param bool $init_data
      * @return TableGUI
-     * @throws DICException
      */
-    protected function getTable() : TableGUI
+    protected function getTable($init_data = true) : TableGUI
     {
         $this->dic->ctrl()->clearParameterByClass(self::class, self::CUSTOM_CMD);
         $command_url = $this->dic->ctrl()->getLinkTarget($this, self::CMD_CREATE);
         $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, self::CMD_APPLY_FILTER);
         $table = new VideoSearchTableGUI($this, self::CMD_INSERT, $this->dic, $command_url);
         $table->setFilterCommand(self::CMD_INSERT);
-        $table->initializeData();
+        if ($init_data) {
+            $table->initializeData();
+        }
 
         $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, self::CMD_RESET_FILTER);
         $reset_filter_url = $this->dic->ctrl()->getLinkTarget($this, self::CMD_INSERT);
@@ -221,11 +241,11 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $form = new ilPropertyFormGUI();
         $form->setId('ocpc_edit');
         $prop = $this->getProperties();
-        $xoctEvent = xoctEvent::find($prop[self::PROP_EVENT_ID]);
+        $event = $this->event_repository->find($prop[self::PROP_EVENT_ID]);
 
         // thumbnail
         $thumbnail = new ilNonEditableValueGUI($this->dic->language()->txt('preview'), '', true);
-        $thumbnail->setValue('<img width="' . $prop['width'] . 'px" height="' . $prop['height'] . 'px" id="ocpc_thumbnail" src="' . $xoctEvent->publications()->getThumbnailUrl() . '">');
+        $thumbnail->setValue('<img width="' . $prop['width'] . 'px" height="' . $prop['height'] . 'px" id="ocpc_thumbnail" src="' . $event->publications()->getThumbnailUrl() . '">');
         $form->addItem($thumbnail);
 
         // width height
@@ -283,8 +303,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $this->addToolbar();
         $table = $this->getTable();
         self::output()->output($table->getHTML());
-
-        return;
     }
 
 
@@ -293,7 +311,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
      */
     protected function applyFilter()
     {
-        $table = $this->getTable();
+        $table = $this->getTable(false);
         $table->setFilterCommand(self::CMD_INSERT);
         $table->resetOffset();
         $table->storeProperty('offset', 0);
@@ -405,15 +423,15 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $this->dic->offsetSet("tpl", $GLOBALS["tpl"]);
 
         try {
-            $xoctEvent = xoctEvent::find($a_properties[self::PROP_EVENT_ID]);
+            $event = $this->event_repository->find($a_properties[self::PROP_EVENT_ID]);
         } catch (Exception $e) {
             return $this->getExceptionHTML($a_properties);
         }
         $as_link = (bool) $a_properties[self::PROP_AS_LINK];
         if (!$as_link && ($a_mode == self::MODE_PRESENTATION)) {
-            return $this->getIframeHTML($a_properties, $xoctEvent);
+            return $this->getIframeHTML($a_properties, $event);
         } else {
-            return $this->getStandardElementHTML($a_mode, $a_properties, $xoctEvent);
+            return $this->getStandardElementHTML($a_mode, $a_properties, $event);
         }
     }
 
@@ -431,17 +449,17 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     /**
      * @param array     $properties
      *
-     * @param xoctEvent $xoctEvent
+     * @param Event $event
      *
      * @return string
      * @throws ilTemplateException
      * @throws xoctException
      */
-    protected function getIframeHTML(array $properties, xoctEvent $xoctEvent) : string
+    protected function getIframeHTML(array $properties, Event $event) : string
     {
         $tpl = $this->getPlugin()->getTemplate('html/component_as_iframe.html');
         $this->dic->ui()->mainTemplate()->addCss($this->getPlugin()->getDirectory() . '/templates/css/presentation.css');
-        $tpl->setVariable('SRC', $this->getPlayerLink($xoctEvent));
+        $tpl->setVariable('SRC', $this->getPlayerLink($event));
         $this->setStyleFromProps($tpl, $properties);
 
         return $tpl->get();
@@ -452,23 +470,23 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
      * @param string    $mode
      * @param array     $properties
      *
-     * @param xoctEvent $xoctEvent
+     * @param Event $event
      *
      * @return string
      * @throws ilTemplateException
      * @throws xoctException
      */
-    protected function getStandardElementHTML(string $mode, array $properties, xoctEvent $xoctEvent) : string
+    protected function getStandardElementHTML(string $mode, array $properties, Event $event) : string
     {
-        $renderer = new xoctEventRenderer($xoctEvent);
-        $use_modal = (xoctConf::getConfig(xoctConf::F_USE_MODALS));
+        $renderer = new xoctEventRenderer($event);
+        $use_modal = (PluginConfig::getConfig(PluginConfig::F_USE_MODALS));
         $tpl = $this->getPlugin()->getTemplate('html/component_as_link.html');
         $this->setStyleFromProps($tpl, $properties);
-        $tpl->setVariable('THUMBNAIL_URL', $xoctEvent->publications()->getThumbnailUrl());
+        $tpl->setVariable('THUMBNAIL_URL', $event->publications()->getThumbnailUrl());
         $this->dic->ui()->mainTemplate()->addCss($this->getPlugin()->getDirectory() . '/templates/css/presentation.css');
         if ($mode == self::MODE_PRESENTATION || $mode == self::MODE_PREVIEW) {
             $tpl->setVariable('TARGET', '_blank');
-            $tpl->setVariable('VIDEO_LINK', $use_modal ? '#' : $this->getPlayerLink($xoctEvent));
+            $tpl->setVariable('VIDEO_LINK', $use_modal ? '#' : $this->getPlayerLink($event));
             $tpl->touchBlock('overlay');
             if ($use_modal) {
                 $tpl->setVariable('MODAL', $renderer->getPlayerModal()->getHTML());
@@ -513,24 +531,24 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     }
 
     /**
-     * @param xoctEvent $xoctEvent
+     * @param Event $event
      *
      * @return string
      * @throws xoctException
      */
-    protected function getPlayerLink(xoctEvent $xoctEvent) : string
+    protected function getPlayerLink(Event $event) : string
     {
-        if (xoctConf::getConfig(xoctConf::F_INTERNAL_VIDEO_PLAYER) || $xoctEvent->isLiveEvent()) {
-            $token = (new TokenRepository())->create(self::dic()->user()->getId(), $xoctEvent->getIdentifier());
+        if (PluginConfig::getConfig(PluginConfig::F_INTERNAL_VIDEO_PLAYER) || $event->isLiveEvent()) {
+            $token = (new TokenRepository())->create(self::dic()->user()->getId(), $event->getIdentifier());
             self::dic()->ctrl()->clearParametersByClass(xoctPlayerGUI::class);
             self::dic()->ctrl()->setParameterByClass(ocpcRouterGUI::class, ocpcRouterGUI::TOKEN, $token->getToken()->toString());
-            self::dic()->ctrl()->setParameterByClass(ocpcRouterGUI::class, xoctPlayerGUI::IDENTIFIER, $xoctEvent->getIdentifier());
-            self::dic()->ctrl()->setParameterByClass(xoctPlayerGUI::class, xoctPlayerGUI::IDENTIFIER, $xoctEvent->getIdentifier());
+            self::dic()->ctrl()->setParameterByClass(ocpcRouterGUI::class, xoctPlayerGUI::IDENTIFIER, $event->getIdentifier());
+            self::dic()->ctrl()->setParameterByClass(xoctPlayerGUI::class, xoctPlayerGUI::IDENTIFIER, $event->getIdentifier());
             return self::dic()->ctrl()->getLinkTargetByClass([ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctPlayerGUI::class], xoctPlayerGUI::CMD_STREAM_VIDEO);
         }
         if (!isset($this->player_url)) {
-            $url = $xoctEvent->publications()->getFirstPublicationMetadataForUsage(PublicationUsage::find(PublicationUsage::USAGE_PLAYER))->getUrl();
-            if (xoctConf::getConfig(xoctConf::F_SIGN_PLAYER_LINKS)) {
+            $url = $event->publications()->getFirstPublicationMetadataForUsage(PublicationUsage::find(PublicationUsage::USAGE_PLAYER))->getUrl();
+            if (PluginConfig::getConfig(PluginConfig::F_SIGN_PLAYER_LINKS)) {
                 $this->player_url = xoctSecureLink::signPlayer($url);
             } else {
                 $this->player_url = $url;
