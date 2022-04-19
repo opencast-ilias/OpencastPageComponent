@@ -1,18 +1,13 @@
 {
-  "name": "srag.plugins.opencastpagecomponent",
+  "name": "fluxapps-opencastpagecomponent",
+  "version": "1.7.0",
   "description": "",
   "keywords": [
-    "ILIAS",
-    "Plugin",
-    "Opencast"
+    "ilias",
+    "plugin",
+    "opencast"
   ],
   "license": "GPL-3.0-only",
-  "contributors": [
-    "srag <support@studer-raimann.ch> (https://studer-raimann.ch)"
-  ],
-  "bugs": {
-    "url": "https://plugins.studer-raimann.ch/goto.php?target=uihk_srsu_PLOPENCAST"
-  },
   "dependencies": {
     "ion-rangeslider": "^2.3.1"
   },
