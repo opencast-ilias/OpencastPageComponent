@@ -172,6 +172,9 @@ class VideoSearchTableGUI extends TableGUI
         // the api doesn't deliver a max count, so we fetch (limit + 1) to see if there should be a 'next' page
         try {
             $common_idp = PluginConfig::getConfig(PluginConfig::F_COMMON_IDP);
+            if (xoctUser::getInstance($this->dic->user())->getIdentifier() == '') {
+                throw new xoctException(xoctException::NO_USER_MAPPING);
+            }
             $events = (array)$this->event_repository->getFiltered(
                 $this->buildFilterArray(),
                 $common_idp ? xoctUser::getInstance($this->dic->user())->getIdentifier() : '',
@@ -231,7 +234,11 @@ class VideoSearchTableGUI extends TableGUI
         $this->filter[self::F_TEXTFILTER] = $title->getValue();
 
         $series = $this->addFilterItemByMetaType(self::F_SERIES, self::FILTER_SELECT, false, $this->opencast_plugin->txt('event_series'));
-        $series->setOptions($this->getSeriesFilterOptions());
+        try {
+            $series->setOptions($this->getSeriesFilterOptions());
+        } catch (xoctException $e) {
+            ilUtil::sendFailure($e->getMessage());
+        }
         $this->filter[self::F_SERIES] = $series->getValue();
 
         $start = $this->addFilterItemByMetaType(self::F_START, self::FILTER_DATE_RANGE, false, $this->opencast_plugin->txt('event_start'));
@@ -275,6 +282,9 @@ class VideoSearchTableGUI extends TableGUI
         $series_options = ['' => '-'];
         $xoctUser = xoctUser::getInstance($this->dic->user());
         $this->series_repository->getOwnSeries($xoctUser);
+        if (xoctUser::getInstance($this->dic->user())->getIdentifier() == '') {
+            throw new xoctException(xoctException::NO_USER_MAPPING);
+        }
         foreach ($this->series_repository->getAllForUser($xoctUser->getUserRoleName()) as $series) {
             $series_options[$series->getIdentifier()] =
                 $series->getMetadata()->getField(MDFieldDefinition::F_TITLE)->getValue()
