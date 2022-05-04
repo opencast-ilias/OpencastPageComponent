@@ -1,9 +1,9 @@
 <?php
 require_once __DIR__ . "/../vendor/autoload.php";
-require_once './Customizing/global/plugins/Services/Repository/RepositoryObject/OpenCast/vendor/autoload.php';
+require_once './Customizing/global/plugins/Services/Repository/RepositoryObject/OpencastObject/vendor/autoload.php';
 
 use ILIAS\DI\Container;
-use srag\DIC\OpenCast\Exception\DICException;
+use srag\DIC\OpencastObject\Exception\DICException;
 use srag\DIC\OpencastPageComponent\DICTrait;
 use srag\Plugins\Opencast\Model\ACL\ACLUtils;
 use srag\Plugins\Opencast\Model\Config\PluginConfig;
@@ -226,6 +226,6 @@ class ocpcRouterGUI
      */
     public function txt(string $var): string
     {
-        return ilOpenCastPlugin::getInstance()->txt('event_' . $var);
+        return ilOpencastObjectPlugin::getInstance()->txt('event_' . $var);
     }
 }

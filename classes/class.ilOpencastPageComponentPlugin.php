@@ -3,7 +3,7 @@
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see https://github.com/ILIAS-eLearning/ILIAS/tree/trunk/docs/LICENSE */
 
 require_once __DIR__ . "/../vendor/autoload.php";
-require_once './Customizing/global/plugins/Services/Repository/RepositoryObject/OpenCast/vendor/autoload.php';
+require_once './Customizing/global/plugins/Services/Repository/RepositoryObject/OpencastObject/vendor/autoload.php';
 use srag\DIC\OpencastPageComponent\Util\LibraryLanguageInstaller;
 use srag\Plugins\OpencastPageComponent\Config\Config;
 use srag\Plugins\OpencastPageComponent\Utils\OpencastPageComponentTrait;

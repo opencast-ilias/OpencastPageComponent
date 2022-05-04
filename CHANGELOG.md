@@ -19,12 +19,12 @@
 - Fix: slider got stuck when the vertical scrollbar appeared
 
 ## [1.5.1]
-- Change: changed table behavior for InteractiveVideo plugin 
+- Change: changed table behavior for InteractiveVideo plugin
 
 ## [1.5.0]
 - Fix: avoid missing own series in filter and upload form (dynamically add producer)
 - Fix: styling didn't apply in learning modules
-- Compatibility: OpenCast plugin >=v3.5.0
+- Compatibility: OpencastObject plugin >=v3.5.0
 
 ## [1.4.0]
 - Feature: responsiveness and positioning
@@ -33,7 +33,7 @@
 
 ## [1.3.1]
 - Bugfix: Role checking if no common idp is used
-- Compatibility: OpenCast plugin >=v3.3.3
+- Compatibility: OpencastObject plugin >=v3.3.3
 
 ## [1.3.0]
 - Fix ILIAS 6

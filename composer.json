@@ -34,7 +34,7 @@
       "src/"
     ],
     "files": [
-      "../../../Repository/RepositoryObject/OpenCast/vendor/autoload.php"
+      "../../../Repository/RepositoryObject/OpencastObject/vendor/autoload.php"
     ]
   },
   "config": {

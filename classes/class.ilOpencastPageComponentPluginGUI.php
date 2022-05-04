@@ -158,7 +158,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 
     /**
      * @throws DICException
-     * @throws \srag\DIC\OpenCast\Exception\DICException
+     * @throws \srag\DIC\OpencastObject\Exception\DICException
      * @throws ilDateTimeException
      * @throws ilTemplateException
      * @throws xoctException
@@ -181,7 +181,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 
     /**
      * @return Form
-     * @throws \srag\DIC\OpenCast\Exception\DICException
+     * @throws \srag\DIC\OpencastObject\Exception\DICException
      * @throws ilDateTimeException
      * @throws xoctException
      */
@@ -604,6 +604,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
      */
     public function txt($key) : string
     {
-        return ilOpenCastPlugin::getInstance()->txt('event_' . $key);
+        return ilOpencastObjectPlugin::getInstance()->txt('event_' . $key);
     }
 }
