@@ -40,7 +40,7 @@ class VideoSearchTableGUI extends TableGUI
      */
     protected $filter = [];
     /**
-     * @var ilOpenCastPlugin
+     * @var ilOpencastObjectPlugin
      */
     protected $opencast_plugin;
     /**
@@ -60,7 +60,7 @@ class VideoSearchTableGUI extends TableGUI
     {
         $this->dic = $dic;
         $this->command_url = $command_url;
-        $this->opencast_plugin = ilOpenCastPlugin::getInstance();
+        $this->opencast_plugin = ilOpencastObjectPlugin::getInstance();
         $opencast_dic = OpencastDIC::getInstance();
         $this->event_repository = $opencast_dic->event_repository();
         $this->series_repository = $opencast_dic->series_repository();

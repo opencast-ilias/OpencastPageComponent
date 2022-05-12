@@ -7,11 +7,11 @@ namespace Composer\Autoload;
 class ComposerStaticInit3af4b1f150e4ec7dc807fd66dfd254e7
 {
     public static $files = array (
-        '87b6f5865bcda638581282e6ea8d4163' => __DIR__ . '/../..' . '/../../../Repository/RepositoryObject/OpenCast/vendor/autoload.php',
+        '87b6f5865bcda638581282e6ea8d4163' => __DIR__ . '/../..' . '/../../../Repository/RepositoryObject/OpencastObject/vendor/autoload.php',
     );
 
     public static $prefixLengthsPsr4 = array (
-        's' => 
+        's' =>
         array (
             'srag\\RemovePluginDataConfirm\\' => 29,
             'srag\\Plugins\\OpencastPageComponent\\' => 35,
@@ -23,27 +23,27 @@ class ComposerStaticInit3af4b1f150e4ec7dc807fd66dfd254e7
     );
 
     public static $prefixDirsPsr4 = array (
-        'srag\\RemovePluginDataConfirm\\' => 
+        'srag\\RemovePluginDataConfirm\\' =>
         array (
             0 => __DIR__ . '/..' . '/srag/removeplugindataconfirm/src',
         ),
-        'srag\\Plugins\\OpencastPageComponent\\' => 
+        'srag\\Plugins\\OpencastPageComponent\\' =>
         array (
             0 => __DIR__ . '/../..' . '/src',
         ),
-        'srag\\LibrariesNamespaceChanger\\' => 
+        'srag\\LibrariesNamespaceChanger\\' =>
         array (
             0 => __DIR__ . '/..' . '/srag/librariesnamespacechanger/src',
         ),
-        'srag\\DIC\\' => 
+        'srag\\DIC\\' =>
         array (
             0 => __DIR__ . '/..' . '/srag/dic/src',
         ),
-        'srag\\CustomInputGUIs\\' => 
+        'srag\\CustomInputGUIs\\' =>
         array (
             0 => __DIR__ . '/..' . '/srag/custominputguis/src',
         ),
-        'srag\\ActiveRecordConfig\\' => 
+        'srag\\ActiveRecordConfig\\' =>
         array (
             0 => __DIR__ . '/..' . '/srag/activerecordconfig/src',
         ),

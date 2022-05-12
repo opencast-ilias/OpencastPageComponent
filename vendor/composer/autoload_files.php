@@ -6,5 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    '87b6f5865bcda638581282e6ea8d4163' => $baseDir . '/../../../Repository/RepositoryObject/OpenCast/vendor/autoload.php',
+    '87b6f5865bcda638581282e6ea8d4163' => $baseDir . '/../../../Repository/RepositoryObject/OpencastObject/vendor/autoload.php',
 );
