@@ -11,7 +11,7 @@ use srag\Plugins\Opencast\Model\Config\PluginConfig;
 use srag\Plugins\Opencast\Model\Event\Event;
 use srag\Plugins\Opencast\Model\Event\EventAPIRepository;
 use srag\Plugins\Opencast\Model\Publication\Config\PublicationUsage;
-use srag\Plugins\Opencast\TermsOfUse\ToUManager;
+use srag\Plugins\Opencast\Model\TermsOfUse\ToUManager;
 use srag\Plugins\Opencast\DI\OpencastDIC;
 use srag\Plugins\OpencastPageComponent\Authorization\TokenRepository;
 use srag\Plugins\OpencastPageComponent\Config\Config;
