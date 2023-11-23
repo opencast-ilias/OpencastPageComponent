@@ -244,8 +244,17 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $event = $this->event_repository->find($prop[self::PROP_EVENT_ID]);
 
         // thumbnail
+        $max_width = 1000;
+        if (intVal($prop['width']) > $max_width) {
+            $max_width = intVal($prop['width']);
+        }
         $thumbnail = new ilNonEditableValueGUI($this->dic->language()->txt('preview'), '', true);
-        $thumbnail->setValue('<img width="' . $prop['width'] . 'px" height="' . $prop['height'] . 'px" id="ocpc_thumbnail" src="' . $event->publications()->getThumbnailUrl() . '">');
+        $container = '<div id="ocpc_thumbnail_container" style="width:100%%; height:100%%; overflow:auto;">%s</div>';
+        $wrapper = '<div id="ocpc_thumbnail_wrapper" style="width:' . $max_width . 'px; height:' . $prop['height'] . 'px;">%s</div>';
+        $img = '<img width="' . $prop['width'] . '" height="' . $prop['height'] .
+            '" id="ocpc_thumbnail" src="' . $event->publications()->getThumbnailUrl() . '">';
+        $thumbnail_value = sprintf($container, sprintf($wrapper, $img));
+        $thumbnail->setValue($thumbnail_value);
         $form->addItem($thumbnail);
 
         // width height
