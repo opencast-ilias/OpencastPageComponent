@@ -9,15 +9,18 @@ OpencastPageComponent = {
     },
 
     initForm: function(max_width) {
-        this.max_width = max_width ?? 1000;
+        this.max_width = parseInt(max_width) ?? 1000;
         OpencastPageComponent.slider = $("#ocpc_slider").data("ionRangeSlider");
         OpencastPageComponent.updateSlider();
 
         $('input#prop_size_width').change(function() {
             let new_width = $(this).val();
+            new_width = parseInt(new_width);
             if (OpencastPageComponent.keepAspectRatio()) {
                 let current_width = $('#ocpc_thumbnail').width();
+                current_width = parseInt(current_width);
                 let current_height = $('#ocpc_thumbnail').height();
+                current_height = parseInt(current_height);
                 let ratio = (current_width / current_height);
                 let new_height = new_width / ratio;
                 $('#ocpc_thumbnail').height(new_height);
@@ -29,9 +32,12 @@ OpencastPageComponent = {
 
         $('input#prop_size_height').change(function() {
             let new_height = $(this).val();
+            new_height = parseInt(new_height);
             if (OpencastPageComponent.keepAspectRatio()) {
                 let current_width = $('#ocpc_thumbnail').width();
+                current_width = parseInt(current_width);
                 let current_height = $('#ocpc_thumbnail').height();
+                current_height = parseInt(current_height);
                 let ratio = (current_width / current_height);
                 let new_width = new_height * ratio;
                 $('#ocpc_thumbnail').width(new_width);
@@ -44,6 +50,7 @@ OpencastPageComponent = {
 
     updateSlider: function() {
         let width = $('input#prop_size_width').val();
+        width = parseInt(width);
         if (parseInt(width) > parseInt(OpencastPageComponent.max_width)) {
             console.log(width);
             console.log(OpencastPageComponent.max_width);
@@ -55,9 +62,11 @@ OpencastPageComponent = {
 
     sliderCallback: function(data) {
         let current_width = $('#ocpc_thumbnail').width();
+        current_width = parseInt(current_width);
         let current_height = $('#ocpc_thumbnail').height();
+        current_height = parseInt(current_height);
         let ratio = (current_width / current_height);
-        let percentage = data.from;
+        let percentage = parseInt(data.from);
 
         let new_width = OpencastPageComponent.max_width * (percentage / 100);
         let new_height = (new_width / ratio);
