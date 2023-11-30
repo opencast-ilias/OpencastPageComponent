@@ -8,6 +8,8 @@ use srag\DIC\OpencastPageComponent\DICTrait;
 use srag\Plugins\Opencast\Model\ACL\ACLUtils;
 use srag\Plugins\Opencast\Model\Config\PluginConfig;
 use srag\Plugins\Opencast\Model\Event\EventAPIRepository;
+use srag\Plugins\Opencast\Model\Series\SeriesRepository;
+use srag\Plugins\Opencast\Model\Series\SeriesAPIRepository;
 use srag\Plugins\Opencast\Model\Event\Request\UploadEventRequest;
 use srag\Plugins\Opencast\Model\Event\Request\UploadEventRequestPayload;
 use srag\Plugins\Opencast\Model\Metadata\Definition\MDDataType;
@@ -50,6 +52,10 @@ class ocpcRouterGUI
      */
     private $event_repository;
     /**
+     * @var SeriesRepository
+     */
+    private $series_repository;
+    /**
      * @var ACLUtils
      */
     private $acl_utils;
@@ -64,7 +70,7 @@ class ocpcRouterGUI
 
     public function __construct()
     {
-        global $DIC;
+        global $DIC, $opencastContainer;
         $this->dic = $DIC;
         $this->opencast_dic = OpencastDIC::getInstance();
         $this->opencast_dic->overwriteService('upload_handler',
@@ -76,7 +82,19 @@ class ocpcRouterGUI
                     [ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctFileUploadHandler::class], 'info'),
                 $this->dic->ctrl()->getLinkTargetByClass(
                     [ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctFileUploadHandler::class], 'remove')));
-        $this->event_repository = $this->opencast_dic->event_repository();
+
+        if (method_exists($this->opencast_dic, 'event_repository')) {
+            $this->event_repository = $this->opencast_dic->event_repository();
+        } else if (!empty($opencastContainer)) {
+            $this->event_repository = $opencastContainer[EventAPIRepository::class];
+        }
+
+        if (method_exists($this->opencast_dic, 'series_repository')) {
+            $this->series_repository = $this->opencast_dic->series_repository();
+        } else if (!empty($opencastContainer)) {
+            $this->series_repository = $opencastContainer->get(SeriesAPIRepository::class);
+        }
+
         $this->acl_utils = new ACLUtils();
         PluginConfig::setApiSettings();
     }
@@ -187,7 +205,7 @@ class ocpcRouterGUI
 
         $series_id = $data['file'][MDFieldDefinition::F_IS_PART_OF];
         if ($series_id === 'own_series') {
-            $series_id = $this->opencast_dic->series_repository()->getOrCreateOwnSeries($xoctUser)->getIdentifier();
+            $series_id = $this->series_repository->getOrCreateOwnSeries($xoctUser)->getIdentifier();
         }
         /** @var Metadata $metadata */
         $metadata = $data['metadata']['object'];

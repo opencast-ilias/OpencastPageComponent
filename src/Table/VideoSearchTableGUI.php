@@ -7,6 +7,7 @@ use srag\Plugins\Opencast\Model\Event\Event;
 use srag\Plugins\Opencast\Model\Event\EventAPIRepository;
 use srag\Plugins\Opencast\Model\Metadata\Definition\MDFieldDefinition;
 use srag\Plugins\Opencast\Model\Series\SeriesRepository;
+use srag\Plugins\Opencast\Model\Series\SeriesAPIRepository;
 use srag\Plugins\Opencast\Model\User\xoctUser;
 use srag\Plugins\Opencast\DI\OpencastDIC;
 
@@ -58,12 +59,24 @@ class VideoSearchTableGUI extends TableGUI
                                 Container $dic,
                                 string $command_url)
     {
+        global $opencastContainer;
         $this->dic = $dic;
         $this->command_url = $command_url;
         $this->opencast_plugin = ilOpenCastPlugin::getInstance();
         $opencast_dic = OpencastDIC::getInstance();
-        $this->event_repository = $opencast_dic->event_repository();
-        $this->series_repository = $opencast_dic->series_repository();
+
+        if (method_exists($opencast_dic, 'event_repository')) {
+            $this->event_repository = $opencast_dic->event_repository();
+        } else if (!empty($opencastContainer)) {
+            $this->event_repository = $opencastContainer[EventAPIRepository::class];
+        }
+
+        if (method_exists($opencast_dic, 'series_repository')) {
+            $this->series_repository = $opencast_dic->series_repository();
+        } else if (!empty($opencastContainer)) {
+            $this->series_repository = $opencastContainer->get(SeriesAPIRepository::class);
+        }
+
         $this->initId();    // this is necessary so the offset and order can be determined
         $this->setExternalSegmentation(true);
         $this->setExternalSorting(true);
