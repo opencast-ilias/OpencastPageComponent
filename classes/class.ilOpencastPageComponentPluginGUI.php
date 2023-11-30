@@ -75,7 +75,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
      */
     public function __construct()
     {
-        global $DIC;
+        global $DIC, $opencastContainer;
         $this->dic = $DIC;
         $this->opencast_dic = OpencastDIC::getInstance();
         $this->opencast_dic->overwriteService('upload_handler',
@@ -87,7 +87,13 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
                     [ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctFileUploadHandler::class], 'info'),
                 $this->dic->ctrl()->getLinkTargetByClass(
                     [ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctFileUploadHandler::class], 'remove')));
-        $this->event_repository = $this->opencast_dic->event_repository();
+
+        if (method_exists($this->opencast_dic, 'event_repository')) {
+            $this->event_repository = $this->opencast_dic->event_repository();
+        } else if ($opencastContainer && isset($opencastContainer[EventAPIRepository::class])) {
+            $this->event_repository = $opencastContainer[EventAPIRepository::class];
+        }
+
         PluginConfig::setApiSettings();
         parent::__construct();
     }
