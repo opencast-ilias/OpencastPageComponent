@@ -177,8 +177,8 @@ class VideoSearchTableGUI extends TableGUI
             }
             $events = (array)$this->event_repository->getFiltered(
                 $this->buildFilterArray(),
-                $common_idp ? xoctUser::getInstance($this->dic->user())->getIdentifier() : '',
-                $common_idp ? [] : [xoctUser::getInstance($this->dic->user())->getUserRoleName()],
+                $common_idp ? '' : xoctUser::getInstance($this->dic->user())->getIdentifier(),
+                $common_idp ? [xoctUser::getInstance($this->dic->user())->getUserRoleName()] : [],
                 $this->getOffset(),
                 $this->getLimit() + 1
             );
