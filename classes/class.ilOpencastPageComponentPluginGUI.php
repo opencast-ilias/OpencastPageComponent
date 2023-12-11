@@ -68,6 +68,10 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
      * @var EventAPIRepository
      */
     protected $event_repository;
+    /**
+     * @var ilOpenCastPlugin
+     */
+    protected $opencast_plugin;
 
 
     /**
@@ -77,6 +81,11 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     {
         global $DIC, $opencastContainer;
         $this->dic = $DIC;
+        $this->opencast_plugin = ilOpenCastPlugin::getInstance();
+        $main_opencast_js_path = $this->opencast_plugin->getDirectory() . '/js/opencast/dist/index.js';
+        if (file_exists($main_opencast_js_path)) {
+            $this->dic->ui()->mainTemplate()->addJavaScript($main_opencast_js_path);
+        }
         $this->opencast_dic = OpencastDIC::getInstance();
         $this->opencast_dic->overwriteService('upload_handler',
             new xoctFileUploadHandler(
@@ -624,3 +633,4 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         return ilOpenCastPlugin::getInstance()->txt('event_' . $key);
     }
 }
+
