@@ -232,25 +232,25 @@ class ocpcRouterGUI
     /**
      * Get the default workflow parameters to pass as processing object when uploading/creating an event.
      *
-     * @param ?stdClass $fromData
+     * @param ?stdClass $from_data
      *
      * @return stdClass
      */
-    protected function getDefaultWorkflowParameters(?\stdClass $fromData = null): \stdClass
+    protected function getDefaultWorkflowParameters(?\stdClass $from_data = null): \stdClass
     {
-        $WorkflowParameter = new WorkflowParameter();
-        $defaultParameter = $fromData ?? new stdClass();
-        foreach ($WorkflowParameter::get() as $param) {
+        $workflow_parameter = new WorkflowParameter();
+        $default_parameter = $fromData ?? new stdClass();
+        foreach ($workflow_parameter::get() as $param) {
             $id = $param->getId();
 
             // Here we only get the admin default workflow parameters.
-            $defaultValue = $param->getDefaultValueAdmin();
+            $default_value = $param->getDefaultValueAdmin();
 
-            if (!isset($fromData->$id) && $defaultValue == WorkflowParameter::VALUE_ALWAYS_ACTIVE) {
-                $defaultParameter->$id = "true";
+            if (!isset($from_data->$id) && $default_value == WorkflowParameter::VALUE_ALWAYS_ACTIVE) {
+                $default_parameter->$id = "true";
             }
         }
-        return $defaultParameter;
+        return $default_parameter;
     }
 
     /**
