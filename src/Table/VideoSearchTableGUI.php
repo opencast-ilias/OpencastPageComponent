@@ -151,8 +151,10 @@ class VideoSearchTableGUI extends TableGUI
             case 'series':
                 /** @var Event $object */
                 $object = $row['object'];
-
-                return $object->getSeries();
+                $series_object = $this->series_repository->find($object->getSeries());
+                $series_title = $series_object->getMetadata()->getField(MDFieldDefinition::F_TITLE)->getValue()
+                    . ' (...' . substr($series_object->getIdentifier(), -4, 4) . ')';
+                return $series_title;
             case 'start':
                 if (!isset($row['startDate'])) {
                     return '-';
