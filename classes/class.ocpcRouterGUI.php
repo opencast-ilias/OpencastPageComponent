@@ -16,9 +16,10 @@ use srag\Plugins\Opencast\Model\Metadata\Definition\MDDataType;
 use srag\Plugins\Opencast\Model\Metadata\Definition\MDFieldDefinition;
 use srag\Plugins\Opencast\Model\Metadata\Metadata;
 use srag\Plugins\Opencast\Model\Metadata\MetadataField;
-use srag\Plugins\Opencast\Model\Scheduling\Processing;
+use srag\Plugins\Opencast\Model\WorkflowParameter\Config\WorkflowParameter;
+use srag\Plugins\Opencast\Model\WorkflowParameter\Processing;
 use srag\Plugins\Opencast\Model\User\xoctUser;
-use srag\Plugins\Opencast\TermsOfUse\ToUManager;
+use srag\Plugins\Opencast\Model\TermsOfUse\ToUManager;
 use srag\Plugins\Opencast\UI\EventFormBuilder;
 use srag\Plugins\Opencast\UI\Input\Plupload;
 use srag\Plugins\Opencast\DI\OpencastDIC;
@@ -215,8 +216,10 @@ class ocpcRouterGUI
         $this->event_repository->upload(new UploadEventRequest(new UploadEventRequestPayload(
             $metadata,
             $this->opencast_dic->acl_utils()->getBaseACLForUser(xoctUser::getInstance(self::dic()->user())),
-            new Processing(PluginConfig::getConfig(PluginConfig::F_WORKFLOW),
-                $data['workflow_configuration']['object']),
+            new Processing(
+                PluginConfig::getConfig(PluginConfig::F_WORKFLOW),
+                $this->getDefaultWorkflowParameters($data['workflow_configuration']['object'] ?? null)
+            ),
             xoctUploadFile::getInstanceFromFileArray($data['file']['file'])
         )));
         $this->opencast_dic->upload_storage_service()->delete($data['file']['file']['id']);
@@ -226,6 +229,29 @@ class ocpcRouterGUI
         $this->cancel();
     }
 
+    /**
+     * Get the default workflow parameters to pass as processing object when uploading/creating an event.
+     *
+     * @param ?stdClass $from_data
+     *
+     * @return stdClass
+     */
+    protected function getDefaultWorkflowParameters(?\stdClass $from_data = null): \stdClass
+    {
+        $workflow_parameter = new WorkflowParameter();
+        $default_parameter = $fromData ?? new stdClass();
+        foreach ($workflow_parameter::get() as $param) {
+            $id = $param->getId();
+
+            // Here we only get the admin default workflow parameters.
+            $default_value = $param->getDefaultValueAdmin();
+
+            if (!isset($from_data->$id) && $default_value == WorkflowParameter::VALUE_ALWAYS_ACTIVE) {
+                $default_parameter->$id = "true";
+            }
+        }
+        return $default_parameter;
+    }
 
     /**
      *
