@@ -1,22 +1,15 @@
 {
-  "name": "fluxapps/opencast-page-component",
-  "version": "1.7.1",
-  "description": "",
+  "name": "opencast-ilias/opencast-page-component",
+  "description": "Opencast Page Component for ILIAS",
   "type": "project",
   "keywords": [
     "ilias",
     "plugin",
     "opencast"
   ],
-  "homepage": "https://github.com/fluxapps/OpencastPageComponent",
   "license": "GPL-3.0-only",
   "authors": [
-    {
-      "name": "fluxlabs ag",
-      "email": "support@fluxlabs.ch",
-      "homepage": "https://fluxlabs.ch",
-      "role": "Developer, Maintainer"
-    }
+
   ],
   "require": {
     "srag/activerecordconfig": ">=0.1.0",

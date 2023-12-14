@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.8.0]
+- Fixed Issue #10
+- Fixed issue with incompatibilities in ILIAS 7.26, #13
+- Fixed issue "All dates are set to 1970", #5
+- Fixed unresponsive slider, #4
+- Fixed incompatibility with Opencast Plugin v5.6.0, #16
+- Fixed too many Videos showing up when adding a OpencastVideo
+- Fixed "Column 'Series' contains Series-ID, not the title of the series", #9
+- Fixed "Upload of videos is not possible: No video can be selected", #20
+
 ## [1.7.1]
 - Added flux publish utils
 
