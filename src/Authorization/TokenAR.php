@@ -11,17 +11,12 @@ use ActiveRecord;
  */
 class TokenAR extends ActiveRecord
 {
-    const TABLE_NAME = 'ocpc_token';
+    public const TABLE_NAME = 'ocpc_token';
 
-
-    /**
-     * @return string
-     */
-    public function getConnectorContainerName() {
+    public function getConnectorContainerName(): string
+    {
         return self::TABLE_NAME;
     }
-
-
 
     /**
      * @var int
@@ -43,7 +38,6 @@ class TokenAR extends ActiveRecord
      * @db_length           8
      */
     protected $usr_id;
-
 
     /**
      * @var string
@@ -75,98 +69,75 @@ class TokenAR extends ActiveRecord
      */
     protected $valid_until_unix;
 
-
     /**
      * @return int
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
     /**
      * @return int
      */
-    public function getUsrId() {
+    public function getUsrId()
+    {
         return $this->usr_id;
     }
-
 
     /**
      * @return Token
      */
-    public function getToken() {
+    public function getToken()
+    {
         return $this->token;
     }
-
 
     /**
      * @return int
      */
-    public function getValidUntilUnix() {
+    public function getValidUntilUnix()
+    {
         return $this->valid_until_unix;
     }
 
-
-    /**
-     * @param int $id
-     */
-    public function setId(int $id)
+    public function setId(int $id)/*: void*/
     {
         $this->id = $id;
     }
 
-
-    /**
-     * @param int $usr_id
-     */
-    public function setUsrId(int $usr_id)
+    public function setUsrId(int $usr_id)/*: void*/
     {
         $this->usr_id = $usr_id;
     }
 
-
-    /**
-     * @return string
-     */
-    public function getEventId() : string
+    public function getEventId(): string
     {
         return $this->event_id;
     }
 
-
-    /**
-     * @param string $event_id
-     */
-    public function setEventId(string $event_id)
+    public function setEventId(string $event_id)/*: void*/
     {
         $this->event_id = $event_id;
     }
 
-    /**
-     * @param Token $token
-     */
-    public function setToken(Token $token)
+    public function setToken(Token $token)/*: void*/
     {
         $this->token = $token;
     }
 
-
-    /**
-     * @param int $valid_until_unix
-     */
-    public function setValidUntilUnix(int $valid_until_unix)
+    public function setValidUntilUnix(int $valid_until_unix)/*: void*/
     {
         $this->valid_until_unix = $valid_until_unix;
     }
-
-
 
     /**
      * @param $field_name
      *
      * @return string|null
      */
-    public function sleep($field_name) {
+    public function sleep($field_name)
+    {
         switch ($field_name) {
             case 'token':
                 return $this->token->toString();
@@ -175,14 +146,14 @@ class TokenAR extends ActiveRecord
         }
     }
 
-
     /**
      * @param $field_name
      * @param $field_value
      *
      * @return Token|null
      */
-    public function wakeUp($field_name, $field_value) {
+    public function wakeUp($field_name, $field_value)
+    {
         switch ($field_name) {
             case 'token':
                 return new Token($field_value);
