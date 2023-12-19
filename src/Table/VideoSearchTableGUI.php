@@ -16,18 +16,22 @@ use srag\Plugins\Opencast\DI\OpencastDIC;
  *
  * @author Theodor Truffer <tt@studer-raimann.ch>
  */
-class VideoSearchTableGUI extends TableGUI
+class VideoSearchTableGUI extends ilTable2GUI
 {
 
-    const PLUGIN_CLASS_NAME = ilOpencastPageComponentPlugin::class;
-    const GET_PARAM_EVENT_ID = 'event_id';
-    const ID_PREFIX = 'oc_pc_';
-    const ROW_TEMPLATE = '/templates/html/table_row.html';
-    const F_TEXTFILTER = 'textFilter';
-    const F_SERIES = 'series';
-    const F_START_FROM = 'start_from';
-    const F_START_TO = 'start_to';
-    const F_START = 'start';
+    public const PLUGIN_CLASS_NAME = ilOpencastPageComponentPlugin::class;
+    public const GET_PARAM_EVENT_ID = 'event_id';
+    public const ID_PREFIX = 'oc_pc_';
+    public const ROW_TEMPLATE = '/templates/html/table_row.html';
+    public const F_TEXTFILTER = 'textFilter';
+    public const F_SERIES = 'series';
+    public const F_START_FROM = 'start_from';
+    public const F_START_TO = 'start_to';
+    public const F_START = 'start';
+    /**
+     * @var \ilOpencastPageComponentPlugin
+     */
+    private $plugin;
     /**
      * @var Container
      */
@@ -53,64 +57,62 @@ class VideoSearchTableGUI extends TableGUI
      */
     private $series_repository;
 
-
-    public function __construct($parent_gui,
-                                string $parent_cmd,
-                                Container $dic,
-                                string $command_url)
-    {
+    public function __construct(
+        $parent_gui,
+        string $parent_cmd,
+        Container $dic,
+        string $command_url
+    ) {
         global $opencastContainer;
         $this->dic = $dic;
+        $this->plugin = ilOpencastPageComponentPlugin::getInstance();
         $this->command_url = $command_url;
         $this->opencast_plugin = ilOpenCastPlugin::getInstance();
         $opencast_dic = OpencastDIC::getInstance();
 
         if (method_exists($opencast_dic, 'event_repository')) {
             $this->event_repository = $opencast_dic->event_repository();
-        } else if (!empty($opencastContainer)) {
+        } elseif (!empty($opencastContainer)) {
             $this->event_repository = $opencastContainer[EventAPIRepository::class];
         }
 
         if (method_exists($opencast_dic, 'series_repository')) {
             $this->series_repository = $opencast_dic->series_repository();
-        } else if (!empty($opencastContainer)) {
+        } elseif (!empty($opencastContainer)) {
             $this->series_repository = $opencastContainer->get(SeriesAPIRepository::class);
         }
 
         $this->initId();    // this is necessary so the offset and order can be determined
+        $this->initTitle();
         $this->setExternalSegmentation(true);
         $this->setExternalSorting(true);
         $this->determineOffsetAndOrder();
         parent::__construct($parent_gui, $parent_cmd);
-        $this->setLimit(10);
-        $this->setRowTemplate(self::plugin()->directory() . '/templates/html/table_row.html');
-        $this->dic->ui()->mainTemplate()->addCss(self::plugin()->directory() . '/templates/css/table.css');
-        $this->dic->ui()->mainTemplate()->addJavaScript(self::plugin()->directory() . '/templates/js/table.js');
+        $this->setLimit(200);
+        $this->setRowTemplate($this->plugin->getDirectory() . '/templates/html/table_row.html');
+        $this->dic->ui()->mainTemplate()->addCss($this->plugin->getDirectory() . '/templates/css/table.css');
+        $this->dic->ui()->mainTemplate()->addJavaScript($this->plugin->getDirectory() . '/templates/js/table.js');
         $this->setEnableNumInfo(false);
         $this->setShowRowsSelector(false);
     }
 
-
-    /**
-     * @param array|object $row
-     *
-     * @throws xoctException
-     */
-    protected function fillRow(/*array*/ $row)/*: void*/
+    protected function fillRow(array $a_set): void
     {
         /** @var Event $object */
-        $object = $row['object'];
+        $object = $a_set['object'];
         if ($object->getProcessingState() == Event::STATE_SUCCEEDED) {
             $this->tpl->setVariable('ADDITIONAL_CSS_CLASSES', 'ocpc_table_row_selectable');
         }
 
-        $this->tpl->setCurrentBlock("column");
+        $this->tpl->setVariable(
+            'CMD_URL', $this->command_url . '&' . self::GET_PARAM_EVENT_ID . '=' . $a_set['identifier']
+        );
 
-        $this->tpl->setVariable('CMD_URL', $this->command_url . '&' . self::GET_PARAM_EVENT_ID . '=' . $row['identifier']);
+        $this->tpl->setCurrentBlock("column");
 
         foreach ($this->getSelectableColumns() as $column) {
             if ($this->isColumnSelected($column["id"])) {
-                $column = $this->getColumnValue($column["id"], $row);
+                $column = $this->getColumnValue($column["id"], $a_set);
 
                 if (!empty($column)) {
                     $this->tpl->setVariable("COLUMN", $column);
@@ -123,17 +125,39 @@ class VideoSearchTableGUI extends TableGUI
         }
     }
 
+    public function getSelectableColumns(): array
+    {
+        return [
+            'thumbnail' => [
+                'txt' => $this->opencast_plugin->txt('event_preview'),
+                'id' => 'thumbnail',
+                'default' => true
+            ],
+            'title' => ['txt' => $this->opencast_plugin->txt('event_title'), 'id' => 'title', 'default' => true],
+            'description' => [
+                'txt' => $this->opencast_plugin->txt('event_description'),
+                'id' => 'description',
+                'default' => true
+            ],
+            'series' => ['txt' => $this->opencast_plugin->txt('event_series'), 'id' => 'series', 'default' => true],
+            'start' => ['txt' => $this->opencast_plugin->txt('event_start'), 'id' => 'start', 'default' => true],
+            'location' => [
+                'txt' => $this->opencast_plugin->txt('event_location'),
+                'id' => 'location',
+                'default' => true
+            ],
+        ];
+    }
 
     /**
      * @param       $column
      * @param array $row
-     * @param int $format
      *
      * @return false|mixed|string
      * @throws xoctException
      * @inheritDoc
      */
-    protected function getColumnValue(string $column, /*array*/ $row, int $format = self::DEFAULT_FORMAT): string
+    protected function getColumnValue(string $column, /*array*/ $row, int $format = null): string
     {
         switch ($column) {
             case 'thumbnail':
@@ -152,78 +176,91 @@ class VideoSearchTableGUI extends TableGUI
                 /** @var Event $object */
                 $object = $row['object'];
                 $series_object = $this->series_repository->find($object->getSeries());
-                $series_title = $series_object->getMetadata()->getField(MDFieldDefinition::F_TITLE)->getValue()
+                return $series_object->getMetadata()->getField(MDFieldDefinition::F_TITLE)->getValue()
                     . ' (...' . substr($series_object->getIdentifier(), -4, 4) . ')';
-                return $series_title;
             case 'start':
                 if (!isset($row['startDate'])) {
                     return '-';
                 }
                 $startDate = $row['startDate'];
                 $strtotime = strtotime($startDate);
-                $date = date('d.m.Y H:i', $strtotime);
-                return $date;
+                return date('d.m.Y H:i', $strtotime);
             case 'location':
                 return $row['location'];
         }
+        return '';
     }
-
 
     /**
      * @inheritDoc
+     * @return array{thumbnail: array{txt: string, id: string, default: true}, title: array{txt: string, id: string, default: true}, description: array{txt: string, id: string, default: true}, series: array{txt: string, id: string, default: true}, start: array{txt: string, id: string, default: true}, location: array{txt: string, id: string, default: true}}
      */
     protected function getSelectableColumns2(): array
     {
         return [
-            'thumbnail' => ['txt' => $this->opencast_plugin->txt('event_preview'), 'id' => 'thumbnail', 'default' => true],
+            'thumbnail' => [
+                'txt' => $this->opencast_plugin->txt('event_preview'),
+                'id' => 'thumbnail',
+                'default' => true
+            ],
             'title' => ['txt' => $this->opencast_plugin->txt('event_title'), 'id' => 'title', 'default' => true],
-            'description' => ['txt' => $this->opencast_plugin->txt('event_description'), 'id' => 'description', 'default' => true],
+            'description' => [
+                'txt' => $this->opencast_plugin->txt('event_description'),
+                'id' => 'description',
+                'default' => true
+            ],
             'series' => ['txt' => $this->opencast_plugin->txt('event_series'), 'id' => 'series', 'default' => true],
             'start' => ['txt' => $this->opencast_plugin->txt('event_start'), 'id' => 'start', 'default' => true],
-            'location' => ['txt' => $this->opencast_plugin->txt('event_location'), 'id' => 'location', 'default' => true],
+            'location' => [
+                'txt' => $this->opencast_plugin->txt('event_location'),
+                'id' => 'location',
+                'default' => true
+            ],
         ];
     }
 
-
-    /**
-     * @inheritDoc
-     */
-    public function initializeData()
+    public function initializeData(): void
     {
         // the api doesn't deliver a max count, so we fetch (limit + 1) to see if there should be a 'next' page
         try {
-            $common_idp = PluginConfig::getConfig(PluginConfig::F_COMMON_IDP);
-            if (xoctUser::getInstance($this->dic->user())->getIdentifier() == '') {
+            $common_idp = true;
+            PluginConfig::getConfig(PluginConfig::F_COMMON_IDP);
+            $identifier = xoctUser::getInstance($this->dic->user())->getIdentifier();
+            if ($identifier === '') {
                 throw new xoctException(xoctException::NO_USER_MAPPING);
             }
-            $events = (array)$this->event_repository->getFiltered(
+
+            $events = (array) $this->event_repository->getFiltered(
                 $this->buildFilterArray(),
                 $common_idp ? '' : xoctUser::getInstance($this->dic->user())->getIdentifier(),
                 $common_idp ? [xoctUser::getInstance($this->dic->user())->getUserRoleName()] : [],
                 $this->getOffset(),
-                $this->getLimit() + 1
+                $this->getLimit() + 1,
             );
         } catch (xoctException $e) {
             xoctLog::getInstance()->write($e->getMessage());
             $events = [];
             if ($e->getCode() !== xoctException::API_CALL_STATUS_403) {
-                ilUtil::sendFailure(self::plugin()->translate('failed_loading_events', 'msg', [$e->getMessage()]));
+                $this->dic->ui()->mainTemplate()->setOnScreenMessage(
+                    'failure',
+                    sprintf($this->plugin->txt('msg_failed_loading_events'), $e->getMessage())
+                );
             }
         }
         $this->setMaxCount($this->getOffset() + count($events));
-        if (count($events) == ($this->getLimit() + 1)) {
+        if (count($events) === ($this->getLimit() + 1)) {
             array_pop($events);
         }
         $this->setData($events);
     }
 
-
     /**
-     * @return array
+     * @return array{status: string, textFilter?: mixed, series?: mixed, start?: string}
      */
     protected function buildFilterArray(): array
     {
-        $filter = ['status' => 'EVENTS.EVENTS.STATUS.PROCESSED'];
+        $filter = [];
+        $filter['status'] = 'EVENTS.EVENTS.STATUS.PROCESSED';
 
         if ($title_filter = $this->filter[self::F_TEXTFILTER]) {
             $filter[self::F_TEXTFILTER] = $title_filter;
@@ -238,23 +275,27 @@ class VideoSearchTableGUI extends TableGUI
         $start_filter_from = $this->filter[self::F_START_FROM];
         $start_filter_to = $this->filter[self::F_START_TO];
         if ($start_filter_from || $start_filter_to) {
-            $filter['start'] = ($start_filter_from ? $start_filter_from->get(IL_CAL_FKT_DATE, 'Y-m-d\TH:i:s') : '1970-01-01T00:00:00')
-                . '/' . ($start_filter_to ? $start_filter_to->get(IL_CAL_FKT_DATE, 'Y-m-d\T23:59:59') : '2200-01-01T00:00:00');
+            $filter['start'] = ($start_filter_from ? $start_filter_from->get(
+                    IL_CAL_FKT_DATE, 'Y-m-d\TH:i:s'
+                ) : '1970-01-01T00:00:00')
+                . '/' . ($start_filter_to ? $start_filter_to->get(
+                    IL_CAL_FKT_DATE, 'Y-m-d\T23:59:59'
+                ) : '2200-01-01T00:00:00');
         }
 
         return $filter;
     }
 
-
-    /**
-     * @inheritDoc
-     */
-    protected function initFilterFields()
+    protected function initFilterFields(): void
     {
-        $title = $this->addFilterItemByMetaType(self::F_TEXTFILTER, self::FILTER_TEXT, false, self::plugin()->translate(self::F_TEXTFILTER));
+        $title = $this->addFilterItemByMetaType(
+            self::F_TEXTFILTER, self::FILTER_TEXT, false, $this->plugin->translate(self::F_TEXTFILTER)
+        );
         $this->filter[self::F_TEXTFILTER] = $title->getValue();
 
-        $series = $this->addFilterItemByMetaType(self::F_SERIES, self::FILTER_SELECT, false, $this->opencast_plugin->txt('event_series'));
+        $series = $this->addFilterItemByMetaType(
+            self::F_SERIES, self::FILTER_SELECT, false, $this->opencast_plugin->txt('event_series')
+        );
         try {
             $series->setOptions($this->getSeriesFilterOptions());
         } catch (xoctException $e) {
@@ -262,43 +303,32 @@ class VideoSearchTableGUI extends TableGUI
         }
         $this->filter[self::F_SERIES] = $series->getValue();
 
-        $start = $this->addFilterItemByMetaType(self::F_START, self::FILTER_DATE_RANGE, false, $this->opencast_plugin->txt('event_start'));
+        $start = $this->addFilterItemByMetaType(
+            self::F_START, self::FILTER_DATE_RANGE, false, $this->opencast_plugin->txt('event_start')
+        );
         $this->filter[self::F_START_FROM] = $start->getValue()['from'];
         $this->filter[self::F_START_TO] = $start->getValue()['to'];
     }
 
-
-    /**
-     * @inheritDoc
-     */
-    protected function initId()
+    protected function initId(): void
     {
         $this->setId(self::ID_PREFIX . $this->dic->user()->getId());
     }
 
-
-    /**
-     * @inheritDoc
-     */
-    protected function initTitle()
+    protected function initTitle(): void
     {
-        $this->setTitle(self::plugin()->translate('table_title'));
+        $this->setTitle($this->plugin->txt('table_title'));
     }
 
-
-    /**
-     *
-     */
-    protected function initAction()/*: void*/
+    protected function initAction(): void
     {
         $this->setFormAction($this->dic->ctrl()->getFormAction($this->parent_obj));
     }
 
-
     /**
-     * @return array
+     * @return array<string, string>
      */
-    protected function getSeriesFilterOptions()
+    protected function getSeriesFilterOptions(): array
     {
         $series_options = ['' => '-'];
         $xoctUser = xoctUser::getInstance($this->dic->user());
@@ -317,10 +347,4 @@ class VideoSearchTableGUI extends TableGUI
         return $series_options;
     }
 
-    /**
-     * public method initializeData is used here, because we want to initialize the data after the constructor (for manual limit)
-     */
-    protected function initData()
-    {
-    }
 }
