@@ -17,13 +17,13 @@ class Token
      */
     protected $token;
 
-
     /**
      * Token constructor.
      *
      * @param string $token
      */
-    public function __construct($token = '') {
+    public function __construct($token = '')
+    {
         if ($token === '') {
             $token = openssl_random_pseudo_bytes(16);
             $token = bin2hex($token);
@@ -31,11 +31,11 @@ class Token
         $this->token = $token;
     }
 
-
     /**
      * @return string
      */
-    public function toString() {
+    public function toString()
+    {
         return $this->token;
     }
 }
