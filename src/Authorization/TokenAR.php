@@ -5,8 +5,6 @@ namespace srag\Plugins\OpencastPageComponent\Authorization;
 use ActiveRecord;
 
 /**
- * Class Token
- *
  * @author Theodor Truffer <tt@studer-raimann.ch>
  */
 class TokenAR extends ActiveRecord
@@ -69,44 +67,32 @@ class TokenAR extends ActiveRecord
      */
     protected $valid_until_unix;
 
-    /**
-     * @return int
-     */
-    public function getId()
+    public function getId(): int
     {
-        return $this->id;
+        return (int) $this->id;
     }
 
-    /**
-     * @return int
-     */
-    public function getUsrId()
+    public function getUsrId(): int
     {
-        return $this->usr_id;
+        return (int) $this->usr_id;
     }
 
-    /**
-     * @return Token
-     */
-    public function getToken()
+    public function getToken(): Token
     {
         return $this->token;
     }
 
-    /**
-     * @return int
-     */
-    public function getValidUntilUnix()
+    public function getValidUntilUnix(): int
     {
-        return $this->valid_until_unix;
+        return (int) $this->valid_until_unix;
     }
 
-    public function setId(int $id)/*: void*/
+    public function setId(int $id): void
     {
         $this->id = $id;
     }
 
-    public function setUsrId(int $usr_id)/*: void*/
+    public function setUsrId(int $usr_id): void
     {
         $this->usr_id = $usr_id;
     }
@@ -116,17 +102,17 @@ class TokenAR extends ActiveRecord
         return $this->event_id;
     }
 
-    public function setEventId(string $event_id)/*: void*/
+    public function setEventId(string $event_id): void
     {
         $this->event_id = $event_id;
     }
 
-    public function setToken(Token $token)/*: void*/
+    public function setToken(Token $token): void
     {
         $this->token = $token;
     }
 
-    public function setValidUntilUnix(int $valid_until_unix)/*: void*/
+    public function setValidUntilUnix(int $valid_until_unix): void
     {
         $this->valid_until_unix = $valid_until_unix;
     }
@@ -156,7 +142,7 @@ class TokenAR extends ActiveRecord
     {
         switch ($field_name) {
             case 'token':
-                return new Token($field_value);
+                return new Token((string) $field_value);
             default:
                 return null;
         }

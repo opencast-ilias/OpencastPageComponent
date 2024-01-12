@@ -29,15 +29,6 @@ use srag\Plugins\OpencastPageComponent\Utils\OpencastPageComponentTrait;
  */
 class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 {
-
-    /**
-     * @var \ilGlobalTemplateInterface
-     */
-    private $main_tpl;
-    public $player_url;
-    use OpencastPageComponentTrait;
-
-    public const PLUGIN_CLASS_NAME = ilOpencastPageComponentPlugin::class;
     public const CMD_CANCEL = "cancel";
     public const CMD_CREATE = "create";
     public const CMD_CREATE_PLUG = "create_plug";
@@ -62,6 +53,13 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     public const POSITION_CENTER = 'center';
     public const POSITION_RIGHT = 'right';
     public const PROP_RESPONSIVE = 'responsive';
+
+    /**
+     * @var \ilGlobalTemplateInterface
+     */
+    private $main_tpl;
+    public $player_url;
+
     /**
      * @var Container
      */
@@ -89,6 +87,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $this->main_tpl = $this->dic->ui()->mainTemplate();
         $this->opencast_plugin = ilOpenCastPlugin::getInstance();
         $main_opencast_js_path = $this->opencast_plugin->getDirectory() . '/js/opencast/dist/index.js';
+        PluginConfig::setApiSettings();
         if (file_exists($main_opencast_js_path)) {
             $this->dic->ui()->mainTemplate()->addJavaScript($main_opencast_js_path);
         }
@@ -120,13 +119,13 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 
     public function executeCommand(): void
     {
-        PluginConfig::setApiSettings();
         try {
             $this->dic->ctrl()->getNextClass();
             $cmd = $this->dic->ctrl()->getCmd();
+            $custom_command = $this->dic->http()->request()->getQueryParams()[self::CUSTOM_CMD] ?? null;
 
-            if ($cmd == self::CMD_INSERT && $_GET[self::CUSTOM_CMD]) {
-                $cmd = $_GET[self::CUSTOM_CMD];
+            if ($cmd === self::CMD_INSERT && $custom_command !== null) {
+                $cmd = $custom_command;
                 $this->performCommand($cmd);
                 return;
             } else {
