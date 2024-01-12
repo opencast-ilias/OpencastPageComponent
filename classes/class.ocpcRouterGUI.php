@@ -79,6 +79,7 @@ class ocpcRouterGUI
         $this->plugin = ilOpencastPageComponentPlugin::getInstance();
         $this->main_tpl = $DIC->ui()->mainTemplate();
         $this->dic = $DIC;
+        PluginConfig::setApiSettings();
         $this->opencast_dic = OpencastDIC::getInstance();
         $this->opencast_dic->overwriteService(
             'upload_handler',
@@ -100,12 +101,10 @@ class ocpcRouterGUI
 
         $this->event_repository = $opencastContainer[EventAPIRepository::class];
         $this->series_repository = $opencastContainer->get(SeriesAPIRepository::class);
-//        PluginConfig::setApiSettings();
     }
 
     public function executeCommand(): void
     {
-        PluginConfig::setApiSettings();
         $cmd = $this->dic->ctrl()->getCmd();
         $next_class = $this->dic->ctrl()->getNextClass();
         switch ($next_class) {
@@ -226,10 +225,8 @@ class ocpcRouterGUI
 
     /**
      * Get the default workflow parameters to pass as processing object when uploading/creating an event.
-     *
-     *
      */
-    protected function getDefaultWorkflowParameters(/*?\stdClass*/ $from_data = null): \stdClass
+    protected function getDefaultWorkflowParameters(?\stdClass $from_data = null): \stdClass
     {
         $workflow_parameter = new WorkflowParameter();
         $default_parameter = $from_data ?? new stdClass();
@@ -247,9 +244,9 @@ class ocpcRouterGUI
     }
 
     /**
-     *
+     * @return never
      */
-    protected function cancel()
+    protected function cancel(): void
     {
         $return_url = filter_input(INPUT_GET, self::P_GET_RETURN_LINK, FILTER_SANITIZE_STRING);
         $this->dic->ctrl()->redirectToURL(htmlspecialchars_decode($return_url));
