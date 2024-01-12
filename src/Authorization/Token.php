@@ -3,10 +3,6 @@
 namespace srag\Plugins\OpencastPageComponent\Authorization;
 
 /**
- * Class Token
- *
- * @package srag\Plugins\OpencastPageComponent\Authorization
- *
  * @author  Theodor Truffer <tt@studer-raimann.ch>
  */
 class Token
@@ -17,12 +13,7 @@ class Token
      */
     protected $token;
 
-    /**
-     * Token constructor.
-     *
-     * @param string $token
-     */
-    public function __construct($token = '')
+    public function __construct(string $token = '')
     {
         if ($token === '') {
             $token = openssl_random_pseudo_bytes(16);
@@ -31,10 +22,7 @@ class Token
         $this->token = $token;
     }
 
-    /**
-     * @return string
-     */
-    public function toString()
+    public function toString(): string
     {
         return $this->token;
     }

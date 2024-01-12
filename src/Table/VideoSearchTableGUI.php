@@ -96,6 +96,7 @@ class VideoSearchTableGUI extends ilTable2GUI
         $this->setShowRowsSelector(false);
     }
 
+    #[ReturnTypeWillChange]
     protected function fillRow(array $a_set): void
     {
         /** @var Event $object */
@@ -125,6 +126,7 @@ class VideoSearchTableGUI extends ilTable2GUI
         }
     }
 
+    #[ReturnTypeWillChange]
     public function getSelectableColumns(): array
     {
         return [
@@ -149,15 +151,7 @@ class VideoSearchTableGUI extends ilTable2GUI
         ];
     }
 
-    /**
-     * @param       $column
-     * @param array $row
-     *
-     * @return false|mixed|string
-     * @throws xoctException
-     * @inheritDoc
-     */
-    protected function getColumnValue(string $column, /*array*/ $row, int $format = null): string
+    protected function getColumnValue(string $column, array $row, int $format = null): string
     {
         switch ($column) {
             case 'thumbnail':
@@ -191,10 +185,7 @@ class VideoSearchTableGUI extends ilTable2GUI
         return '';
     }
 
-    /**
-     * @inheritDoc
-     * @return array{thumbnail: array{txt: string, id: string, default: true}, title: array{txt: string, id: string, default: true}, description: array{txt: string, id: string, default: true}, series: array{txt: string, id: string, default: true}, start: array{txt: string, id: string, default: true}, location: array{txt: string, id: string, default: true}}
-     */
+    #[ReturnTypeWillChange]
     protected function getSelectableColumns2(): array
     {
         return [
@@ -225,15 +216,16 @@ class VideoSearchTableGUI extends ilTable2GUI
         try {
             $common_idp = true;
             PluginConfig::getConfig(PluginConfig::F_COMMON_IDP);
-            $identifier = xoctUser::getInstance($this->dic->user())->getIdentifier();
+            $xoct_user = xoctUser::getInstance($this->dic->user());
+            $identifier = $xoct_user->getIdentifier();
             if ($identifier === '') {
                 throw new xoctException(xoctException::NO_USER_MAPPING);
             }
 
             $events = (array) $this->event_repository->getFiltered(
                 $this->buildFilterArray(),
-                $common_idp ? '' : xoctUser::getInstance($this->dic->user())->getIdentifier(),
-                $common_idp ? [xoctUser::getInstance($this->dic->user())->getUserRoleName()] : [],
+                $common_idp ? '' : $xoct_user->getIdentifier(),
+                $common_idp ? [$xoct_user->getUserRoleName()] : [],
                 $this->getOffset(),
                 $this->getLimit() + 1,
             );

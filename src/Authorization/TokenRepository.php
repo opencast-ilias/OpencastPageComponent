@@ -43,10 +43,7 @@ class TokenRepository
         return $valid;
     }
 
-    /**
-     *
-     */
-    public function cleanUpTokens()/*: void*/
+    public function cleanUpTokens(): void
     {
         /** @var TokenAR $token */
         foreach (TokenAR::where(['valid_until_unix' => time()], ['valid_until_unix' => '<'])->get() as $token) {

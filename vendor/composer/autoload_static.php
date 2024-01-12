@@ -37,17 +37,6 @@ class ComposerStaticInit3af4b1f150e4ec7dc807fd66dfd254e7
         'srag\\Plugins\\OpencastPageComponent\\Config\\Config' => __DIR__ . '/../..' . '/src/Config/Config.php',
         'srag\\Plugins\\OpencastPageComponent\\Config\\ConfigForm' => __DIR__ . '/../..' . '/src/Config/ConfigForm.php',
         'srag\\Plugins\\OpencastPageComponent\\Config\\ConfigRepository' => __DIR__ . '/../..' . '/src/Config/ConfigRepository.php',
-        'srag\\Plugins\\OpencastPageComponent\\Legacy\\ActiveRecordConfig\\ActiveRecordConfig' => __DIR__ . '/../..' . '/src/Legacy/ActiveRecordConfig/ActiveRecordConfig.php',
-        'srag\\Plugins\\OpencastPageComponent\\Legacy\\ActiveRecordConfig\\ActiveRecordConfigFactory' => __DIR__ . '/../..' . '/src/Legacy/ActiveRecordConfig/ActiveRecordConfig.php',
-        'srag\\Plugins\\OpencastPageComponent\\Legacy\\ActiveRecordConfig\\ActiveRecordConfigFormGUI' => __DIR__ . '/../..' . '/src/Legacy/ActiveRecordConfig/ActiveRecordConfigFormGUI.php',
-        'srag\\Plugins\\OpencastPageComponent\\Legacy\\ActiveRecordConfig\\ActiveRecordConfigGUI' => __DIR__ . '/../..' . '/src/Legacy/ActiveRecordConfig/ActiveRecordConfigGUI.php',
-        'srag\\Plugins\\OpencastPageComponent\\Legacy\\ActiveRecordConfig\\ActiveRecordConfigRepository' => __DIR__ . '/../..' . '/src/Legacy/ActiveRecordConfig/ActiveRecordConfig.php',
-        'srag\\Plugins\\OpencastPageComponent\\Legacy\\ActiveRecordConfig\\ActiveRecordConfigTableGUI' => __DIR__ . '/../..' . '/src/Legacy/ActiveRecordConfig/ActiveRecordConfigTableGUI.php',
-        'srag\\Plugins\\OpencastPageComponent\\Legacy\\ActiveRecordConfig\\ActiveRecordObjectFormGUI' => __DIR__ . '/../..' . '/src/Legacy/ActiveRecordConfig/ActiveRecordObjectFormGUI.php',
-        'srag\\Plugins\\OpencastPageComponent\\Legacy\\ActiveRecordConfig\\Config\\AbstractFactory' => __DIR__ . '/../..' . '/src/Legacy/ActiveRecordConfig/Config/AbstractFactory.php',
-        'srag\\Plugins\\OpencastPageComponent\\Legacy\\ActiveRecordConfig\\Config\\AbstractRepository' => __DIR__ . '/../..' . '/src/Legacy/ActiveRecordConfig/Config/AbstractRepository.php',
-        'srag\\Plugins\\OpencastPageComponent\\Legacy\\ActiveRecordConfig\\Config\\Config' => __DIR__ . '/../..' . '/src/Legacy/ActiveRecordConfig/Config/Config.php',
-        'srag\\Plugins\\OpencastPageComponent\\Legacy\\ActiveRecordConfig\\Exception\\ActiveRecordConfigException' => __DIR__ . '/../..' . '/src/Legacy/ActiveRecordConfig/Exception/ActiveRecordConfigException.php',
         'srag\\Plugins\\OpencastPageComponent\\Utils\\OpencastPageComponentTrait' => __DIR__ . '/../..' . '/src/Utils/OpencastPageComponentTrait.php',
     );
 
