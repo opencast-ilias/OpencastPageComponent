@@ -18,7 +18,6 @@ use srag\Plugins\Opencast\DI\OpencastDIC;
  */
 class VideoSearchTableGUI extends ilTable2GUI
 {
-
     public const PLUGIN_CLASS_NAME = ilOpencastPageComponentPlugin::class;
     public const GET_PARAM_EVENT_ID = 'event_id';
     public const ID_PREFIX = 'oc_pc_';
@@ -94,6 +93,8 @@ class VideoSearchTableGUI extends ilTable2GUI
         $this->dic->ui()->mainTemplate()->addJavaScript($this->plugin->getDirectory() . '/templates/js/table.js');
         $this->setEnableNumInfo(false);
         $this->setShowRowsSelector(false);
+        $this->setFormAction($this->dic->ctrl()->getFormAction($this->parent_obj));
+        $this->initFilterFields();
     }
 
     #[ReturnTypeWillChange]
@@ -253,19 +254,20 @@ class VideoSearchTableGUI extends ilTable2GUI
     {
         $filter = [];
         $filter['status'] = 'EVENTS.EVENTS.STATUS.PROCESSED';
+        $title_filter = $this->filter[self::F_TEXTFILTER];
 
-        if ($title_filter = $this->filter[self::F_TEXTFILTER]) {
+        if ($title_filter !== null) {
             $filter[self::F_TEXTFILTER] = $title_filter;
         }
-
-        if ($series_filter = $this->filter[self::F_SERIES]) {
+        $series_filter = $this->filter[self::F_SERIES] ?? null;
+        if ($series_filter !== null) {
             $filter[self::F_SERIES] = $series_filter;
         }
 
-        /** @var $start_filter_from ilDateTime */
-        /** @var $start_filter_to ilDateTime */
-        $start_filter_from = $this->filter[self::F_START_FROM];
-        $start_filter_to = $this->filter[self::F_START_TO];
+        /** @var ilDateTime|null $start_filter_from */
+        /** @var ilDateTime|null $start_filter_to */
+        $start_filter_from = $this->filter[self::F_START_FROM] ?? false;
+        $start_filter_to = $this->filter[self::F_START_TO] ?? false;
         if ($start_filter_from || $start_filter_to) {
             $filter['start'] = ($start_filter_from ? $start_filter_from->get(
                     IL_CAL_FKT_DATE, 'Y-m-d\TH:i:s'
@@ -281,7 +283,7 @@ class VideoSearchTableGUI extends ilTable2GUI
     protected function initFilterFields(): void
     {
         $title = $this->addFilterItemByMetaType(
-            self::F_TEXTFILTER, self::FILTER_TEXT, false, $this->plugin->translate(self::F_TEXTFILTER)
+            self::F_TEXTFILTER, self::FILTER_TEXT, false, $this->plugin->txt(self::F_TEXTFILTER)
         );
         $this->filter[self::F_TEXTFILTER] = $title->getValue();
 
@@ -291,7 +293,7 @@ class VideoSearchTableGUI extends ilTable2GUI
         try {
             $series->setOptions($this->getSeriesFilterOptions());
         } catch (xoctException $e) {
-            ilUtil::sendFailure($e->getMessage());
+            $this->main_tpl->setOnScreenMessage('failure', $e->getMessage());
         }
         $this->filter[self::F_SERIES] = $series->getValue();
 
@@ -300,6 +302,8 @@ class VideoSearchTableGUI extends ilTable2GUI
         );
         $this->filter[self::F_START_FROM] = $start->getValue()['from'];
         $this->filter[self::F_START_TO] = $start->getValue()['to'];
+
+        $this->setFilterCommand(ilOpencastPageComponentPluginGUI::CMD_APPLY_FILTER);
     }
 
     protected function initId(): void
