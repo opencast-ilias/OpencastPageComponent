@@ -28,9 +28,13 @@ class VideoSearchTableGUI extends ilTable2GUI
     public const F_START_TO = 'start_to';
     public const F_START = 'start';
     /**
+     * @var array
+     */
+    protected $filter_fields = [];
+    /**
      * @var \ilOpencastPageComponentPlugin
      */
-    private $plugin;
+    protected $plugin;
     /**
      * @var Container
      */
@@ -94,7 +98,7 @@ class VideoSearchTableGUI extends ilTable2GUI
         $this->setEnableNumInfo(false);
         $this->setShowRowsSelector(false);
         $this->setFormAction($this->dic->ctrl()->getFormAction($this->parent_obj));
-        $this->initFilterFields();
+        $this->initFilter2();
     }
 
     #[ReturnTypeWillChange]
@@ -254,6 +258,8 @@ class VideoSearchTableGUI extends ilTable2GUI
     {
         $filter = [];
         $filter['status'] = 'EVENTS.EVENTS.STATUS.PROCESSED';
+
+
         $title_filter = $this->filter[self::F_TEXTFILTER];
 
         if ($title_filter !== null) {
@@ -280,6 +286,44 @@ class VideoSearchTableGUI extends ilTable2GUI
         return $filter;
     }
 
+    #[ReturnTypeWillChange]
+    private function initFilter2(): void // ilTable2GUI has it's own initFilter method final
+    {
+        $this->setFilterCommand(ilOpencastPageComponentPluginGUI::CMD_APPLY_FILTER);
+        $this->setDefaultFilterVisiblity(true);
+        $this->setDisableFilterHiding(true);
+
+        $this->initFilterFields();
+
+        if (!is_array($this->filter_fields)) {
+            throw new TableGUIException("\$filters needs to be an array!", TableGUIException::CODE_INVALID_FIELD);
+        }
+
+        foreach ($this->filter_fields as $key => $field) {
+            if (!is_array($field)) {
+                throw new TableGUIException("\$field needs to be an array!", TableGUIException::CODE_INVALID_FIELD);
+            }
+
+            if ($field[PropertyFormGUI::PROPERTY_NOT_ADD]) {
+                continue;
+            }
+
+            $item = Items::getItem($key, $field, $this, $this);
+
+            /*if (!($item instanceof ilTableFilterItem)) {
+                throw new TableGUIException("\$item must be an instance of ilTableFilterItem!", TableGUIException::CODE_INVALID_FIELD);
+            }*/
+
+            $this->filter_cache[$key] = $item;
+
+            $this->addFilterItem($item);
+
+            if ($this->hasSessionValue($item->getFieldId())) { // Supports filter default values
+                $item->readFromSession();
+            }
+        }
+    }
+
     protected function initFilterFields(): void
     {
         $title = $this->addFilterItemByMetaType(
@@ -302,8 +346,6 @@ class VideoSearchTableGUI extends ilTable2GUI
         );
         $this->filter[self::F_START_FROM] = $start->getValue()['from'];
         $this->filter[self::F_START_TO] = $start->getValue()['to'];
-
-        $this->setFilterCommand(ilOpencastPageComponentPluginGUI::CMD_APPLY_FILTER);
     }
 
     protected function initId(): void
