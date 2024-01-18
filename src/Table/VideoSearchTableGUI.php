@@ -85,13 +85,13 @@ class VideoSearchTableGUI extends ilTable2GUI
             $this->series_repository = $opencastContainer->get(SeriesAPIRepository::class);
         }
 
+        parent::__construct($parent_gui, $parent_cmd);
         $this->initId();    // this is necessary so the offset and order can be determined
         $this->initTitle();
         $this->setExternalSegmentation(true);
         $this->setExternalSorting(true);
         $this->determineOffsetAndOrder();
-        parent::__construct($parent_gui, $parent_cmd);
-        $this->setLimit(200);
+        $this->setLimit(10);
         $this->setRowTemplate($this->plugin->getDirectory() . '/templates/html/table_row.html');
         $this->dic->ui()->mainTemplate()->addCss($this->plugin->getDirectory() . '/templates/css/table.css');
         $this->dic->ui()->mainTemplate()->addJavaScript($this->plugin->getDirectory() . '/templates/js/table.js');
