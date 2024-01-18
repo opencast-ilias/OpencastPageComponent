@@ -88,6 +88,7 @@ class VideoSearchTableGUI extends ilTable2GUI
         parent::__construct($parent_gui, $parent_cmd);
         $this->initId();    // this is necessary so the offset and order can be determined
         $this->initTitle();
+        $this->initColumns();
         $this->setExternalSegmentation(true);
         $this->setExternalSorting(true);
         $this->determineOffsetAndOrder();
@@ -99,6 +100,15 @@ class VideoSearchTableGUI extends ilTable2GUI
         $this->setShowRowsSelector(false);
         $this->setFormAction($this->dic->ctrl()->getFormAction($this->parent_obj));
         $this->initFilter2();
+    }
+
+    protected function initColumns(): void
+    {
+        foreach ($this->getSelectableColumns() as $column) {
+            if ($this->isColumnSelected($column["id"])) {
+                $this->addColumn($column["txt"], ($column["sort"] ?? $column["id"] ?? ''));
+            }
+        }
     }
 
     #[ReturnTypeWillChange]
@@ -142,12 +152,12 @@ class VideoSearchTableGUI extends ilTable2GUI
             ],
             'title' => ['txt' => $this->opencast_plugin->txt('event_title'), 'id' => 'title', 'default' => true],
             'description' => [
-                'txt' => $this->opencast_plugin->txt('event_description'),
+                'txt' => $this->plugin->txt('event_description'),
                 'id' => 'description',
                 'default' => true
             ],
             'series' => ['txt' => $this->opencast_plugin->txt('event_series'), 'id' => 'series', 'default' => true],
-            'start' => ['txt' => $this->opencast_plugin->txt('event_start'), 'id' => 'start', 'default' => true],
+            'start' => ['txt' => $this->plugin->txt('event_start'), 'id' => 'start', 'default' => true],
             'location' => [
                 'txt' => $this->opencast_plugin->txt('event_location'),
                 'id' => 'location',
@@ -258,7 +268,6 @@ class VideoSearchTableGUI extends ilTable2GUI
     {
         $filter = [];
         $filter['status'] = 'EVENTS.EVENTS.STATUS.PROCESSED';
-
 
         $title_filter = $this->filter[self::F_TEXTFILTER];
 
