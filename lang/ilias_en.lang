@@ -19,3 +19,5 @@ table_title#:#Insert existing video from Opencast
 btn_upload#:#Upload new video
 responsiveness#:#Responsive
 responsiveness_info#:#If active, the defined size acts as a maximum size while the video can scale down if the window is smaller.
+event_description#:#Description
+event_start#:#Date
