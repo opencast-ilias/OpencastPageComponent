@@ -71,6 +71,7 @@ class ocpcRouterGUI
      * @var \ilOpencastPageComponentPlugin
      */
     private $plugin;
+    private ilOpenCastPlugin $opencast_plugin;
 
     public function __construct()
     {
@@ -81,6 +82,7 @@ class ocpcRouterGUI
         $this->dic = $DIC;
         PluginConfig::setApiSettings();
         $this->opencast_dic = OpencastDIC::getInstance();
+        $this->opencast_plugin =$this->opencast_dic->plugin();
         $this->opencast_dic->overwriteService(
             'upload_handler',
             function (): \xoctFileUploadHandlerGUI {
@@ -107,6 +109,12 @@ class ocpcRouterGUI
     {
         $cmd = $this->dic->ctrl()->getCmd();
         $next_class = $this->dic->ctrl()->getNextClass();
+
+        $main_opencast_js_path = $this->opencast_plugin->getDirectory() . '/js/opencast/dist/index.js';
+        if (file_exists($main_opencast_js_path)) {
+            $this->dic->ui()->mainTemplate()->addJavaScript($main_opencast_js_path);
+        }
+
         switch ($next_class) {
             case strtolower(xoctFileUploadHandlerGUI::class):
                 $fileUploadHandler = new xoctFileUploadHandlerGUI(
