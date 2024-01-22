@@ -350,11 +350,17 @@ class VideoSearchTableGUI extends ilTable2GUI
         }
         $this->filter[self::F_SERIES] = $series->getValue();
 
-        $start = $this->addFilterItemByMetaType(
-            self::F_START, self::FILTER_DATE_RANGE, false, $this->opencast_plugin->txt('event_start')
-        );
-        $this->filter[self::F_START_FROM] = $start->getValue()['from'];
-        $this->filter[self::F_START_TO] = $start->getValue()['to'];
+        $range = new ilDateDurationInputGUI($this->opencast_plugin->txt('event_start'), 'date_range');
+        $range->setAllowOpenIntervals(true);
+        $range->setStartText('');
+        $range->setEndText('');
+        $this->addFilterItem($range, false);
+        $range->readFromSession();
+        $range = $range->getValue();
+        $start = $range['start'] ?? null;
+        $this->filter[self::F_START_FROM] = $start === null ? null : new ilDateTime($start, IL_CAL_UNIX);
+        $end = $range['end'] ?? null;
+        $this->filter[self::F_START_TO] = $end === null ? null : new ilDateTime($end, IL_CAL_UNIX);
     }
 
     protected function initId(): void
