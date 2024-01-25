@@ -71,7 +71,10 @@ class ocpcRouterGUI
      * @var \ilOpencastPageComponentPlugin
      */
     private $plugin;
-    private ilOpenCastPlugin $opencast_plugin;
+    /**
+     * @var ilOpenCastPlugin
+     */
+    private $opencast_plugin;
 
     public function __construct()
     {

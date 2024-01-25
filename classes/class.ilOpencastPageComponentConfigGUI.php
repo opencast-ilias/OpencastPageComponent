@@ -49,7 +49,8 @@ class ilOpencastPageComponentConfigGUI extends ilPluginConfigGUI
         );
     }
 
-    public function performCommand(string $cmd): void
+    #[ReturnTypeWillChange]
+    public function performCommand($cmd): void
     {
         $this->tabs->activateTab(self::CMD_CONFIGURE);
         switch ($cmd) {

@@ -26,6 +26,17 @@ class ilOpencastPageComponentPlugin extends ilPageComponentPlugin
      * @var self|null
      */
     protected static $instance;
+    /**
+     * @var ilDBInterface
+     */
+    private $db;
+
+    public function __construct()
+    {
+        global $DIC;
+        parent::__construct();
+        $this->db = $DIC->database();
+    }
 
     public static function getInstance(): ilOpencastPageComponentPlugin
     {
@@ -50,7 +61,8 @@ class ilOpencastPageComponentPlugin extends ilPageComponentPlugin
         return self::PLUGIN_NAME;
     }
 
-    public function isValidParentType(string $a_type): bool
+    #[ReturnTypeWillChange]
+    public function isValidParentType($a_type): bool
     {
         // Allow in all parent types
         return true;
