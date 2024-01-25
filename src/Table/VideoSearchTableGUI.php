@@ -112,7 +112,7 @@ class VideoSearchTableGUI extends ilTable2GUI
     }
 
     #[ReturnTypeWillChange]
-    protected function fillRow(array $a_set): void
+    protected function fillRow($a_set): void
     {
         /** @var Event $object */
         $object = $a_set['object'];
@@ -356,7 +356,12 @@ class VideoSearchTableGUI extends ilTable2GUI
         $range->setEndText('');
         $this->addFilterItem($range, false);
         $range->readFromSession();
-        $range = $range->getValue();
+        try {
+            $range = $range->getValue();
+        } catch (Throwable $e) {
+            $range = [];
+        }
+
         $start = $range['start'] ?? null;
         $this->filter[self::F_START_FROM] = $start === null ? null : new ilDateTime($start, IL_CAL_UNIX);
         $end = $range['end'] ?? null;
