@@ -1,5 +1,14 @@
 # Changelog
 
+## [7.0.1]
+- Fixed an issue while installing the plugin from scratch in ILIAS 8 (not 
+  needed in ILIAS 7 Version, but for consistency)
+
+## [7.0.0]
+- General Refactoring
+- Removed all srag/* libraries
+- Needs at least version 7.0.0 of the OpenCast-Plugin
+
 ## [1.8.0]
 - Fixed Issue #10
 - Fixed issue with incompatibilities in ILIAS 7.26, #13
