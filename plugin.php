@@ -1,9 +1,9 @@
 <?php
 
 $id = "ocpc";
-$version = "8.1.0";
-$ilias_min_version = "8.0";
-$ilias_max_version = "8.999";
+$version = "9.0.0";
+$ilias_min_version = "9.0";
+$ilias_max_version = "9.999";
 $responsible = 'Universität Bern';
 $responsible_mail = 'david.graf@unibe.ch';
 $supports_cli = true;
