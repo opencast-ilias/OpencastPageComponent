@@ -1,5 +1,7 @@
 <?php
 
+use ILIAS\HTTP\Services;
+use ILIAS\Refinery\Factory;
 use ILIAS\DI\Container;
 use srag\Plugins\Opencast\Model\ACL\ACLUtils;
 use srag\Plugins\Opencast\Model\Config\PluginConfig;
@@ -63,6 +65,8 @@ class ocpcRouterGUI
     private ilOpenCastPlugin $opencast_plugin;
 
     private \srag\Plugins\Opencast\Container\Container $container;
+    private Services $http;
+    private Factory $refinery;
 
     public function __construct()
     {
@@ -71,6 +75,8 @@ class ocpcRouterGUI
         $this->plugin = ilOpencastPageComponentPlugin::getInstance();
         $this->container = Init::init($DIC);
         $this->main_tpl = $DIC->ui()->mainTemplate();
+        $this->http = $DIC->http();
+        $this->refinery = $DIC->refinery();
 
         $this->opencast_plugin = $this->container->plugin();
         $this->legacy_container = $this->container->legacy();
@@ -144,8 +150,19 @@ class ocpcRouterGUI
 
     protected function checkPlayerAccess(): bool
     {
-        $token = filter_input(INPUT_GET, self::TOKEN, FILTER_SANITIZE_STRING);
-        $event_id = filter_input(INPUT_GET, xoctPlayerGUI::IDENTIFIER, FILTER_SANITIZE_STRING);
+        $token = $this->http->wrapper()->query()->has(self::TOKEN)
+            ? $this->http->wrapper()->query()->retrieve(
+                self::TOKEN,
+                $this->refinery->kindlyTo()->string()
+            )
+            : '';
+
+        $event_id = $this->http->wrapper()->query()->has(xoctPlayerGUI::IDENTIFIER)
+            ? $this->http->wrapper()->query()->retrieve(
+                xoctPlayerGUI::IDENTIFIER,
+                $this->refinery->kindlyTo()->string()
+            )
+            : '';
 
         return (new TokenRepository())->checkToken($this->dic->user()->getId(), $event_id, $token);
     }
