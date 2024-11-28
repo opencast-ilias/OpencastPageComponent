@@ -1,8 +1,6 @@
 <?php
 
 use ILIAS\DI\Container;
-use srag\DIC\OpenCast\Exception\DICException;
-use srag\DIC\OpencastPageComponent\DICTrait;
 use srag\Plugins\Opencast\Model\ACL\ACLUtils;
 use srag\Plugins\Opencast\Model\Config\PluginConfig;
 use srag\Plugins\Opencast\Model\Event\EventAPIRepository;
@@ -19,7 +17,6 @@ use srag\Plugins\Opencast\Model\WorkflowParameter\Processing;
 use srag\Plugins\Opencast\Model\User\xoctUser;
 use srag\Plugins\Opencast\Model\TermsOfUse\ToUManager;
 use srag\Plugins\Opencast\UI\EventFormBuilder;
-use srag\Plugins\Opencast\UI\Input\Plupload;
 use srag\Plugins\Opencast\DI\OpencastDIC;
 use srag\Plugins\Opencast\Util\FileTransfer\UploadStorageService;
 use srag\Plugins\OpencastPageComponent\Authorization\TokenRepository;

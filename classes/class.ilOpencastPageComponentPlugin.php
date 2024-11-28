@@ -1,8 +1,5 @@
 <?php
 
-use srag\DIC\OpencastPageComponent\Util\LibraryLanguageInstaller;
-use srag\RemovePluginDataConfirm\OpencastPageComponent\PluginUninstallTrait;
-
 /**
  * Class ilOpencastPageComponentPlugin
  */

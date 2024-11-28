@@ -4,9 +4,6 @@
 
 use ILIAS\DI\Container;
 use ILIAS\UI\Component\Input\Container\Form\Form;
-use srag\CustomInputGUIs\OpencastPageComponent\TableGUI\TableGUI;
-use srag\DIC\OpencastPageComponent\DICTrait;
-use srag\DIC\OpencastPageComponent\Exception\DICException;
 use srag\Plugins\Opencast\Model\Config\PluginConfig;
 use srag\Plugins\Opencast\Model\Event\Event;
 use srag\Plugins\Opencast\Model\Event\EventAPIRepository;
@@ -15,7 +12,6 @@ use srag\Plugins\Opencast\Model\TermsOfUse\ToUManager;
 use srag\Plugins\Opencast\DI\OpencastDIC;
 use srag\Plugins\OpencastPageComponent\Authorization\TokenRepository;
 use srag\Plugins\OpencastPageComponent\Config\Config;
-use srag\Plugins\OpencastPageComponent\Utils\OpencastPageComponentTrait;
 use srag\Plugins\Opencast\Container\Init;
 use ILIAS\Data\URI;
 
