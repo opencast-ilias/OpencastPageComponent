@@ -52,7 +52,7 @@ class ilOpencastPageComponentPlugin extends ilPageComponentPlugin
         /** @var $main_plugin ilOpencastPageComponentPlugin */
         try {
             $main_plugin = $component_factory->getPlugin('xoct');
-        } catch (Throwable $ex) {
+        } catch (Throwable) {
             return false;
         }
 

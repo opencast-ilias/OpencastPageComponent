@@ -34,8 +34,6 @@ class VideoSearchTableGUI extends ilTable2GUI
      */
     protected $filter_fields = [];
     protected \ilOpencastPageComponentPlugin $plugin;
-    protected Container $dic;
-    protected string $command_url;
     /**
      * @var array
      */
@@ -53,13 +51,11 @@ class VideoSearchTableGUI extends ilTable2GUI
     public function __construct(
         ?object $parent_gui,
         string $parent_cmd,
-        Container $dic,
-        string $command_url
+        protected Container $dic,
+        protected string $command_url
     ) {
         global $opencastContainer;
-        $this->dic = $dic;
         $this->plugin = ilOpencastPageComponentPlugin::getInstance();
-        $this->command_url = $command_url;
         $this->opencast_plugin = ilOpenCastPlugin::getInstance();
         $legacy_container = $opencastContainer->legacy();
         $this->event_repository = $opencastContainer[EventAPIRepository::class];
@@ -174,7 +170,7 @@ class VideoSearchTableGUI extends ilTable2GUI
                     return '-';
                 }
                 $startDate = $row['startDate'];
-                $strtotime = strtotime($startDate);
+                $strtotime = strtotime((string) $startDate);
                 return date('d.m.Y H:i', $strtotime);
             case 'location':
                 return $row['location'];

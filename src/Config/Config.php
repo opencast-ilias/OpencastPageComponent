@@ -15,16 +15,9 @@ class Config
     public const KEY_DEFAULT_HEIGHT = "default_height";
     public const DEFAULT_HEIGHT = 480;
     public const KEY_DEFAULT_AS_LINK = "default_as_link";
-    private string $name;
-    /**
-     * @var mixed
-     */
-    private $value;
 
-    public function __construct(string $name, $value = null)
+    public function __construct(private string $name, private mixed $value = null)
     {
-        $this->name = $name;
-        $this->value = $value;
     }
 
     /**

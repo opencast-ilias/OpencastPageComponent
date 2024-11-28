@@ -385,7 +385,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     {
         try {
             $event = $this->event_repository->find($a_properties[self::PROP_EVENT_ID]);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return $this->getExceptionHTML($a_properties);
         }
         $as_link = (bool) $a_properties[self::PROP_AS_LINK];
@@ -524,18 +524,11 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         if ($properties[self::PROP_RESPONSIVE] != false) {
             $tpl->setVariable('WIDTH', 'width:100%;');
         }
-        switch ($properties[self::PROP_POSITION]) {
-            case self::POSITION_CENTER:
-                $tpl->setVariable('CONTAINER_STYLE', 'text-align:center;');
-                break;
-            case self::POSITION_RIGHT:
-                $tpl->setVariable('CONTAINER_STYLE', 'text-align:right;');
-                break;
-            case self::POSITION_LEFT:
-            default:
-                $tpl->setVariable('CONTAINER_STYLE', 'text-align:left;');
-                break;
-        }
+        match ($properties[self::PROP_POSITION]) {
+            self::POSITION_CENTER => $tpl->setVariable('CONTAINER_STYLE', 'text-align:center;'),
+            self::POSITION_RIGHT => $tpl->setVariable('CONTAINER_STYLE', 'text-align:right;'),
+            default => $tpl->setVariable('CONTAINER_STYLE', 'text-align:left;'),
+        };
     }
 
     /**

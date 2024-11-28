@@ -124,12 +124,10 @@ class TokenAR extends ActiveRecord
      */
     public function sleep($field_name)
     {
-        switch ($field_name) {
-            case 'token':
-                return $this->token->toString();
-            default:
-                return null;
-        }
+        return match ($field_name) {
+            'token' => $this->token->toString(),
+            default => null,
+        };
     }
 
     /**
@@ -140,11 +138,9 @@ class TokenAR extends ActiveRecord
      */
     public function wakeUp($field_name, $field_value): ?Token
     {
-        switch ($field_name) {
-            case 'token':
-                return new Token((string) $field_value);
-            default:
-                return null;
-        }
+        return match ($field_name) {
+            'token' => new Token((string) $field_value),
+            default => null,
+        };
     }
 }

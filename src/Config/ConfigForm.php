@@ -36,17 +36,15 @@ class ConfigForm
      * @var \ILIAS\Refinery\Factory
      */
     private $refinery;
-    private \ilOpencastPageComponentConfigGUI $calling_gui;
-    private ConfigRepository $config_repository;
     /**
      * @var Standard
      */
     private $form;
 
     public function __construct(
-        \ilOpencastPageComponentConfigGUI $calling_gui,
+        private \ilOpencastPageComponentConfigGUI $calling_gui,
         string $command,
-        ConfigRepository $config_repository
+        private ConfigRepository $config_repository
     ) {
         global $DIC;
         $this->ctrl = $DIC->ctrl();
@@ -54,9 +52,6 @@ class ConfigForm
         $this->ui_factory = $DIC->ui()->factory();
         $this->ui_renderer = $DIC->ui()->renderer();
         $this->plugin = ilOpencastPageComponentPlugin::getInstance();
-
-        $this->config_repository = $config_repository;
-        $this->calling_gui = $calling_gui;
         $this->initForm($command);
     }
 
