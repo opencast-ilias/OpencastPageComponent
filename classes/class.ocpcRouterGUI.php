@@ -80,7 +80,7 @@ class ocpcRouterGUI
 
         $this->legacy_container->overwriteService(
             'upload_handler',
-            fn (): \xoctFileUploadHandlerGUI => new xoctFileUploadHandlerGUI(
+            fn(): \xoctFileUploadHandlerGUI => new xoctFileUploadHandlerGUI(
                 $this->legacy_container->upload_storage_service(),
                 $this->dic->ctrl()->getLinkTargetByClass(
                     [ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctFileUploadHandlerGUI::class],

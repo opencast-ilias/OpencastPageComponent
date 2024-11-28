@@ -81,7 +81,7 @@ class ConfigForm
             )
             ->withRequired(true)
             ->withAdditionalTransformation(
-                $this->refinery->custom()->transformation(fn ($value): Config => $this->config_repository->store(
+                $this->refinery->custom()->transformation(fn($value): Config => $this->config_repository->store(
                     new Config(Config::KEY_DEFAULT_WIDTH, (int) $value)
                 ))
             );
@@ -95,7 +95,7 @@ class ConfigForm
             )
             ->withRequired(true)
             ->withAdditionalTransformation(
-                $this->refinery->custom()->transformation(fn ($value): Config => $this->config_repository->store(
+                $this->refinery->custom()->transformation(fn($value): Config => $this->config_repository->store(
                     new Config(Config::KEY_DEFAULT_HEIGHT, (int) $value)
                 ))
             );
@@ -108,7 +108,7 @@ class ConfigForm
                 (bool) $this->config_repository->get(Config::KEY_DEFAULT_AS_LINK, false)->getValue()
             )
             ->withAdditionalTransformation(
-                $this->refinery->custom()->transformation(fn ($value): Config => $this->config_repository->store(
+                $this->refinery->custom()->transformation(fn($value): Config => $this->config_repository->store(
                     new Config(Config::KEY_DEFAULT_AS_LINK, (bool) $value)
                 ))
             );
