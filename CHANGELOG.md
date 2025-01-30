@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 9.0.0
+- [FEATURE] ILIAS 9 support
+
 ## [8.1.0]
 - [FEATURE] use UI Components for the video list. Needs Main plugin Version 
   8.1.0 or higher
