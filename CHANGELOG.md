@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 9.0.1
+- [FIX] several array access issues
+
 ## Version 9.0.0
 - [FEATURE] ILIAS 9 support
 
