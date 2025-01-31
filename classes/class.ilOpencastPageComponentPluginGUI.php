@@ -515,16 +515,19 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         return $this->player_url;
     }
 
-    protected function setStyleFromProps(ilTemplate $tpl, array $properties)
+    protected function setStyleFromProps(ilTemplate $tpl, array $properties): void
     {
-        $ratio = $properties[self::PROP_WIDTH] ? ($properties[self::PROP_HEIGHT] / ($properties[self::PROP_WIDTH])) * 100 : 1;
+        $prop_width = $properties[self::PROP_WIDTH] ?? Config::DEFAULT_WIDTH;
+        $prop_height = $properties[self::PROP_HEIGHT] ?? Config::DEFAULT_HEIGHT;
+        $ratio = ($properties[self::PROP_WIDTH] ?? false) ? ($prop_height / ($prop_width)) * 100 : 1;
+
         $tpl->setVariable('RATIO', $ratio);
-        $tpl->setVariable('MAX-WIDTH', $properties[self::PROP_WIDTH]);
-        $tpl->setVariable('MAX-HEIGHT', $properties[self::PROP_HEIGHT]);
-        if ($properties[self::PROP_RESPONSIVE] != false) {
+        $tpl->setVariable('MAX-WIDTH', $prop_width);
+        $tpl->setVariable('MAX-HEIGHT', $prop_height);
+        if ((bool) ($properties[self::PROP_RESPONSIVE] ?? false)) {
             $tpl->setVariable('WIDTH', 'width:100%;');
         }
-        match ($properties[self::PROP_POSITION]) {
+        match ($properties[self::PROP_POSITION] ?? null) {
             self::POSITION_CENTER => $tpl->setVariable('CONTAINER_STYLE', 'text-align:center;'),
             self::POSITION_RIGHT => $tpl->setVariable('CONTAINER_STYLE', 'text-align:right;'),
             default => $tpl->setVariable('CONTAINER_STYLE', 'text-align:left;'),
