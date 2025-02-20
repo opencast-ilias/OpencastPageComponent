@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 8.1.1
+- [FIX] Whoops when using imported folder with OpencastPagecomponent #30
+
 ## [8.1.0]
 - [FEATURE] use UI Components for the video list. Needs Main plugin Version 
   8.1.0 or higher
