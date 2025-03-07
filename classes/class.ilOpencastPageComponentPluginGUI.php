@@ -185,30 +185,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         );
     }
 
-    protected function getTable(bool $init_data = true): VideoSearchTableGUI
-    {
-        $this->dic->ctrl()->clearParameterByClass(self::class, self::CUSTOM_CMD);
-        $command_url = $this->dic->ctrl()->getLinkTarget($this, self::CMD_CREATE);
-        $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, self::CMD_APPLY_FILTER);
-        $table = new VideoSearchTableGUI($this, self::CMD_INSERT, $this->dic, $command_url);
-        $table->setFilterCommand(self::CMD_INSERT);
-        if ($init_data) {
-            $table->initializeData();
-        }
-
-        $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, self::CMD_RESET_FILTER);
-        $reset_filter_url = $this->dic->ctrl()->getLinkTarget($this, self::CMD_INSERT);
-        $reset_filter = $this->lng->txt('reset_filter');
-
-        $this->dic->ui()->mainTemplate()->addOnLoadCode(
-            'OpencastPageComponent.overwriteResetButton("' . $reset_filter . '", "' . $reset_filter_url . '");'
-        );
-
-        $this->dic->ctrl()->clearParameters($this);
-
-        return $table;
-    }
-
     protected function getForm(): ilPropertyFormGUI
     {
         $this->dic->ui()->mainTemplate()->addJavaScript(
@@ -304,13 +280,19 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 
         $ui = $this->container->uiIntegration($this->plugin);
 
+        // surrounding panel
+        $panel = $this->dic->ui()->factory()->panel()->standard(
+            $this->plugin->txt('table_title'),
+            $ui->mine()->asDataTableWithFilters(
+                $current_url,
+                $target_url,
+                self::PROP_EVENT_ID
+            )
+        );
+
         $this->main_tpl->setContent(
             $this->dic->ui()->renderer()->render(
-                $ui->mine()->asDataTableWithFilters(
-                    $current_url,
-                    $target_url,
-                    self::PROP_EVENT_ID
-                )
+                $panel
             )
         );
         // must be after to avoid changed URLs
