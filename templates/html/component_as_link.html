@@ -1,17 +1,9 @@
-<div class="ocpc_outer_container" style="{CONTAINER_STYLE}">
-    <div class="ocpc_inner_container" style="max-width: {MAX-WIDTH}px; width: {MAX-WIDTH}px; {WIDTH}">
-        <div class="ocpc_content_embed" style="padding-top: {RATIO}%;">
-            <a class="ocpc_video_link" href="{VIDEO_LINK}" target="{TARGET}" {ADDITIONAL_LINK_ATTRIBUTES} {MODAL_LINK}>
-                <img class="ocpc_thumbnail ocpc_content" src="{THUMBNAIL_URL}">
-                <!-- BEGIN overlay -->
-                <div class="ocpc_play_overlay">
-                    <div class="ocpc_pseudo_element"></div> <!-- this is necessary to center the following image -->
-                    <img class="ocpc_play_icon" width="32px" height="32px"
-                         src="./Customizing/global/plugins/Services/COPage/PageComponent/OpencastPageComponent/templates/images/play.svg">
-                </div>
-                <!-- END overlay -->
-            </a>
-        </div>
-    </div>
+<a class="ocpc-video-link" href="{VIDEO_LINK}" target="{TARGET}" {ADDITIONAL_LINK_ATTRIBUTES} {MODAL_LINK}>
+    <img class="ocpc-thumbnail" src="{THUMBNAIL_URL}">
+</a>
+<!-- BEGIN overlay -->
+<div class="ocpc-play-overlay">
+    <img class="ocpc-play-icon" src="./Customizing/global/plugins/Services/COPage/PageComponent/OpencastPageComponent/templates/images/play.svg">
 </div>
+<!-- END overlay -->
 {MODAL}

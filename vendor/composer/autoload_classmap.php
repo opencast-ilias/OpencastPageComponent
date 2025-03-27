@@ -7,7 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
-    'VideoSearchTableGUI' => $baseDir . '/src/Table/VideoSearchTableGUI.php',
     'ilOpencastPageComponentConfigGUI' => $baseDir . '/classes/class.ilOpencastPageComponentConfigGUI.php',
     'ilOpencastPageComponentPlugin' => $baseDir . '/classes/class.ilOpencastPageComponentPlugin.php',
     'ilOpencastPageComponentPluginGUI' => $baseDir . '/classes/class.ilOpencastPageComponentPluginGUI.php',
@@ -19,4 +18,6 @@ return array(
     'srag\\Plugins\\OpencastPageComponent\\Config\\ConfigForm' => $baseDir . '/src/Config/ConfigForm.php',
     'srag\\Plugins\\OpencastPageComponent\\Config\\ConfigRepository' => $baseDir . '/src/Config/ConfigRepository.php',
     'srag\\Plugins\\OpencastPageComponent\\Utils\\OpencastPageComponentTrait' => $baseDir . '/src/Utils/OpencastPageComponentTrait.php',
+    'srag\\Plugins\\OpencastPageComponent\\Views\\Edit' => $baseDir . '/src/Views/Edit.php',
+    'srag\\Plugins\\OpencastPageComponent\\Views\\ViewElement' => $baseDir . '/src/Views/ViewElement.php',
 );

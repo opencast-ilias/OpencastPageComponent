@@ -6,8 +6,6 @@ form_title#:#Videoeigenschaften Bearbeiten
 width#:#Breite
 height#:#Höhe
 height_width#:#Maximale Breite / Höhe in Pixel
-as_link#:#Vorschaubild verlinkt auf Video
-as_link_info#:#Wenn aktiv, wird das Video bei einem Klick auf das Vorschaubild in einem neuen Tab geöffnet. Ansonsten wird das Video in der Seite eingebunden und ein Klick darauf startet das Video direkt.
 config_default_width#:#Standard-Breite
 config_default_height#:#Standard-Höhe
 config_default_as_link#:#Standardmässig "Vorschaubild verlinkt auf Video"
@@ -21,3 +19,13 @@ responsiveness#:#Responsive
 responsiveness_info#:#Wenn aktiv, wird die oben definierte Grösse als Maximalgrösse verwendet. Bei weniger Platz (z.B. auf mobilen Geräte) wird das Video kleiner dargestellt.
 event_description#:#Beschreibung
 event_start#:#Datum
+event_currently_selected#:#Aktuell ausgewähltes Video
+event_select_another#:#Ersetzen
+event_properties#:#Eigenschaften
+aspect_ratio#:#Seitenverhältnis
+aspect_ratio_info#:#Seitenverhältnis des ausgewählten Videos. Wird so in die Seite eingefügt.
+max_width#:#Maximale Breite
+max_width_info#:#Optional: Stellen Sie die maximale Breite des Videos ein (in Pixeln). Vorausgefüllt ist die effektive Breite des Videos.
+link_thumbnail#:#Vorschaubild verlinkt auf Video
+link_thumbnail_info#:#Wenn aktiv, wird das Video bei einem Klick auf das Vorschaubild in einem neuen Tab geöffnet. Ansonsten wird das Video in der Seite eingebunden und ein Klick darauf startet das Video direkt.
+ratio_as_publication#:#Wie Publikation

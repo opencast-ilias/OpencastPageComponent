@@ -21,3 +21,6 @@ responsiveness#:#Responsive
 responsiveness_info#:#If active, the defined size acts as a maximum size while the video can scale down if the window is smaller.
 event_description#:#Description
 event_start#:#Date
+event_currently_selected#:#Aktuell ausgewähltes Video
+event_select_another#:#Ersetzen
+ratio_as_publication#:#As in Publication

@@ -26,7 +26,6 @@ class ComposerStaticInit3af4b1f150e4ec7dc807fd66dfd254e7
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-        'VideoSearchTableGUI' => __DIR__ . '/../..' . '/src/Table/VideoSearchTableGUI.php',
         'ilOpencastPageComponentConfigGUI' => __DIR__ . '/../..' . '/classes/class.ilOpencastPageComponentConfigGUI.php',
         'ilOpencastPageComponentPlugin' => __DIR__ . '/../..' . '/classes/class.ilOpencastPageComponentPlugin.php',
         'ilOpencastPageComponentPluginGUI' => __DIR__ . '/../..' . '/classes/class.ilOpencastPageComponentPluginGUI.php',
@@ -38,6 +37,8 @@ class ComposerStaticInit3af4b1f150e4ec7dc807fd66dfd254e7
         'srag\\Plugins\\OpencastPageComponent\\Config\\ConfigForm' => __DIR__ . '/../..' . '/src/Config/ConfigForm.php',
         'srag\\Plugins\\OpencastPageComponent\\Config\\ConfigRepository' => __DIR__ . '/../..' . '/src/Config/ConfigRepository.php',
         'srag\\Plugins\\OpencastPageComponent\\Utils\\OpencastPageComponentTrait' => __DIR__ . '/../..' . '/src/Utils/OpencastPageComponentTrait.php',
+        'srag\\Plugins\\OpencastPageComponent\\Views\\Edit' => __DIR__ . '/../..' . '/src/Views/Edit.php',
+        'srag\\Plugins\\OpencastPageComponent\\Views\\ViewElement' => __DIR__ . '/../..' . '/src/Views/ViewElement.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

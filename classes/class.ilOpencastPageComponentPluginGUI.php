@@ -2,18 +2,19 @@
 
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see https://github.com/ILIAS-eLearning/ILIAS/tree/trunk/docs/LICENSE */
 
+use srag\Plugins\Opencast\UI\Integration\Integration;
 use ILIAS\DI\Container;
 use ILIAS\UI\Component\Input\Container\Form\Form;
-use srag\Plugins\Opencast\Model\Config\PluginConfig;
-use srag\Plugins\Opencast\Model\Event\Event;
 use srag\Plugins\Opencast\Model\Event\EventAPIRepository;
-use srag\Plugins\Opencast\Model\Publication\Config\PublicationUsage;
 use srag\Plugins\Opencast\Model\TermsOfUse\ToUManager;
 use srag\Plugins\Opencast\DI\OpencastDIC;
-use srag\Plugins\OpencastPageComponent\Authorization\TokenRepository;
 use srag\Plugins\OpencastPageComponent\Config\Config;
 use srag\Plugins\Opencast\Container\Init;
 use ILIAS\Data\URI;
+use srag\Plugins\OpencastPageComponent\Views\Edit;
+use srag\Plugins\OpencastPageComponent\Translator;
+use srag\Plugins\OpencastPageComponent\Views\InsertOrReplace;
+use srag\Plugins\OpencastPageComponent\Views\Display;
 
 /**
  * Class ilOpencastPageComponentPluginGUI
@@ -39,6 +40,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     public const CMD_UPLOAD = 'upload';
     public const CUSTOM_CMD = 'ocpc_cmd';
     public const PROP_EVENT_ID = 'event_id';
+    public const PROP_ASPECT_RATIO = 'ratio';
     public const PROP_WIDTH = 'width';
     public const PROP_HEIGHT = 'height';
     public const PROP_AS_LINK = 'as_link';
@@ -51,9 +53,12 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     public const POSITION_CENTER = 'center';
     public const POSITION_RIGHT = 'right';
     public const PROP_RESPONSIVE = 'responsive';
+    public const CMD_REPLACE = 'replace';
     private \ilGlobalTemplateInterface $main_tpl;
     private \srag\Plugins\Opencast\Container\Container $container;
     private string $player_url;
+    private Translator $translator;
+    private Integration $ui_integration;
     protected Container $dic;
     protected OpencastDIC $legacy_container;
     protected EventAPIRepository $event_repository;
@@ -69,6 +74,9 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $this->main_tpl = $this->dic->ui()->mainTemplate();
         $this->container = Init::init($DIC);
         $this->opencast_plugin = $this->container->plugin();
+        $this->setPlugin(ilOpencastPageComponentPlugin::getInstance());
+        $this->translator = new Translator($this->plugin, $this->container->translator());
+        $this->ui_integration = $this->container->uiIntegration($this->plugin);
 
         $main_opencast_js_path = $this->opencast_plugin->getDirectory() . '/js/opencast/dist/index.js';
         if (file_exists($main_opencast_js_path)) {
@@ -133,12 +141,143 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
             case self::CMD_RESET_FILTER:
             case self::CMD_SHOW_UPLOAD_FORM:
             case self::CMD_UPLOAD:
+            case self::CMD_REPLACE:
                 $this->{$cmd}();
                 break;
             default:
                 break;
         }
     }
+
+    // we want to reducet the code here, therefore we delegate some thing to other classes (TODO)
+
+    // performing commands
+    public function cancel(): void
+    {
+        $this->returnToParent();
+    }
+
+    /**
+     * @deprecated still in use?
+     */
+    protected function upload(): void
+    {
+    }
+
+    private function buildURI(string $command): URI
+    {
+        return new URI(ILIAS_HTTP_PATH . '/' . $this->dic->ctrl()->getLinkTarget($this, $command));
+    }
+
+    public function replace(): void
+    {
+        if ($this->dic->http()->request()->getQueryParams()['rtoken'] ?? null) {
+            $this->redirect(self::CMD_INSERT);
+        }
+
+        $insert = new InsertOrReplace(
+            $this->container,
+            $this->translator,
+            $this->ui_integration,
+            $this->buildURI(self::CMD_REPLACE),
+            $this->buildURI(self::CMD_UPDATE)
+        );
+        $this->main_tpl->setContent(
+            $this->dic->ui()->renderer()->render(
+                $insert->get()
+            )
+        );
+        // must be after to avoid changed URLs
+    }
+
+    public function insert(): void
+    {
+        if ($this->dic->http()->request()->getQueryParams()['rtoken'] ?? null) {
+            $this->redirect(self::CMD_INSERT);
+        }
+
+        $insert = new InsertOrReplace(
+            $this->container,
+            $this->translator,
+            $this->ui_integration,
+            $this->buildURI(self::CMD_REPLACE),
+            $this->buildURI(self::CMD_CREATE)
+        );
+        $this->main_tpl->setContent(
+            $this->dic->ui()->renderer()->render(
+                $insert->get()
+            )
+        );
+        // must be after to avoid changed URLs
+        $this->addToolbar();
+    }
+
+    public function create(): void
+    {
+        $event_id = $this->dic->http()->request()->getQueryParams()[self::PROP_EVENT_ID] ?? null;
+
+        $properties = [
+            self::PROP_EVENT_ID => $event_id,
+            self::PROP_HEIGHT => max((int) Config::getField(Config::KEY_DEFAULT_HEIGHT), Config::DEFAULT_HEIGHT),
+            self::PROP_WIDTH => max((int) Config::getField(Config::KEY_DEFAULT_WIDTH), Config::DEFAULT_WIDTH),
+            self::PROP_POSITION => self::POSITION_LEFT,
+            self::PROP_RESPONSIVE => true,
+            self::PROP_AS_LINK => (bool) Config::getField(Config::KEY_DEFAULT_AS_LINK)
+        ];
+        $this->createElement($properties);
+        $this->main_tpl->setOnScreenMessage('success', $this->translator->translate('msg_added'), true);
+
+        $pc_id = $this->getPCGUI()->getContentObject()->readPCId();
+        $this->dic->ctrl()->setParameter($this, 'pc_id', $pc_id);
+        $this->dic->ctrl()->setParameter($this, 'hier_id', 1);
+        $this->dic->ctrl()->redirect($this, self::CMD_EDIT);
+    }
+
+    private function getEditView(): Edit
+    {
+        return new Edit(
+            $this->getProperties(),
+            $this->container,
+            $this->translator,
+            $this->ui_integration,
+            $this->buildURI(self::CMD_UPDATE),
+            $this->buildURI(self::CMD_REPLACE),
+        );
+    }
+
+    public function edit(): void
+    {
+        $this->main_tpl->setContent(
+            $this->dic->ui()->renderer()->render($this->getEditView()->get())
+        );
+    }
+
+    public function update(): void
+    {
+        $current_properties = $this->getProperties();
+        // retrieve new event id if changed
+        $event_id = $this->dic->http()->request()->getQueryParams()[self::PROP_EVENT_ID] ?? null;
+        if ($event_id !== null) {
+            $current_properties[self::PROP_EVENT_ID] = $event_id;
+            $this->updateElement($current_properties);
+        }
+
+        $edit = $this->getEditView();
+        $updated_properties = $edit->getUpdatedProperties($this->dic->http()->request());
+
+        if ($updated_properties === null || $event_id !== null) {
+            $this->main_tpl->setContent(
+                $this->dic->ui()->renderer()->render($edit->get())
+            );
+            return;
+        }
+
+        $properties = array_merge($current_properties, $updated_properties);
+        $this->updateElement($properties);
+        $this->returnToParent();
+    }
+
+    // END performing commands
 
     protected function addToolbar(): void
     {
@@ -147,7 +286,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         //        $this->dic->ctrl()->saveParameter($this, 'rtoken'); // TODO why???
         $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, self::CMD_SHOW_UPLOAD_FORM);
         $upload_button->setUrl($this->dic->ctrl()->getLinkTarget($this, self::CMD_INSERT));
-        $upload_button->setCaption($this->plugin->txt('btn_upload'), false);
+        $upload_button->setCaption($this->translator->translate('btn_upload'), false);
         $this->dic->toolbar()->addButtonInstance($upload_button);
     }
 
@@ -157,10 +296,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $this->main_tpl->setContent(
             $this->dic->ui()->renderer()->render($form)
         );
-    }
-
-    protected function upload(): void
-    {
     }
 
     protected function getUploadForm(): Form
@@ -185,342 +320,25 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         );
     }
 
-    protected function getForm(): ilPropertyFormGUI
-    {
-        $this->dic->ui()->mainTemplate()->addJavaScript(
-            $this->getPlugin()->getDirectory() . '/node_modules/ion-rangeslider/js/ion.rangeSlider.min.js'
-        );
-        $this->dic->ui()->mainTemplate()->addCss(
-            $this->getPlugin()->getDirectory() . '/node_modules/ion-rangeslider/css/ion.rangeSlider.min.css'
-        );
-        $this->dic->ui()->mainTemplate()->addCss($this->getPlugin()->getDirectory() . '/templates/css/form.css');
-        $this->dic->ui()->mainTemplate()->addJavaScript(
-            $this->getPlugin()->getDirectory() . '/templates/js/form.min.js?v=3'
-        );
-        $this->dic->ui()->mainTemplate()->addOnLoadCode(
-            'OpencastPageComponent.initForm(' .
-            Config::getField(Config::KEY_DEFAULT_WIDTH) * 2 .
-            ');'
-        );
-
-        $form = new ilPropertyFormGUI();
-        $form->setId('ocpc_edit');
-        $prop = $this->getProperties();
-        $event = $this->event_repository->find($prop[self::PROP_EVENT_ID]);
-
-        // thumbnail
-        $max_width = 1000;
-        $ratio = round((int) $prop['width'] / (int) $prop['height'], 1);
-        if ((int) $prop['width'] > $max_width) {
-            $max_width = (int) $prop['width'];
-        }
-        $max_height = round($max_width / $ratio, 1);
-        $thumbnail = new ilNonEditableValueGUI($this->dic->language()->txt('preview'), '', true);
-        $container = '<div id="ocpc_thumbnail_container" style="width:100%%; height:100%%; overflow:auto;">%s</div>';
-        $wrapper = '<div id="ocpc_thumbnail_wrapper" style="width:' . $max_width . 'px; height:' . $max_height . 'px;">%s</div>';
-        $img = '<img width="' . $prop['width'] . '" height="' . $prop['height'] .
-            '" id="ocpc_thumbnail" src="' . $event->publications()->getThumbnailUrl() . '">';
-        $thumbnail_value = sprintf($container, sprintf($wrapper, $img));
-        $thumbnail->setValue($thumbnail_value);
-        $form->addItem($thumbnail);
-
-        // width height
-        $width_height = new ilWidthHeightInputGUI($this->plugin->txt("height_width"), self::POST_SIZE);
-        $width_height->setConstrainProportions(true);
-        $width_height->setRequired(true);
-        $width_height->setValueByArray([self::POST_SIZE => array_merge($prop, ['constr_prop' => true])]);
-        $form->addItem($width_height);
-
-        // slider
-        $slider = new ilNonEditableValueGUI('', '', true);
-        $slider_tpl = $this->getPlugin()->getTemplate('html/slider_input.html', false, false);
-        $slider_tpl->setVariable('CONFIG', json_encode($this->getRangeSliderConfig()));
-        $slider->setValue($slider_tpl->get());
-        $form->addItem($slider);
-
-        // positioning
-        $positioning = new ilSelectInputGUI($this->dic->language()->txt("position"), self::PROP_POSITION);
-        $positioning->setOptions([
-            self::POSITION_LEFT => $this->dic->language()->txt('pos_' . self::POSITION_LEFT),
-            self::POSITION_CENTER => $this->dic->language()->txt('cont_' . self::POSITION_CENTER),
-            self::POSITION_RIGHT => $this->dic->language()->txt('pos_' . self::POSITION_RIGHT),
-        ]);
-        $positioning->setRequired(true);
-        $positioning->setValue($prop[self::PROP_POSITION] ?? self::POSITION_LEFT);
-        $form->addItem($positioning);
-
-        // responsiveness
-        $resp = new ilCheckboxInputGUI($this->plugin->txt("responsiveness"), self::PROP_RESPONSIVE);
-        $resp->setInfo($this->plugin->txt("responsiveness_info"));
-        $resp->setChecked($prop[self::PROP_RESPONSIVE] ?? true);
-        $form->addItem($resp);
-
-        // as iframe
-        $as_iframe = new ilCheckboxInputGUI($this->getPlugin()->txt(self::PROP_AS_LINK), self::PROP_AS_LINK);
-        $as_iframe->setInfo($this->getPlugin()->txt(self::PROP_AS_LINK . '_info'));
-        $as_iframe->setChecked($prop[self::PROP_AS_LINK]);
-        $form->addItem($as_iframe);
-
-        $form->addCommandButton(self::CMD_UPDATE, $this->dic->language()->txt("save"));
-        $form->addCommandButton(self::CMD_CANCEL, $this->dic->language()->txt("cancel"));
-        $form->setTitle($this->getPlugin()->txt("form_title"));
-
-        $form->setFormAction($this->dic->ctrl()->getFormAction($this));
-
-        return $form;
-    }
-
-    public function insert(): void
-    {
-        if ($this->dic->http()->request()->getQueryParams()['rtoken'] ?? null) {
-            $this->redirect(self::CMD_INSERT);
-        }
-        $current_url = new URI(ILIAS_HTTP_PATH . '/' . $this->dic->ctrl()->getLinkTarget($this, self::CMD_INSERT));
-        $target_url = new URI(ILIAS_HTTP_PATH . '/' . $this->dic->ctrl()->getLinkTarget($this, self::CMD_CREATE));
-
-        $ui = $this->container->uiIntegration($this->plugin);
-
-        // surrounding panel
-        $panel = $this->dic->ui()->factory()->panel()->standard(
-            $this->plugin->txt('table_title'),
-            $ui->mine()->asDataTableWithFilters(
-                $current_url,
-                $target_url,
-                self::PROP_EVENT_ID
-            )
-        );
-
-        $this->main_tpl->setContent(
-            $this->dic->ui()->renderer()->render(
-                $panel
-            )
-        );
-        // must be after to avoid changed URLs
-        $this->addToolbar();
-    }
-
-    public function create(): void
-    {
-        $event_id = $this->dic->http()->request()->getQueryParams()[self::PROP_EVENT_ID] ?? null;
-
-        $properties = [
-            self::PROP_EVENT_ID => $event_id,
-            self::PROP_HEIGHT => max((int) Config::getField(Config::KEY_DEFAULT_HEIGHT), Config::DEFAULT_HEIGHT),
-            self::PROP_WIDTH => max((int) Config::getField(Config::KEY_DEFAULT_WIDTH), Config::DEFAULT_WIDTH),
-            self::PROP_POSITION => self::POSITION_LEFT,
-            self::PROP_RESPONSIVE => true,
-            self::PROP_AS_LINK => (bool) Config::getField(Config::KEY_DEFAULT_AS_LINK)
-        ];
-        $this->createElement($properties);
-        $this->main_tpl->setOnScreenMessage('success', $this->plugin->txt('msg_added'), true);
-
-        $pc_id = $this->getPCGUI()->getContentObject()->readPCId();
-        $this->dic->ctrl()->setParameter($this, 'pc_id', $pc_id);
-        $this->dic->ctrl()->setParameter($this, 'hier_id', 1);
-        $this->dic->ctrl()->redirect($this, self::CMD_EDIT);
-    }
-
-    public function edit(): void
-    {
-        $this->main_tpl->setContent($this->getForm()->getHTML());
-    }
-
-    public function update(): void
-    {
-        $form = $this->getForm();
-
-        $form->setValuesByPost();
-
-        if (!$form->checkInput()) {
-            $this->main_tpl->setContent($form->getHTML());
-
-            return;
-        }
-
-        $properties = $this->getProperties();
-
-        $size = $form->getInput(self::POST_SIZE);
-        $properties[self::PROP_HEIGHT] = $size[self::PROP_HEIGHT];
-        $properties[self::PROP_WIDTH] = $size[self::PROP_WIDTH];
-        $properties[self::PROP_POSITION] = $form->getInput(self::PROP_POSITION);
-        $properties[self::PROP_RESPONSIVE] = $form->getInput(self::PROP_RESPONSIVE);
-        $properties[self::PROP_AS_LINK] = $form->getInput(self::PROP_AS_LINK);
-
-        $this->updateElement($properties);
-
-        $this->returnToParent();
-    }
-
-    public function cancel(): void
-    {
-        $this->returnToParent();
-    }
-
-    /**
-     * @param string $a_mode
-     * @param string $plugin_version
-     *
-     * @throws ilTemplateException
-     * @throws xoctException
-     */
     public function getElementHTML($a_mode, array $a_properties, $plugin_version): string
     {
-        try {
-            $event = $this->event_repository->find($a_properties[self::PROP_EVENT_ID]);
-        } catch (Exception) {
-            return $this->getExceptionHTML($a_properties);
-        }
-        $as_link = (bool) $a_properties[self::PROP_AS_LINK];
-        if (!$as_link && ($a_mode == self::MODE_PRESENTATION)) {
-            return $this->getIframeHTML($a_properties, $event);
-        }
-        return $this->getStandardElementHTML($a_mode, $a_properties, $event);
+        $display = new Display(
+            $a_properties,
+            $this->container,
+            $this->translator,
+            $this->ui_integration,
+            $a_mode
+        );
+
+        return $this->dic->ui()->renderer()->render(
+            $display->get()
+        );
     }
 
-    public function redirect(string $cmd): void
+    private function redirect(string $cmd): void
     {
         $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, $cmd);
         $this->dic->ctrl()->redirect($this, self::CMD_INSERT);
     }
 
-    /**
-     *
-     *
-     * @throws ilTemplateException
-     * @throws xoctException
-     */
-    protected function getIframeHTML(array $properties, Event $event): string
-    {
-        $tpl = $this->getPlugin()->getTemplate('html/component_as_iframe.html');
-        $this->dic->ui()->mainTemplate()->addCss(
-            $this->getPlugin()->getDirectory() . '/templates/css/presentation.css'
-        );
-        $tpl->setVariable('SRC', $this->getPlayerLink($event));
-        $this->setStyleFromProps($tpl, $properties);
-
-        return $tpl->get();
-    }
-
-    /**
-     *
-     *
-     * @throws ilTemplateException
-     * @throws xoctException
-     */
-    protected function getStandardElementHTML(string $mode, array $properties, Event $event): string
-    {
-        $renderer = new xoctEventRenderer($event);
-        $use_modal = (PluginConfig::getConfig(PluginConfig::F_USE_MODALS));
-        $tpl = $this->getPlugin()->getTemplate('html/component_as_link.html');
-        $this->setStyleFromProps($tpl, $properties);
-        $tpl->setVariable('THUMBNAIL_URL', $event->publications()->getThumbnailUrl());
-        $this->dic->ui()->mainTemplate()->addCss(
-            $this->getPlugin()->getDirectory() . '/templates/css/presentation.css'
-        );
-        if ($mode === self::MODE_PRESENTATION || $mode === self::MODE_PREVIEW) {
-            $tpl->setVariable('TARGET', '_blank');
-            $tpl->setVariable('VIDEO_LINK', $use_modal ? '#' : $this->getPlayerLink($event));
-            $tpl->touchBlock('overlay');
-            if ($use_modal) {
-                $tpl->setVariable('MODAL', $renderer->getPlayerModal()->getHTML());
-                $tpl->setVariable('MODAL_LINK', $renderer->getModalLink());
-            }
-        } else {
-            $tpl->setVariable('VIDEO_LINK', '#');
-        }
-
-        return $tpl->get();
-    }
-
-    protected function getExceptionHTML(array $properties): string
-    {
-        return '<img src="Services/WebAccessChecker/templates/images/access_denied.png" height="' . $properties[self::PROP_HEIGHT] . 'px" ' .
-            'width="' . $properties[self::PROP_WIDTH] . 'px">';
-    }
-
-    /**
-     * @return array{skin: string, min: int, max: int, from: int, from_min: int, step: int, grid: true, postfix: string}
-     */
-    protected function getRangeSliderConfig(): array
-    {
-        return [
-            'skin' => 'modern',
-            'min' => 0,
-            'max' => 100,
-            'from' => 50,
-            'from_min' => 10,
-            'step' => 1,
-            'grid' => true,
-            'postfix' => '%',
-        ];
-    }
-
-    /**
-     * @throws xoctException
-     */
-    protected function getPlayerLink(Event $event): string
-    {
-        if (PluginConfig::getConfig(PluginConfig::F_INTERNAL_VIDEO_PLAYER) || $event->isLiveEvent()) {
-            $token = (new TokenRepository())->create($this->dic->user()->getId(), $event->getIdentifier());
-            $this->dic->ctrl()->clearParametersByClass(xoctPlayerGUI::class);
-            $this->dic->ctrl()->setParameterByClass(
-                ocpcRouterGUI::class,
-                ocpcRouterGUI::TOKEN,
-                $token->getToken()->toString()
-            );
-            $this->dic->ctrl()->setParameterByClass(
-                ocpcRouterGUI::class,
-                xoctPlayerGUI::IDENTIFIER,
-                $event->getIdentifier()
-            );
-            $this->dic->ctrl()->setParameterByClass(
-                xoctPlayerGUI::class,
-                xoctPlayerGUI::IDENTIFIER,
-                $event->getIdentifier()
-            );
-            return $this->dic->ctrl()->getLinkTargetByClass(
-                [ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctPlayerGUI::class],
-                xoctPlayerGUI::CMD_STREAM_VIDEO
-            );
-        }
-        if (!(property_exists($this, 'player_url') && $this->player_url !== null)) {
-            $url = $event->publications()->getFirstPublicationMetadataForUsage(
-                PublicationUsage::find(PublicationUsage::USAGE_PLAYER)
-            )->getUrl();
-            if (PluginConfig::getConfig(PluginConfig::F_SIGN_PLAYER_LINKS)) {
-                $this->player_url = xoctSecureLink::signPlayer($url);
-            } else {
-                $this->player_url = $url;
-            }
-        }
-
-        return $this->player_url;
-    }
-
-    protected function setStyleFromProps(ilTemplate $tpl, array $properties): void
-    {
-        $prop_width = $properties[self::PROP_WIDTH] ?? Config::DEFAULT_WIDTH;
-        $prop_height = $properties[self::PROP_HEIGHT] ?? Config::DEFAULT_HEIGHT;
-        $ratio = ($properties[self::PROP_WIDTH] ?? false) ? ($prop_height / ($prop_width)) * 100 : 1;
-
-        $tpl->setVariable('RATIO', $ratio);
-        $tpl->setVariable('MAX-WIDTH', $prop_width);
-        $tpl->setVariable('MAX-HEIGHT', $prop_height);
-        if ((bool) ($properties[self::PROP_RESPONSIVE] ?? false)) {
-            $tpl->setVariable('WIDTH', 'width:100%;');
-        }
-        match ($properties[self::PROP_POSITION] ?? null) {
-            self::POSITION_CENTER => $tpl->setVariable('CONTAINER_STYLE', 'text-align:center;'),
-            self::POSITION_RIGHT => $tpl->setVariable('CONTAINER_STYLE', 'text-align:right;'),
-            default => $tpl->setVariable('CONTAINER_STYLE', 'text-align:left;'),
-        };
-    }
-
-    /**
-     * @param $key
-     */
-    public function txt(string $key): string
-    {
-        return ilOpenCastPlugin::getInstance()->txt('event_' . $key);
-    }
 }

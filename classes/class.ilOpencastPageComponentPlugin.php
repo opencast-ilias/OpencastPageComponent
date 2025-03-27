@@ -9,7 +9,7 @@ class ilOpencastPageComponentPlugin extends ilPageComponentPlugin
     public const PLUGIN_NAME = "OpencastPageComponent";
 
     public const REMOVE_PLUGIN_DATA_CONFIRM_CLASS_NAME = OpencastPageComponentRemoveDataConfirm::class;
-    protected const MAIN_PLUGIN_VERSION_NEEDED = '8.2.0';
+    protected const MAIN_PLUGIN_VERSION_NEEDED = '9.0.0';
     /**
      * @var ilOpencastPageComponentPlugin|null
      */
@@ -36,6 +36,12 @@ class ilOpencastPageComponentPlugin extends ilPageComponentPlugin
         }
         // otherwise we are in ILIAS 7 context
         return self::$cache = new self();
+    }
+
+    public function __construct(ilDBInterface $db, ilComponentRepositoryWrite $component_repository, string $id)
+    {
+        parent::__construct($db, $component_repository, $id);
+        $this->getLanguageHandler()->updateLanguages();
     }
 
     protected function beforeActivation(): bool
