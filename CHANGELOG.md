@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 9.0.2
+- [FIX] Headline "Insert existing video from Opencast" is missing
+
 ## Version 9.0.1
 - [FIX] several array access issues
 
