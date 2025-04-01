@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 8.1.2
+- [FIX] Headline "Insert existing video from Opencast" is missing
+
 ## Version 8.1.1
 - [FIX] Whoops when using imported folder with OpencastPagecomponent #30
 
