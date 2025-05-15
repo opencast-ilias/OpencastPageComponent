@@ -78,10 +78,10 @@ class Display implements ViewElement
         $max_width = (string) ($this->properties[\ilOpencastPageComponentPluginGUI::PROP_WIDTH] ?? '');
         $max_width = $max_width !== '' ? $max_width . 'px' : 'auto';
 
-        $configured_aspect_ratio = (int) ($this->properties[\ilOpencastPageComponentPluginGUI::PROP_ASPECT_RATIO] ?? Edit::RATIO_AS_PUBLICATION);
-        $ratio = $configured_aspect_ratio  === Edit::RATIO_AS_PUBLICATION
+        $configured_aspect_ratio = (float) ($this->properties[\ilOpencastPageComponentPluginGUI::PROP_ASPECT_RATIO] ?? Edit::RATIO_AS_PUBLICATION);
+        $ratio = $configured_aspect_ratio === Edit::RATIO_AS_PUBLICATION
             ? $this->publication_ratio
-            : $configured_aspect_ratio ;
+            : $configured_aspect_ratio;
 
         $tpl = new \ilTemplate(self::PLUGIN_DIRECTORY . '/templates/html/tpl.container.html', true, true);
         $tpl->setVariable('MAX_WIDTH', $max_width);
@@ -103,14 +103,6 @@ class Display implements ViewElement
             $tpl->get()
         );
 
-        if (!$as_link && ($this->mode === \ilOpencastPageComponentPluginGUI::MODE_PRESENTATION)) {
-            return $this->ui_factory->legacy(
-                $this->getIframeHTML($this->properties, $this->event)
-            );
-        }
-        return $this->ui_factory->legacy(
-            $this->getStandardElementHTML($this->mode, $this->properties, $this->event)
-        );
     }
 
     // Moved from old class
