@@ -57,7 +57,6 @@ class ilOpencastPageComponentPlugin extends ilPageComponentPlugin
     public function __construct(ilDBInterface $db, ilComponentRepositoryWrite $component_repository, string $id)
     {
         parent::__construct($db, $component_repository, $id);
-        $this->getLanguageHandler()->updateLanguages();
     }
 
     protected function beforeActivation(): bool
