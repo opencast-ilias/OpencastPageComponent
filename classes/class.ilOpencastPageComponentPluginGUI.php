@@ -1,6 +1,20 @@
 <?php
 
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see https://github.com/ILIAS-eLearning/ILIAS/tree/trunk/docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 use srag\Plugins\Opencast\UI\Integration\Integration;
 use ILIAS\DI\Container;
@@ -15,6 +29,7 @@ use srag\Plugins\OpencastPageComponent\Views\Edit;
 use srag\Plugins\OpencastPageComponent\Translator;
 use srag\Plugins\OpencastPageComponent\Views\InsertOrReplace;
 use srag\Plugins\OpencastPageComponent\Views\Display;
+use srag\Plugins\OpencastPageComponent\Views\EventDimensions;
 
 /**
  * Class ilOpencastPageComponentPluginGUI
@@ -56,7 +71,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     public const CMD_REPLACE = 'replace';
     private \ilGlobalTemplateInterface $main_tpl;
     private \srag\Plugins\Opencast\Container\Container $container;
-    private string $player_url;
     private Translator $translator;
     private Integration $ui_integration;
     protected Container $dic;
@@ -166,7 +180,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 
     private function buildURI(string $command): URI
     {
-        return new URI(ILIAS_HTTP_PATH . '/' . $this->dic->ctrl()->getLinkTarget($this, $command));
+        return new URI(rtrim(ILIAS_HTTP_PATH, '/') . '/' . $this->dic->ctrl()->getLinkTarget($this, $command));
     }
 
     public function replace(): void
@@ -216,13 +230,21 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     {
         $event_id = $this->dic->http()->request()->getQueryParams()[self::PROP_EVENT_ID] ?? null;
 
+        // determine width/height of event
+        $event_ratio = (new EventDimensions($this->event_repository))->determineForEventId($event_id);
+
         $properties = [
             self::PROP_EVENT_ID => $event_id,
-            self::PROP_HEIGHT => max((int) Config::getField(Config::KEY_DEFAULT_HEIGHT), Config::DEFAULT_HEIGHT),
-            self::PROP_WIDTH => max((int) Config::getField(Config::KEY_DEFAULT_WIDTH), Config::DEFAULT_WIDTH),
+            self::PROP_HEIGHT => $event_ratio?->getHeight() ?? max(
+                    (int) Config::getField(Config::KEY_DEFAULT_HEIGHT), Config::DEFAULT_HEIGHT
+                ),
+            self::PROP_WIDTH => $event_ratio?->getWidth() ?? max(
+                    (int) Config::getField(Config::KEY_DEFAULT_WIDTH), Config::DEFAULT_WIDTH
+                ),
             self::PROP_POSITION => self::POSITION_LEFT,
             self::PROP_RESPONSIVE => true,
-            self::PROP_AS_LINK => (bool) Config::getField(Config::KEY_DEFAULT_AS_LINK)
+            self::PROP_AS_LINK => (bool) Config::getField(Config::KEY_DEFAULT_AS_LINK),
+            self::PROP_ASPECT_RATIO => Edit::RATIO_AS_PUBLICATION,
         ];
         $this->createElement($properties);
         $this->main_tpl->setOnScreenMessage('success', $this->translator->translate('msg_added'), true);
@@ -325,8 +347,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $display = new Display(
             $a_properties,
             $this->container,
-            $this->translator,
-            $this->ui_integration,
             $a_mode
         );
 

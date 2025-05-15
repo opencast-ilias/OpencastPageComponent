@@ -13,18 +13,17 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 declare(strict_types=1);
 
 namespace srag\Plugins\OpencastPageComponent\Views;
 
 use ILIAS\UI\Factory;
-use srag\Plugins\Opencast\UI\Integration\Integration;
 use ILIAS\UI\Component\Component;
 use srag\Plugins\Opencast\Container\Container;
 use srag\Plugins\Opencast\Model\Event\EventAPIRepository;
-use srag\Plugins\OpencastPageComponent\Translator;
 use srag\Plugins\Opencast\Model\Event\Event;
 use srag\Plugins\Opencast\Model\Config\PluginConfig;
 use srag\Plugins\OpencastPageComponent\Authorization\TokenRepository;
@@ -39,7 +38,6 @@ class Display implements ViewElement
     private Factory $ui_factory;
     private EventAPIRepository $event_repository;
     private ?Event $event = null;
-    private array $ratio_option = [];
     private int $height = 1;
     private int $width = 1;
     private float $publication_ratio = 16 / 9;
@@ -48,8 +46,6 @@ class Display implements ViewElement
     public function __construct(
         private array $properties,
         private Container $container,
-        private Translator $translator,
-        private Integration $integration,
         private string $mode
     ) {
         $this->ui_factory = $this->container->ilias()->ui()->factory();
@@ -58,18 +54,17 @@ class Display implements ViewElement
             self::PLUGIN_DIRECTORY . '/templates/css/presentation.css'
         );
 
-        try {
-            $this->event = $this->event_repository->find(
-                $this->properties[\ilOpencastPageComponentPluginGUI::PROP_EVENT_ID]
-            );
+        $this->event = $this->event_repository->find(
+            $this->properties[\ilOpencastPageComponentPluginGUI::PROP_EVENT_ID] ?? ''
+        );
 
-            $player_publication = $this->event->publications()->getPlayerPublication();
-            $this->height = $player_publication->getHeight();
-            $this->width = $player_publication->getWidth();
-            $this->publication_ratio = (float) $this->width / $this->height;
-        } catch (\Throwable $t) {
-            $this->error = $t->getMessage();
-        }
+        $event_ratio = (new EventDimensions($this->event_repository))->determineForEvent(
+            $this->event
+        );
+
+        $this->height = $event_ratio?->getHeight() ?? $this->height;
+        $this->width = $event_ratio?->getWidth() ?? $this->width;
+        $this->publication_ratio = $event_ratio?->getRatio() ?? $this->publication_ratio;
     }
 
     public function get(): Component|array
@@ -102,7 +97,6 @@ class Display implements ViewElement
         return $this->ui_factory->legacy(
             $tpl->get()
         );
-
     }
 
     // Moved from old class

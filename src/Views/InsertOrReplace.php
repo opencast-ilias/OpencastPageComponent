@@ -13,7 +13,8 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -23,7 +24,6 @@ use ILIAS\UI\Factory;
 use srag\Plugins\Opencast\UI\Integration\Integration;
 use ILIAS\UI\Component\Component;
 use srag\Plugins\Opencast\Container\Container;
-use srag\Plugins\Opencast\Model\Event\EventAPIRepository;
 use srag\Plugins\OpencastPageComponent\Translator;
 use ILIAS\Data\URI;
 
@@ -34,7 +34,6 @@ class InsertOrReplace implements ViewElement
 {
     public const PROP_EVENT_ID = 'event_id';
     private Factory $ui_factory;
-    private EventAPIRepository $event_repository;
 
     public function __construct(
         private Container $container,

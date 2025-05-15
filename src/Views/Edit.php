@@ -13,7 +13,8 @@
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
- */
+ *
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -53,7 +54,7 @@ class Edit implements ViewElement
             self::RATIO_AS_PUBLICATION => $this->translator->translate('ratio_as_publication'),
             (string) (16 / 9) => '16:9',
             (string) (4 / 3) => '4:3',
-            (string) (1 / 1) => '1:1',
+            (string) (1) => '1:1',
         ];
     }
 
@@ -70,20 +71,32 @@ class Edit implements ViewElement
         return $this->ui_factory->input()->container()->form()->standard(
             (string) $this->post_uri,
             [
-                \ilOpencastPageComponentPluginGUI::PROP_ASPECT_RATIO => $this->ui_factory->input()->field()->select(
-                    $this->translator->translate('aspect_ratio'),
-                    $this->ratio_option,
-                    $this->translator->translate('aspect_ratio_info')
-                )->withValue((string) $closest_ratio)
-                                                                                         ->withRequired(true),
-                \ilOpencastPageComponentPluginGUI::PROP_WIDTH => $this->ui_factory->input()->field()->numeric(
-                    $this->translator->translate('max_width'),
-                    $this->translator->translate('max_width_info')
-                )->withValue($this->properties[\ilOpencastPageComponentPluginGUI::PROP_WIDTH] ?? null),
-                \ilOpencastPageComponentPluginGUI::PROP_AS_LINK => $this->ui_factory->input()->field()->checkbox(
-                    $this->translator->translate('link_thumbnail'),
-                    $this->translator->translate('link_thumbnail_info')
-                )->withValue((bool) ($this->properties[\ilOpencastPageComponentPluginGUI::PROP_AS_LINK] ?? false)),
+                \ilOpencastPageComponentPluginGUI::PROP_ASPECT_RATIO => $this->ui_factory
+                    ->input()
+                    ->field()
+                    ->select(
+                        $this->translator->translate('aspect_ratio'),
+                        $this->ratio_option,
+                        $this->translator->translate('aspect_ratio_info')
+                    )
+                    ->withValue((string) $closest_ratio)
+                    ->withRequired(true),
+                \ilOpencastPageComponentPluginGUI::PROP_WIDTH => $this->ui_factory
+                    ->input()
+                    ->field()
+                    ->numeric(
+                        $this->translator->translate('max_width'),
+                        $this->translator->translate('max_width_info')
+                    )
+                    ->withValue($this->properties[\ilOpencastPageComponentPluginGUI::PROP_WIDTH] ?? null),
+                \ilOpencastPageComponentPluginGUI::PROP_AS_LINK => $this->ui_factory
+                    ->input()
+                    ->field()
+                    ->checkbox(
+                        $this->translator->translate('link_thumbnail'),
+                        $this->translator->translate('link_thumbnail_info')
+                    )
+                    ->withValue((bool) ($this->properties[\ilOpencastPageComponentPluginGUI::PROP_AS_LINK] ?? false)),
             ]
         );
     }

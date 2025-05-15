@@ -18,27 +18,31 @@
 
 declare(strict_types=1);
 
-namespace srag\Plugins\OpencastPageComponent;
-
-use srag\Plugins\Opencast\Util\Locale\Translator as MainTranslator;
+namespace srag\Plugins\OpencastPageComponent\Views;
 
 /**
  * @author Fabian Schmid <fabian@sr.solutions>
  */
-class Translator
+class Dimensions
 {
     public function __construct(
-        private \ilOpencastPageComponentPlugin $plugin,
-        private MainTranslator $main_translator
+        private int $width,
+        private int $height,
     ) {
     }
 
-    public function translate(string $key): string
+    public function getWidth(): int
     {
-        if ($this->main_translator->has($key)) {
-            return $this->main_translator->translate($key);
-        }
-        return $this->plugin->txt($key);
+        return $this->width;
     }
 
+    public function getHeight(): int
+    {
+        return $this->height;
+    }
+
+    public function getRatio(): float
+    {
+        return (float) $this->height / $this->width;
+    }
 }
