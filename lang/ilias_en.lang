@@ -12,6 +12,7 @@ config_default_as_link#:#Default ‘Preview image links to video’
 msg_failed_loading_events#:#An error occurred while loading events: %s
 msg_created#:#Upload complete. Note: It may take a few minutes for the video to be processed and appear in the list below.
 msg_added#:#Video successfully added to the page.
+msg_replaced#:#Video successfully replaced.
 textFilter#:#Text filter
 table_title#:#Select existing video from Opencast
 btn_upload#:#Upload new video

@@ -280,6 +280,7 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         // retrieve new event id if changed
         $event_id = $this->dic->http()->request()->getQueryParams()[self::PROP_EVENT_ID] ?? null;
         if ($event_id !== null) {
+            $this->main_tpl->setOnScreenMessage('success', $this->translator->translate('msg_replaced'), true);
             $current_properties[self::PROP_EVENT_ID] = $event_id;
             $this->updateElement($current_properties);
         }
