@@ -46,6 +46,8 @@
     grid-column: 1;
     display: flex;
     background-color: rgba(0, 0, 0, 0.6);
+    /*background: rgba(2, 0, 36, 7.16);*/
+    /*background: linear-gradient(0deg, rgba(0, 0, 0, 0.66) 0%, rgba(0, 0, 0, 0.66) 33%, rgba(0, 0, 0, 0.22) 100%);*/
 }
 
 .ocpc-video-link .ocpc-play-overlay img {
