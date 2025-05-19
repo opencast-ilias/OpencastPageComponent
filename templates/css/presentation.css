@@ -26,31 +26,32 @@
 }
 
 .ocpc-container a.ocpc-video-link {
-    grid-column: 1;
-    grid-row: 1;
-    display: flex;
-	justify-content: center;
-	align-items: center;
+    display: grid;
+    grid-template-rows: 100%;
+    grid-template-columns: 100%;
 	overflow: hidden;
     width: 100%
 }
 
-.ocpc-container img.ocpc-thumbnail {
+.ocpc-video-link img.ocpc-thumbnail {
 	width: 100%;
-	/*flex-shrink: 0;*/ /* make img full in div */
-	/*min-height: 100%*/ /* make img full in div */
+    grid-column: 1;
+    grid-row: 1;
+    justify-content: center;
+    align-items: center;
 }
 
-.ocpc-container .ocpc-play-overlay {
+.ocpc-video-link .ocpc-play-overlay {
     grid-row: 1;
     grid-column: 1;
     display: flex;
     background-color: rgba(0, 0, 0, 0.6);
 }
 
-.ocpc-container .ocpc-play-overlay img {
+.ocpc-video-link .ocpc-play-overlay img {
     width: 48px;
     height: 48px;
     margin: auto;
-    opacity: 0.6;
+    /*opacity: 0.6;*/
+    display: block;
 }
