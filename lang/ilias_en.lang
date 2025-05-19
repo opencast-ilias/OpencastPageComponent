@@ -13,7 +13,7 @@ msg_failed_loading_events#:#An error occurred while loading events: %s
 msg_created#:#Upload complete. Note: It may take a few minutes for the video to be processed and appear in the list below.
 msg_added#:#Video successfully added to the page.
 textFilter#:#Text filter
-table_title#:#Insert existing video from Opencast
+table_title#:#Select existing video from Opencast
 btn_upload#:#Upload new video
 responsiveness#:#Responsive
 responsiveness_info#:#If enabled, the size defined above will be used as the maximum size. If there is less space (e.g. on mobile devices), the video will be displayed smaller.
