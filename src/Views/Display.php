@@ -51,16 +51,18 @@ class Display implements ViewElement
         $this->container->ilias()->ui()->mainTemplate()->addCss(
             self::PLUGIN_DIRECTORY . '/templates/css/presentation.css'
         );
+        try {
+            $this->event = $event_repository->find(
+                $this->properties[\ilOpencastPageComponentPluginGUI::PROP_EVENT_ID] ?? ''
+            );
+            $event_ratio = (new EventDimensions($event_repository))->determineForEvent(
+                $this->event
+            );
 
-        $this->event = $event_repository->find(
-            $this->properties[\ilOpencastPageComponentPluginGUI::PROP_EVENT_ID] ?? ''
-        );
-
-        $event_ratio = (new EventDimensions($event_repository))->determineForEvent(
-            $this->event
-        );
-
-        $this->publication_ratio = $event_ratio?->getRatio() ?? $this->publication_ratio;
+            $this->publication_ratio = $event_ratio?->getRatio() ?? $this->publication_ratio;
+        } catch (\Throwable $e) {
+            $this->error = $e->getMessage();
+        }
     }
 
     public function get(): Component|array
@@ -118,7 +120,6 @@ class Display implements ViewElement
         if ($mode === \ilOpencastPageComponentPluginGUI::MODE_PRESENTATION || $mode === \ilOpencastPageComponentPluginGUI::MODE_PREVIEW) {
             $tpl->setVariable('TARGET', '_blank');
             $tpl->setVariable('VIDEO_LINK', $use_modal ? '#' : $this->getPlayerLink($event));
-//            $tpl->touchBlock('overlay');
             if ($use_modal) {
                 $tpl->setVariable('MODAL', $renderer->getPlayerModal()->getHTML());
                 $tpl->setVariable('MODAL_LINK', $renderer->getModalLink());
