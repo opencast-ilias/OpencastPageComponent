@@ -141,7 +141,7 @@ class ocpcRouterGUI
                     case self::CMD_UPLOAD_CHUNKS:
                     case self::CMD_CREATE:
                     case self::CMD_CANCEL:
-                        $return_link = filter_input(INPUT_GET, self::P_GET_RETURN_LINK, FILTER_SANITIZE_STRING);
+                        $return_link = $this->http->request()->getQueryParams()[self::P_GET_RETURN_LINK] ?? '';
                         $this->dic->ctrl()->setParameter($this, self::P_GET_RETURN_LINK, urlencode($return_link));
                         $this->{$cmd}();
                 }
@@ -269,7 +269,7 @@ class ocpcRouterGUI
      */
     protected function cancel(): void
     {
-        $return_url = filter_input(INPUT_GET, self::P_GET_RETURN_LINK, FILTER_SANITIZE_STRING);
+        $return_url = $this->dic->http()->request()->getQueryParams()[self::P_GET_RETURN_LINK] ?? '';
         $this->dic->ctrl()->redirectToURL(htmlspecialchars_decode($return_url));
     }
 
