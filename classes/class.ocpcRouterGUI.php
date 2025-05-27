@@ -188,26 +188,26 @@ class ocpcRouterGUI
         $data = $form->getData();
 
         if ($with_terms_of_use) {
-            $eula_accepted = $data[EventFormBuilder::F_ACCEPT_EULA][EventFormBuilder::F_ACCEPT_EULA];
+            $eula_accepted = $data === null ? false : $data[EventFormBuilder::F_ACCEPT_EULA][EventFormBuilder::F_ACCEPT_EULA] ?? false;
             if (!$eula_accepted) {
                 // this is necessary because the 'required'-function of the checkbox doesn't work currently
                 // otherwise, $data would just be null
                 $this->main_tpl->setOnScreenMessage(
                     'failure',
-                    self::plugin()->getPluginObject()->txt('event_error_alert_accpet_terms_of_use')
+                    $this->plugin->txt('event_error_alert_accpet_terms_of_use')
                 );
-                $this->dic->mainTemplate()->loadStandardTemplate();
-                $this->dic->mainTemplate()->setContent($this->dic->ui()->renderer()->render($form));
-                $this->dic->mainTemplate()->printToStdout();
+                $this->main_tpl->loadStandardTemplate();
+                $this->main_tpl->setContent($this->dic->ui()->renderer()->render($form));
+                $this->main_tpl->printToStdout();
                 return;
             }
             ToUManager::setToUAccepted($this->dic->user()->getId());
         }
 
         if (!$data) {
-            $this->dic->ui()->mainTemplate()->loadStandardTemplate();
-            $this->dic->ui()->mainTemplate()->setContent($this->dic->ui()->renderer()->render($form));
-            $this->dic->ui()->mainTemplate()->printToStdout();
+            $this->main_tpl->loadStandardTemplate();
+            $this->main_tpl->setContent($this->dic->ui()->renderer()->render($form));
+            $this->main_tpl->printToStdout();
             return;
         }
 
