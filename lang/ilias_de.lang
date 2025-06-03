@@ -24,7 +24,7 @@ event_currently_selected#:#Aktuell ausgewähltes Video
 event_select_another#:#Ersetzen
 event_properties#:#Eigenschaften
 aspect_ratio#:#Seitenverhältnis
-aspect_ratio_info#:#Seitenverhältnis des ausgewählten Videos. Wird so in die Seite eingefügt.
+aspect_ratio_info#:#Das Video wird mit diesem Seitenverhältnis eingefügt
 max_width#:#Maximale Breite
 max_width_info#:#Optional: Stellen Sie die maximale Breite des Videos ein (in Pixeln). Vorausgefüllt ist die effektive Breite des Videos.
 link_thumbnail#:#Vorschaubild verlinkt auf Video
