@@ -163,8 +163,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         }
     }
 
-    // we want to reducet the code here, therefore we delegate some thing to other classes (TODO)
-
     // performing commands
     public function cancel(): void
     {
@@ -176,6 +174,10 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
      */
     protected function upload(): void
     {
+        trigger_error(
+            'Method ' . __METHOD__ . ' is deprecated and should not be used anymore.',
+            E_USER_DEPRECATED
+        );
     }
 
     private function buildURI(string $command): URI
@@ -201,7 +203,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
                 $insert->get()
             )
         );
-        // must be after to avoid changed URLs
     }
 
     public function insert(): void
@@ -306,7 +307,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     {
         $upload_button = ilLinkButton::getInstance();
         $upload_button->setPrimary(true);
-        //        $this->dic->ctrl()->saveParameter($this, 'rtoken'); // TODO why???
         $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, self::CMD_SHOW_UPLOAD_FORM);
         $upload_button->setUrl($this->dic->ctrl()->getLinkTarget($this, self::CMD_INSERT));
         $upload_button->setCaption($this->translator->translate('btn_upload'), false);
