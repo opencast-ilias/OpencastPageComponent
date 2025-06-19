@@ -28,5 +28,6 @@ aspect_ratio_info#:#The video is inserted with this aspect ratio.
 max_width#:#Maximum width
 max_width_info#:#Optional: Set the maximum width of the video (in pixels). The effective width of the video is pre-filled.
 link_thumbnail#:#Preview image linked to video
-link_thumbnail_info#:#If active, the video will open in a new tab when the preview image is clicked. Otherwise, the video will be embedded in the page and clicking on it will start the video directly.
+link_thumbnail_info#:#When enabled, clicking the preview image will open the video in a new browser tab.  
+Otherwise, the video will be embedded directly on the page and start playing when clicked.
 ratio_as_publication#:#As publication
