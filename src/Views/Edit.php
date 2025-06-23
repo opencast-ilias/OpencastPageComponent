@@ -139,7 +139,7 @@ class Edit implements ViewElement
         // get image size
         $size = getimagesizefromstring($thumbnail);
         // calculate aspect ratio
-        $aspect_ratio = $size[0] / $size[1];
+        $aspect_ratio = (float) ($size[0] / $size[1]);
 
         $ratios = array_map('floatval', array_keys($this->ratio_option));
 

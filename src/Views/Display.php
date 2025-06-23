@@ -82,7 +82,7 @@ class Display implements ViewElement
 
         $content = match (true) {
             $this->event === null => $this->getExceptionHTML($this->properties),
-            $as_link || $this->mode !== \ilOpencastPageComponentPluginGUI::MODE_PRESENTATION => $this->getStandardElementHTML(
+            $as_link || ($this->mode !== \ilOpencastPageComponentPluginGUI::MODE_PRESENTATION) => $this->getStandardElementHTML(
                 $this->mode,
                 $this->properties,
                 $this->event
@@ -96,8 +96,6 @@ class Display implements ViewElement
             $tpl->get()
         );
     }
-
-    // Moved from old class
 
     protected function getIframeHTML(array $properties, Event $event): string
     {
