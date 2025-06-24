@@ -72,7 +72,7 @@ class Display implements ViewElement
         $max_width = $max_width !== '' ? $max_width . 'px' : 'auto';
 
         $configured_aspect_ratio = (float) (($this->properties[\ilOpencastPageComponentPluginGUI::PROP_ASPECT_RATIO]) ?? Edit::RATIO_AS_PUBLICATION);
-        $ratio = $configured_aspect_ratio === Edit::RATIO_AS_PUBLICATION
+        $ratio = $configured_aspect_ratio === (float) Edit::RATIO_AS_PUBLICATION
             ? $this->publication_ratio
             : $configured_aspect_ratio;
 
