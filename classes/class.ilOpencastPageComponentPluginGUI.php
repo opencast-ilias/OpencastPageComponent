@@ -69,6 +69,8 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     public const POSITION_RIGHT = 'right';
     public const PROP_RESPONSIVE = 'responsive';
     public const CMD_REPLACE = 'replace';
+    public const P_PC_ID = 'pc_id';
+    public const P_HIER_ID = 'hier_id';
     private \ilGlobalTemplateInterface $main_tpl;
     private \srag\Plugins\Opencast\Container\Container $container;
     private Translator $translator;
@@ -122,6 +124,35 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         parent::__construct();
     }
 
+    /**
+     * @deprecated We currently keep this snippet, although it is not used anymore. In older versions of the plugins
+     * there was an implementation like this, If we face an issue with the parameters in the future, we can
+     *             restore this method.
+     */
+    private function ensureParameters(bool $all = false): void
+    {
+        $query_params = $this->dic->http()->request()->getQueryParams();
+        if (!$all) {
+            $content_object = isset($this->pc_gui) ? $this->getPCGUI()->getContentObject() : null;
+            $this->dic->ctrl()->setParameter(
+                $this,
+                self::P_PC_ID,
+                $query_params[self::P_PC_ID] ?? $content_object?->readPCId() ?? ''
+            );
+            $this->dic->ctrl()->setParameter(
+                $this,
+                self::P_HIER_ID,
+                $query_params[self::P_HIER_ID] ?? '1'
+            );
+        }
+
+        $this->dic->ctrl()->setParameter(
+            $this,
+            'rtoken',
+            $query_params['rtoken'] ?? null
+        );
+    }
+
     public function executeCommand(): void
     {
         try {
@@ -134,8 +165,10 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
                 $this->performCommand($cmd);
                 return;
             }
-            $cmd = $this->dic->ctrl()->getCmd();
-            $this->performCommand($cmd);
+
+            $this->performCommand(
+                $this->dic->ctrl()->getCmd()
+            );
             return;
         } catch (ilException $e) {
             $this->main_tpl->setOnScreenMessage('failure', $e->getMessage(), true);
@@ -187,10 +220,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 
     public function replace(): void
     {
-        if ($this->dic->http()->request()->getQueryParams()['rtoken'] ?? null) {
-            $this->redirect(self::CMD_INSERT);
-        }
-
         $insert = new InsertOrReplace(
             $this->container,
             $this->translator,
@@ -207,15 +236,11 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 
     public function insert(): void
     {
-        if ($this->dic->http()->request()->getQueryParams()['rtoken'] ?? null) {
-            $this->redirect(self::CMD_INSERT);
-        }
-
         $insert = new InsertOrReplace(
             $this->container,
             $this->translator,
             $this->ui_integration,
-            $this->buildURI(self::CMD_REPLACE),
+            $this->buildURI(self::CMD_INSERT),
             $this->buildURI(self::CMD_CREATE)
         );
         $this->main_tpl->setContent(
@@ -229,7 +254,8 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 
     public function create(): void
     {
-        $event_id = $this->dic->http()->request()->getQueryParams()[self::PROP_EVENT_ID] ?? null;
+        $query_params = $this->dic->http()->request()->getQueryParams();
+        $event_id = $query_params[self::PROP_EVENT_ID] ?? null;
 
         // determine width/height of event
         $event_ratio = (new EventDimensions($this->event_repository))->determineForEventId($event_id);
@@ -237,11 +263,13 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $properties = [
             self::PROP_EVENT_ID => $event_id,
             self::PROP_HEIGHT => $event_ratio?->getHeight() ?? max(
-                    (int) Config::getField(Config::KEY_DEFAULT_HEIGHT), Config::DEFAULT_HEIGHT
-                ),
+                (int) Config::getField(Config::KEY_DEFAULT_HEIGHT),
+                Config::DEFAULT_HEIGHT
+            ),
             self::PROP_WIDTH => $event_ratio?->getWidth() ?? max(
-                    (int) Config::getField(Config::KEY_DEFAULT_WIDTH), Config::DEFAULT_WIDTH
-                ),
+                (int) Config::getField(Config::KEY_DEFAULT_WIDTH),
+                Config::DEFAULT_WIDTH
+            ),
             self::PROP_POSITION => self::POSITION_LEFT,
             self::PROP_RESPONSIVE => true,
             self::PROP_AS_LINK => (bool) Config::getField(Config::KEY_DEFAULT_AS_LINK),
@@ -250,9 +278,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         $this->createElement($properties);
         $this->main_tpl->setOnScreenMessage('success', $this->translator->translate('msg_added'), true);
 
-        $pc_id = $this->getPCGUI()->getContentObject()->readPCId();
-        $this->dic->ctrl()->setParameter($this, 'pc_id', $pc_id);
-        $this->dic->ctrl()->setParameter($this, 'hier_id', 1);
         $this->dic->ctrl()->redirect($this, self::CMD_EDIT);
     }
 

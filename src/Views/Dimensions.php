@@ -43,6 +43,6 @@ class Dimensions
 
     public function getRatio(): float
     {
-        return (float) ($this->height / $this->width);
+        return (float) ($this->width / $this->height);
     }
 }
