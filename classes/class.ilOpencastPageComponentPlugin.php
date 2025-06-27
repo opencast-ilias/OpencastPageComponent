@@ -1,6 +1,22 @@
 <?php
 
 /**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+/**
  * Class ilOpencastPageComponentPlugin
  */
 class ilOpencastPageComponentPlugin extends ilPageComponentPlugin
@@ -9,7 +25,7 @@ class ilOpencastPageComponentPlugin extends ilPageComponentPlugin
     public const PLUGIN_NAME = "OpencastPageComponent";
 
     public const REMOVE_PLUGIN_DATA_CONFIRM_CLASS_NAME = OpencastPageComponentRemoveDataConfirm::class;
-    protected const MAIN_PLUGIN_VERSION_NEEDED = '8.2.0';
+    protected const MAIN_PLUGIN_VERSION_NEEDED = '9.0.0';
     /**
      * @var ilOpencastPageComponentPlugin|null
      */
@@ -36,6 +52,11 @@ class ilOpencastPageComponentPlugin extends ilPageComponentPlugin
         }
         // otherwise we are in ILIAS 7 context
         return self::$cache = new self();
+    }
+
+    public function __construct(ilDBInterface $db, ilComponentRepositoryWrite $component_repository, string $id)
+    {
+        parent::__construct($db, $component_repository, $id);
     }
 
     protected function beforeActivation(): bool

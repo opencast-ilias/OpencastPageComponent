@@ -16,26 +16,33 @@
  *
  *********************************************************************/
 
-namespace srag\Plugins\OpencastPageComponent\Authorization;
+declare(strict_types=1);
+
+namespace srag\Plugins\OpencastPageComponent\Views;
 
 /**
- * @author  Theodor Truffer <tt@studer-raimann.ch>
+ * @author Fabian Schmid <fabian@sr.solutions>
  */
-class Token
+class Dimensions
 {
-    protected string $token;
-
-    public function __construct(string $token = '')
-    {
-        if ($token === '') {
-            $token = openssl_random_pseudo_bytes(16);
-            $token = bin2hex($token);
-        }
-        $this->token = $token;
+    public function __construct(
+        private int $width,
+        private int $height,
+    ) {
     }
 
-    public function toString(): string
+    public function getWidth(): int
     {
-        return $this->token;
+        return $this->width;
+    }
+
+    public function getHeight(): int
+    {
+        return $this->height;
+    }
+
+    public function getRatio(): float
+    {
+        return (float) ($this->width / $this->height);
     }
 }

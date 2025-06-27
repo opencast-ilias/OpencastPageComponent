@@ -6,18 +6,28 @@ form_title#:#Edit Video Properties
 width#:#Width
 height#:#Height
 height_width#:#Max. width / height in pixels
-as_link#:#Thumbnail as link to video
-as_link_info#:#If selected, clicking on the thumbnail will open the video in a new tab. Otherwise, the video is integrated into the page and a click on it starts the video directly.
 config_default_width#:#Default width
 config_default_height#:#Default height
-config_default_as_link#:#"Thumbnail as link to video" per default
+config_default_as_link#:#Default ‘Preview image links to video’
 msg_failed_loading_events#:#An error occurred while loading events: %s
-msg_created#:#Upload complete. Note that the video must be processed before it appears in the list below. This can take several minutes.
-msg_added#:#Video successfully added to page.
-textFilter#:#Text Filter
-table_title#:#Insert existing video from Opencast
+msg_created#:#Upload complete. Note: It may take a few minutes for the video to be processed and appear in the list below.
+msg_added#:#Video successfully added to the page.
+msg_replaced#:#Video successfully replaced.
+textFilter#:#Text filter
+table_title#:#Select existing video from Opencast
 btn_upload#:#Upload new video
 responsiveness#:#Responsive
-responsiveness_info#:#If active, the defined size acts as a maximum size while the video can scale down if the window is smaller.
+responsiveness_info#:#If enabled, the size defined above will be used as the maximum size. If there is less space (e.g. on mobile devices), the video will be displayed smaller.
 event_description#:#Description
 event_start#:#Date
+event_currently_selected#:#Currently selected video
+event_select_another#:#Replace
+event_properties#:#Properties
+aspect_ratio#:#Aspect ratio
+aspect_ratio_info#:#The video is inserted with this aspect ratio.
+max_width#:#Maximum width
+max_width_info#:#Optional: Set the maximum width of the video (in pixels). The effective width of the video is pre-filled.
+link_thumbnail#:#Preview image linked to video
+link_thumbnail_info#:#When enabled, clicking the preview image will open the video in a new browser tab.  
+Otherwise, the video will be embedded directly on the page and start playing when clicked.
+ratio_as_publication#:#As publication

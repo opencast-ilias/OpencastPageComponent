@@ -16,26 +16,18 @@
  *
  *********************************************************************/
 
-namespace srag\Plugins\OpencastPageComponent\Authorization;
+declare(strict_types=1);
+
+namespace srag\Plugins\OpencastPageComponent\Views;
+
+use ILIAS\UI\Component\Component;
 
 /**
- * @author  Theodor Truffer <tt@studer-raimann.ch>
+ * @author Fabian Schmid <fabian@sr.solutions>
  */
-class Token
+interface ViewElement
 {
-    protected string $token;
 
-    public function __construct(string $token = '')
-    {
-        if ($token === '') {
-            $token = openssl_random_pseudo_bytes(16);
-            $token = bin2hex($token);
-        }
-        $this->token = $token;
-    }
+    public function get(): Component|array;
 
-    public function toString(): string
-    {
-        return $this->token;
-    }
 }

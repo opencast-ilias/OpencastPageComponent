@@ -16,26 +16,29 @@
  *
  *********************************************************************/
 
-namespace srag\Plugins\OpencastPageComponent\Authorization;
+declare(strict_types=1);
+
+namespace srag\Plugins\OpencastPageComponent;
+
+use srag\Plugins\Opencast\Util\Locale\Translator as MainTranslator;
 
 /**
- * @author  Theodor Truffer <tt@studer-raimann.ch>
+ * @author Fabian Schmid <fabian@sr.solutions>
  */
-class Token
+class Translator
 {
-    protected string $token;
+    public function __construct(
+        private \ilOpencastPageComponentPlugin $plugin,
+        private MainTranslator $main_translator
+    ) {
+    }
 
-    public function __construct(string $token = '')
+    public function translate(string $key): string
     {
-        if ($token === '') {
-            $token = openssl_random_pseudo_bytes(16);
-            $token = bin2hex($token);
+        if ($this->main_translator->has($key)) {
+            return $this->main_translator->translate($key);
         }
-        $this->token = $token;
+        return $this->plugin->txt($key);
     }
 
-    public function toString(): string
-    {
-        return $this->token;
-    }
 }

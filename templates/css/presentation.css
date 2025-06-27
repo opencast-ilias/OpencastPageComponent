@@ -1,73 +1,56 @@
-iframe.ocpc_iframe {
-	border: none;
+.ocpc-container {
+    position: relative;
+    display: grid;
+    grid-template-rows: 100%;
+    grid-template-columns: 100%;
+    aspect-ratio: 16 / 9;
+    background-color: #f9f9f9;
+    overflow: hidden;
+    box-shadow: inset 0px 0px 25px -20px rgba(0, 0, 0, 0.10);
 }
 
-.ocpc_content {
-	position: absolute;
-	top: 0;
-	left: 0;
+.ocpc-container .ocpc-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.ocpc-container span {
+    align-content: center;
+    display: block;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+}
+
+.ocpc-container a.ocpc-video-link {
+    display: grid;
+    grid-template-rows: 100%;
+    grid-template-columns: 100%;
+	overflow: hidden;
+    width: 100%
+}
+
+.ocpc-video-link img.ocpc-thumbnail {
 	width: 100%;
-	height: 100%;
+    grid-column: 1;
+    grid-row: 1;
+    justify-content: center;
+    align-items: center;
 }
 
-div.ocpc_content_embed {
-	position: relative;
-	height: 0;
-	width: 100%;
-	height: auto;
+.ocpc-video-link .ocpc-play-overlay {
+    grid-row: 1;
+    grid-column: 1;
+    display: flex;
+    background-color: rgba(0, 0, 0, 0.6);
 }
 
-div.ocpc_inner_container {
-	display: inline-block;
+.ocpc-video-link .ocpc-play-overlay img {
+    width: 48px;
+    height: 48px;
+    margin: auto;
+    display: block;
 }
-
-a.ocpc_video_link {
-	display: inline-block;
-	width: fit-content;
-	height: fit-content;
-}
-
-div.ocpc_outer_container {
-	width: 100%;
-}
-
-div.ocpc_image_container {
-	position: relative;
-	display: inline-block;
-	margin: 20px 20px 20px 0;
-}
-
-.ocpc_play_overlay {
-	position: absolute;
-	top: 0;
-	left: 0;
-	height: 100%;
-	width: 100%;
-	opacity: 0;
-	transition: .5s ease;
-	background-color: rgba(0,0,0,.7);
-	text-align: center;
-}
-
-.ocpc_video_link:hover .ocpc_play_overlay, .ocpc_video_link:hover .ocpc_play_icon {
-	opacity: 1;
-}
-
-/* this is necessary to center the "play" image */
-.ocpc_pseudo_element {
-	height: 100%;
-	vertical-align: middle;
-	display: inline-block;
-}
-
-img.ocpc_play_icon {
-	vertical-align: middle;
-	display: inline-block;
-}
-
-/* modal */
-.xoct_iframe {
-	width:100%;
-	height: 300px;
-}
-

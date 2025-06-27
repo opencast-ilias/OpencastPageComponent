@@ -7,7 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
-    'VideoSearchTableGUI' => $baseDir . '/src/Table/VideoSearchTableGUI.php',
     'ilOpencastPageComponentConfigGUI' => $baseDir . '/classes/class.ilOpencastPageComponentConfigGUI.php',
     'ilOpencastPageComponentPlugin' => $baseDir . '/classes/class.ilOpencastPageComponentPlugin.php',
     'ilOpencastPageComponentPluginGUI' => $baseDir . '/classes/class.ilOpencastPageComponentPluginGUI.php',
@@ -18,5 +17,11 @@ return array(
     'srag\\Plugins\\OpencastPageComponent\\Config\\Config' => $baseDir . '/src/Config/Config.php',
     'srag\\Plugins\\OpencastPageComponent\\Config\\ConfigForm' => $baseDir . '/src/Config/ConfigForm.php',
     'srag\\Plugins\\OpencastPageComponent\\Config\\ConfigRepository' => $baseDir . '/src/Config/ConfigRepository.php',
-    'srag\\Plugins\\OpencastPageComponent\\Utils\\OpencastPageComponentTrait' => $baseDir . '/src/Utils/OpencastPageComponentTrait.php',
+    'srag\\Plugins\\OpencastPageComponent\\Translator' => $baseDir . '/src/Translator.php',
+    'srag\\Plugins\\OpencastPageComponent\\Views\\Dimensions' => $baseDir . '/src/Views/Dimensions.php',
+    'srag\\Plugins\\OpencastPageComponent\\Views\\Display' => $baseDir . '/src/Views/Display.php',
+    'srag\\Plugins\\OpencastPageComponent\\Views\\Edit' => $baseDir . '/src/Views/Edit.php',
+    'srag\\Plugins\\OpencastPageComponent\\Views\\EventDimensions' => $baseDir . '/src/Views/EventDimensions.php',
+    'srag\\Plugins\\OpencastPageComponent\\Views\\InsertOrReplace' => $baseDir . '/src/Views/InsertOrReplace.php',
+    'srag\\Plugins\\OpencastPageComponent\\Views\\ViewElement' => $baseDir . '/src/Views/ViewElement.php',
 );
