@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 9.1.0
+- [FEATURE] Redesigned Settings-Screen and Workflow
+- [FIX] Uploading new Videos
+- [FIX] deprecated usage of constant
+
 ## Version 9.0.2
 - [FIX] Headline "Insert existing video from Opencast" is missing
 

@@ -25,7 +25,7 @@ class ilOpencastPageComponentPlugin extends ilPageComponentPlugin
     public const PLUGIN_NAME = "OpencastPageComponent";
 
     public const REMOVE_PLUGIN_DATA_CONFIRM_CLASS_NAME = OpencastPageComponentRemoveDataConfirm::class;
-    protected const MAIN_PLUGIN_VERSION_NEEDED = '9.0.0';
+    protected const MAIN_PLUGIN_VERSION_NEEDED = '9.2.0';
     /**
      * @var ilOpencastPageComponentPlugin|null
      */
