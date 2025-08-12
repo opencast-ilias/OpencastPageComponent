@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 9.1.1
+- [FIX] adding new video took preview of last inserted video
+
 ## Version 9.1.0
 - [FEATURE] Redesigned Settings-Screen and Workflow
 - [FIX] Uploading new Videos
