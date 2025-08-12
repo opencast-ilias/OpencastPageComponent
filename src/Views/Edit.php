@@ -103,9 +103,13 @@ class Edit implements ViewElement
 
     public function get(): Component|array
     {
+        $event_id = $this->properties[\ilOpencastPageComponentPluginGUI::PROP_EVENT_ID] ?? null;
+        if ($event_id === null) {
+            return [];
+        }
         return [
             $this->integration->events()->asItemFromEventId(
-                $this->properties[\ilOpencastPageComponentPluginGUI::PROP_EVENT_ID],
+                $event_id,
                 $this->ui_factory->button()->standard(
                     $this->translator->translate('event_select_another'),
                     (string) $this->replace_uri,

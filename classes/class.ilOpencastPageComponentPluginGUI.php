@@ -125,31 +125,96 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     }
 
     /**
-     * @deprecated We currently keep this snippet, although it is not used anymore. In older versions of the plugins
-     * there was an implementation like this, If we face an issue with the parameters in the future, we can
-     *             restore this method.
+     * @description The PageComponentPlugins do not actually allow you to move on screens and your own CommandClasses,
+     * but are otherwise only called via the insert() or update() methods. However, we need more options in the plugin
+     * and therefore have to redirect to our CommandClass first so that things like filtering, sorting the table etc. work afterwards.
      */
-    private function ensureParameters(bool $all = false): void
+    private function ensureContext(string $command): void
+    {
+        $this->ensureParameters();
+        // we connot rely on ilCtrl->getCmdClass() here, because it is seems to be "overwritten" by the pageeditor which is really bad practice.
+        $current_command_class = strtolower(
+            (string) ($this->dic->http()->request()->getQueryParams()['cmdClass'] ?? '')
+        );
+        if ($current_command_class !== strtolower(self::class)) {
+            // we are not in the right context, redirect to insert
+            $this->redirect($command, $command);
+            return;
+        }
+    }
+
+    /**
+     * @see ensureParameters
+     */
+    private function determineHierId(): ?string
     {
         $query_params = $this->dic->http()->request()->getQueryParams();
-        if (!$all) {
-            $content_object = isset($this->pc_gui) ? $this->getPCGUI()->getContentObject() : null;
-            $this->dic->ctrl()->setParameter(
-                $this,
-                self::P_PC_ID,
-                $query_params[self::P_PC_ID] ?? $content_object?->readPCId() ?? ''
-            );
-            $this->dic->ctrl()->setParameter(
-                $this,
-                self::P_HIER_ID,
-                $query_params[self::P_HIER_ID] ?? '1'
-            );
-        }
+        $post_params = $this->dic->http()->request()->getParsedBody();
+        $content_object = isset($this->pc_gui) ? $this->getPCGUI()->getContentObject() : null;
+
+        // HIER_ID
+        $query_hier_id = $query_params[self::P_HIER_ID] ?? null;
+        $post_hier_id = $post_params[self::P_HIER_ID] ?? null;
+        $content_object_hier_id = $content_object?->readHierId() ?? null;
+        $content_object_hier_id = empty($content_object_hier_id) ? null : $content_object_hier_id;
+        return $content_object_hier_id ?? $query_hier_id ?? $post_hier_id;
+    }
+
+    /**
+     * @see ensureParameters
+     */
+    private function determinePcId(): ?string
+    {
+        $query_params = $this->dic->http()->request()->getQueryParams();
+        $post_params = $this->dic->http()->request()->getParsedBody();
+        $content_object = isset($this->pc_gui) ? $this->getPCGUI()->getContentObject() : null;
+
+        // PC_ID
+        $query_pc_id = $query_params[self::P_PC_ID] ?? null;
+        $post_pc_id = $post_params[self::P_PC_ID] ?? null;
+        $content_object_pc_id = $content_object?->readPCId() ?? null;
+        $content_object_pc_id = empty($content_object_pc_id) ? null : $content_object_pc_id;
+
+        return $content_object_pc_id ?? $query_pc_id ?? $post_pc_id;
+    }
+
+    /**
+     * @description Sets some parameters for next requests which are needed to identify the page component element.
+     * This is needed e.g. while redirecting to edit after creating a new element.
+     *
+     * unfortunately i have not found any documentation on hier_id and pc_id anywhere. but: it turns out that we have to
+     * give these to the requests as parameters, otherwise we may lose the context to the corresponding block in this page.
+     * the pc_id is the identifier of the block, the hier_id is a kind of numerical identifier that is used to scroll to
+     * the right place on the page afterwards, but these are both only assumptions.
+     */
+    private function ensureParameters(): void
+    {
+        // PC_ID
+        $pc_id = $this->determinePcId();
 
         $this->dic->ctrl()->setParameter(
             $this,
-            'rtoken',
-            $query_params['rtoken'] ?? null
+            self::P_PC_ID,
+            $pc_id
+        );
+        $this->dic->ctrl()->setParameterByClass(
+            ilPCPluggedGUI::class,
+            self::P_PC_ID,
+            $pc_id
+        );
+
+        // HIER_ID
+        $hier_id = $this->determineHierId();
+
+        $this->dic->ctrl()->setParameter(
+            $this,
+            self::P_HIER_ID,
+            $hier_id
+        );
+        $this->dic->ctrl()->setParameterByClass(
+            ilPCPluggedGUI::class,
+            self::P_HIER_ID,
+            $hier_id
         );
     }
 
@@ -236,6 +301,8 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 
     public function insert(): void
     {
+        $this->ensureContext(self::CMD_INSERT);
+
         $insert = new InsertOrReplace(
             $this->container,
             $this->translator,
@@ -256,6 +323,11 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     {
         $query_params = $this->dic->http()->request()->getQueryParams();
         $event_id = $query_params[self::PROP_EVENT_ID] ?? null;
+        if ($event_id === null) {
+            $this->main_tpl->setOnScreenMessage('failure', $this->translator->translate('msg_no_event_selected'), true);
+            $this->redirect(self::CMD_INSERT);
+            return;
+        }
 
         // determine width/height of event
         $event_ratio = (new EventDimensions($this->event_repository))->determineForEventId($event_id);
@@ -275,10 +347,20 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
             self::PROP_AS_LINK => (bool) Config::getField(Config::KEY_DEFAULT_AS_LINK),
             self::PROP_ASPECT_RATIO => Edit::RATIO_AS_PUBLICATION,
         ];
-        $this->createElement($properties);
-        $this->main_tpl->setOnScreenMessage('success', $this->translator->translate('msg_added'), true);
 
-        $this->dic->ctrl()->redirect($this, self::CMD_EDIT);
+        if ($this->createElement($properties)) {
+            $this->main_tpl->setOnScreenMessage('success', $this->translator->translate('msg_added'), true);
+        } else {
+            throw new \ilException(
+                $this->translator->translate('msg_error_adding')
+            );
+        }
+
+        // we must set this parameters here, otherwise we "lose" the new created element in the next command.
+        $this->getPCGUI()->getPage()->read();
+        $this->ensureParameters();
+
+        $this->redirect(self::CMD_EDIT, self::CMD_EDIT);
     }
 
     private function getEditView(): Edit
@@ -295,6 +377,8 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 
     public function edit(): void
     {
+        $this->ensureContext(self::CMD_EDIT);
+
         $this->main_tpl->setContent(
             $this->dic->ui()->renderer()->render($this->getEditView()->get())
         );
@@ -381,10 +465,10 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         );
     }
 
-    private function redirect(string $cmd): void
+    private function redirect(string $custom_command, ?string $plugin_command = null): void
     {
-        $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, $cmd);
-        $this->dic->ctrl()->redirect($this, self::CMD_INSERT);
+        $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, $custom_command);
+        $this->dic->ctrl()->redirect($this, $plugin_command ?? self::CMD_INSERT);
     }
 
 }
