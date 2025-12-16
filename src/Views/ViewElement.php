@@ -27,7 +27,6 @@ use ILIAS\UI\Component\Component;
  */
 interface ViewElement
 {
-
     public function get(): Component|array;
 
 }

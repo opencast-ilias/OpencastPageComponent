@@ -34,9 +34,9 @@ use srag\Plugins\Opencast\Model\Publication\Config\PublicationUsage;
  */
 class Display implements ViewElement
 {
-    private const PLUGIN_DIRECTORY = './Customizing/global/plugins/Services/COPage/PageComponent/OpencastPageComponent';
+    private const PUBLIC_PLUGIN_DIRECTORY = './Customizing/global/plugins/Services/COPage/PageComponent/OpencastPageComponent';
+    private const INTERNAL_PLUGIN_DIRECTORY = './public/Customizing/global/plugins/Services/COPage/PageComponent/OpencastPageComponent';
     private Factory $ui_factory;
-    private EventAPIRepository $event_repository;
     private ?Event $event = null;
     private float $publication_ratio = 16 / 9;
     private ?string $error = null;
@@ -49,7 +49,7 @@ class Display implements ViewElement
         $this->ui_factory = $this->container->ilias()->ui()->factory();
         $event_repository = $this->container->get(EventAPIRepository::class);
         $this->container->ilias()->ui()->mainTemplate()->addCss(
-            self::PLUGIN_DIRECTORY . '/templates/css/presentation.css'
+            self::PUBLIC_PLUGIN_DIRECTORY . '/templates/css/presentation.css'
         );
         try {
             $this->event = $event_repository->find(
@@ -76,7 +76,7 @@ class Display implements ViewElement
             ? $this->publication_ratio
             : $configured_aspect_ratio;
 
-        $tpl = new \ilTemplate(self::PLUGIN_DIRECTORY . '/templates/html/tpl.container.html', true, true);
+        $tpl = new \ilTemplate(self::INTERNAL_PLUGIN_DIRECTORY . '/templates/html/tpl.container.html', true, true);
         $tpl->setVariable('MAX_WIDTH', $max_width);
         $tpl->setVariable('RATIO', $ratio);
 
@@ -99,9 +99,9 @@ class Display implements ViewElement
 
     protected function getIframeHTML(array $properties, Event $event): string
     {
-        $tpl = new \ilTemplate(self::PLUGIN_DIRECTORY . '/templates/html/component_as_iframe.html', true, true);
+        $tpl = new \ilTemplate(self::INTERNAL_PLUGIN_DIRECTORY . '/templates/html/component_as_iframe.html', true, true);
         $this->container->ilias()->ui()->mainTemplate()->addCss(
-            self::PLUGIN_DIRECTORY . '/templates/css/presentation.css'
+            self::PUBLIC_PLUGIN_DIRECTORY . '/templates/css/presentation.css'
         );
         $tpl->setVariable('SRC', $this->getPlayerLink($event));
 
@@ -112,7 +112,7 @@ class Display implements ViewElement
     {
         $renderer = new \xoctEventRenderer($event);
         $use_modal = (PluginConfig::getConfig(PluginConfig::F_USE_MODALS));
-        $tpl = new \ilTemplate(self::PLUGIN_DIRECTORY . '/templates/html/component_as_link.html', true, true);
+        $tpl = new \ilTemplate(self::INTERNAL_PLUGIN_DIRECTORY . '/templates/html/component_as_link.html', true, true);
         $tpl->setVariable('THUMBNAIL_URL', $event->publications()->getThumbnailUrl());
 
         if ($mode === \ilOpencastPageComponentPluginGUI::MODE_PRESENTATION || $mode === \ilOpencastPageComponentPluginGUI::MODE_PREVIEW) {

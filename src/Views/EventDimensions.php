@@ -28,7 +28,6 @@ use srag\Plugins\Opencast\Model\Event\Event;
  */
 class EventDimensions
 {
-
     protected array $ratio_cache = [];
 
     public function __construct(
