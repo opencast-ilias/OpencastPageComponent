@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 10.0.0
+- [FEATURE] ILIAS 10 Support
+
 ## Version 9.1.1
 - [FIX] adding new video took preview of last inserted video
 
