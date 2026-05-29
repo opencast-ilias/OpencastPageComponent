@@ -334,14 +334,8 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
 
         $properties = [
             self::PROP_EVENT_ID => $event_id,
-            self::PROP_HEIGHT => $event_ratio?->getHeight() ?? max(
-                (int) Config::getField(Config::KEY_DEFAULT_HEIGHT),
-                Config::DEFAULT_HEIGHT
-            ),
-            self::PROP_WIDTH => $event_ratio?->getWidth() ?? max(
-                (int) Config::getField(Config::KEY_DEFAULT_WIDTH),
-                Config::DEFAULT_WIDTH
-            ),
+            self::PROP_HEIGHT => $event_ratio?->getHeight() ?? Config::DEFAULT_HEIGHT,
+            self::PROP_WIDTH => $event_ratio?->getWidth() ?? Config::DEFAULT_WIDTH,
             self::PROP_POSITION => self::POSITION_LEFT,
             self::PROP_RESPONSIVE => true,
             self::PROP_AS_LINK => (bool) Config::getField(Config::KEY_DEFAULT_AS_LINK),
