@@ -18,9 +18,7 @@
 
 use srag\Plugins\Opencast\UI\Integration\Integration;
 use ILIAS\DI\Container;
-use ILIAS\UI\Component\Input\Container\Form\Form;
 use srag\Plugins\Opencast\Model\Event\EventAPIRepository;
-use srag\Plugins\Opencast\Model\TermsOfUse\ToUManager;
 use srag\Plugins\Opencast\DI\OpencastDIC;
 use srag\Plugins\OpencastPageComponent\Config\Config;
 use srag\Plugins\Opencast\Container\Init;
@@ -51,8 +49,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     public const CMD_UPDATE = "update";
     public const CMD_APPLY_FILTER = "applyFilter";
     public const CMD_RESET_FILTER = "resetFilter";
-    public const CMD_SHOW_UPLOAD_FORM = 'showUploadForm';
-    public const CMD_UPLOAD = 'upload';
     public const CUSTOM_CMD = 'ocpc_cmd';
     public const PROP_EVENT_ID = 'event_id';
     public const PROP_ASPECT_RATIO = 'ratio';
@@ -100,24 +96,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
         }
 
         $this->legacy_container = $this->container->legacy();
-        $this->legacy_container->overwriteService(
-            'upload_handler',
-            new xoctFileUploadHandlerGUI(
-                $this->legacy_container->upload_storage_service(),
-                $this->dic->ctrl()->getLinkTargetByClass(
-                    [ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctFileUploadHandlerGUI::class],
-                    'upload'
-                ),
-                $this->dic->ctrl()->getLinkTargetByClass(
-                    [ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctFileUploadHandlerGUI::class],
-                    'info'
-                ),
-                $this->dic->ctrl()->getLinkTargetByClass(
-                    [ilObjPluginDispatchGUI::class, ocpcRouterGUI::class, xoctFileUploadHandlerGUI::class],
-                    'remove'
-                )
-            )
-        );
 
         $this->event_repository = $this->container[EventAPIRepository::class];
 
@@ -251,8 +229,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
             case self::CMD_UPDATE:
             case self::CMD_APPLY_FILTER:
             case self::CMD_RESET_FILTER:
-            case self::CMD_SHOW_UPLOAD_FORM:
-            case self::CMD_UPLOAD:
             case self::CMD_REPLACE:
                 $this->{$cmd}();
                 break;
@@ -265,17 +241,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     public function cancel(): void
     {
         $this->returnToParent();
-    }
-
-    /**
-     * @deprecated still in use?
-     */
-    protected function upload(): void
-    {
-        trigger_error(
-            'Method ' . __METHOD__ . ' is deprecated and should not be used anymore.',
-            E_USER_DEPRECATED
-        );
     }
 
     private function buildURI(string $command): URI
@@ -315,8 +280,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
                 $insert->get()
             )
         );
-        // must be after to avoid changed URLs
-        $this->addToolbar();
     }
 
     public function create(): void
@@ -405,46 +368,6 @@ class ilOpencastPageComponentPluginGUI extends ilPageComponentPluginGUI
     }
 
     // END performing commands
-
-    protected function addToolbar(): void
-    {
-        $upload_button = ilLinkButton::getInstance();
-        $upload_button->setPrimary(true);
-        $this->dic->ctrl()->setParameter($this, self::CUSTOM_CMD, self::CMD_SHOW_UPLOAD_FORM);
-        $upload_button->setUrl($this->dic->ctrl()->getLinkTarget($this, self::CMD_INSERT));
-        $upload_button->setCaption($this->translator->translate('btn_upload'), false);
-        $this->dic->toolbar()->addButtonInstance($upload_button);
-    }
-
-    protected function showUploadForm(): void
-    {
-        $form = $this->getUploadForm();
-        $this->main_tpl->setContent(
-            $this->dic->ui()->renderer()->render($form)
-        );
-    }
-
-    protected function getUploadForm(): Form
-    {
-        $return_link = $this->dic->ctrl()->getLinkTarget($this, 'insert_plug_OpencastPageComponent');
-        $this->dic->ctrl()->setParameterByClass(
-            ocpcRouterGUI::class,
-            ocpcRouterGUI::P_GET_RETURN_LINK,
-            urlencode($return_link)
-        );
-
-        $with_terms_of_use = !ToUManager::hasAcceptedToU($this->dic->user()->getId());
-
-        $form_action_by_class = $this->dic->ctrl()->getFormActionByClass(
-            [ilObjPluginDispatchGUI::class, ocpcRouterGUI::class],
-            self::CMD_CREATE
-        );
-
-        return $this->legacy_container->event_form_builder()->upload(
-            $form_action_by_class,
-            $with_terms_of_use
-        );
-    }
 
     public function getElementHTML($a_mode, array $a_properties, $plugin_version): string
     {
