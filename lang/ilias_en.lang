@@ -6,8 +6,6 @@ form_title#:#Edit Video Properties
 width#:#Width
 height#:#Height
 height_width#:#Max. width / height in pixels
-config_default_width#:#Default width
-config_default_height#:#Default height
 config_default_as_link#:#Default ‘Preview image links to video’
 msg_failed_loading_events#:#An error occurred while loading events: %s
 msg_created#:#Upload complete. Note: It may take a few minutes for the video to be processed and appear in the list below.
