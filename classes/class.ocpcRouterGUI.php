@@ -19,7 +19,7 @@
 use ILIAS\HTTP\Services;
 use ILIAS\Refinery\Factory;
 use ILIAS\DI\Container;
-use srag\Plugins\Opencast\Model\ACL\ACLUtils;
+use srag\Plugins\Opencast\API\API;
 use srag\Plugins\Opencast\Model\Config\PluginConfig;
 use srag\Plugins\Opencast\Model\Event\EventAPIRepository;
 use srag\Plugins\Opencast\Model\Series\SeriesRepository;
@@ -39,6 +39,7 @@ use srag\Plugins\Opencast\DI\OpencastDIC;
 use srag\Plugins\Opencast\Util\FileTransfer\UploadStorageService;
 use srag\Plugins\OpencastPageComponent\Authorization\TokenRepository;
 use srag\Plugins\Opencast\Container\Init;
+use srag\Plugins\Opencast\Util\OutputResponse;
 
 /**
  * Class ocpcRouterGUI
@@ -50,39 +51,68 @@ use srag\Plugins\Opencast\Container\Init;
  */
 class ocpcRouterGUI
 {
+    use OutputResponse;
     public const TOKEN = 'token';
     public const CMD_UPLOAD_CHUNKS = 'uploadChunks';
     public const CMD_CREATE = 'create';
     public const CMD_CANCEL = 'cancel';
     public const P_GET_RETURN_LINK = 'return_link';
+    public const CMD_REFRESH_JWT_ASYNC = 'refreshJwtAsync';
 
     /**
      * @var EventAPIRepository
      */
     private $event_repository;
+
     /**
      * @var SeriesRepository
      */
     private $series_repository;
+
     /**
-     * @var ACLUtils
+     * @var OpencastDIC
      */
-    private $acl_utils;
     private OpencastDIC $legacy_container;
+
     /**
      * @var Container
      */
     private $dic;
+
     /**
      * @var \ilGlobalTemplateInterface
      */
     private $main_tpl;
+
+    /**
+     * @var ilOpencastPageComponentPlugin
+     */
     private \ilOpencastPageComponentPlugin $plugin;
+
+    /**
+     * @var ilOpenCastPlugin
+     */
     private ilOpenCastPlugin $opencast_plugin;
 
+    /**
+     * @var \srag\Plugins\Opencast\Container\Container
+     */
     private \srag\Plugins\Opencast\Container\Container $container;
+
+    /**
+     * @var Services
+     */
     private Services $http;
+
+    /**
+     * @var Factory
+     */
     private Factory $refinery;
+
+    /**
+     * @var API
+     */
+    protected API $api;
 
     public function __construct()
     {
@@ -90,6 +120,7 @@ class ocpcRouterGUI
         $this->dic = $DIC;
         $this->plugin = ilOpencastPageComponentPlugin::getInstance();
         $this->container = Init::init($DIC);
+        $this->api = $this->container[API::class];
         $this->main_tpl = $DIC->ui()->mainTemplate();
         $this->http = $DIC->http();
         $this->refinery = $DIC->refinery();
@@ -141,16 +172,36 @@ class ocpcRouterGUI
                 $this->dic->ctrl()->forwardCommand($fileUploadHandler);
                 break;
             case strtolower(xoctPlayerGUI::class):
-                if (!$this->checkPlayerAccess()) {
+                $is_refresh_token = $cmd === self::CMD_REFRESH_JWT_ASYNC;
+                if (!$this->checkPlayerAccess($is_refresh_token)) {
                     $this->main_tpl->setOnScreenMessage('failure', 'Access Denied.');
                     $this->dic->ctrl()->returnToParent($this);
+                    break;
                 }
-                $xoctPlayerGUI = new xoctPlayerGUI(
-                    $this->event_repository,
-                    $this->legacy_container->paella_config_storage_service(),
-                    $this->legacy_container->paella_config_service_factory()
-                );
-                $xoctPlayerGUI->streamVideo();
+                if ($is_refresh_token) {
+                    $this->{$cmd}();
+                    break;
+                }
+                try {
+                    $xoctPlayerGUI = new xoctPlayerGUI(
+                        $this->event_repository,
+                        $this->legacy_container->paella_config_storage_service(),
+                        $this->legacy_container->paella_config_service_factory()
+                    );
+
+                    $xoctPlayerGUI->streamVideo();
+                } catch (\Throwable $th) {
+                    $message = $th->getMessage();
+                    if (
+                        $message &&
+                        str_contains($message, '401') ||
+                        str_contains($message, '403')
+                    ) {
+                        $message = 'Error: Access Denied.';
+                    }
+                    $this->main_tpl->setOnScreenMessage('failure', $message);
+                    echo $message;
+                }
                 break;
             default:
                 switch ($cmd) {
@@ -164,7 +215,44 @@ class ocpcRouterGUI
         }
     }
 
-    protected function checkPlayerAccess(): bool
+    /**
+     * Generates/Refreshes the JWT access token.
+     *
+     * @return void
+     */
+    protected function refreshJwtAsync()
+    {
+        $event_id = $this->http->wrapper()->query()->has(xoctPlayerGUI::IDENTIFIER)
+            ? $this->http->wrapper()->query()->retrieve(
+                xoctPlayerGUI::IDENTIFIER,
+                $this->refinery->kindlyTo()->string()
+            )
+            : '';
+        $response = [
+            'status' => 'error',
+            'message' => 'Unable to generate access token.',
+        ];
+        if (
+            $event_id &&
+            method_exists($this->api, 'isJWTActivated') &&
+            $this->api->isJWTActivated()
+        ) {
+            $refreshed_token = $this->api->refreshTokenForEvent($event_id);
+            if ($refreshed_token) {
+                $response = [
+                    'status' => 'OK',
+                    'newToken' => $refreshed_token,
+                ];
+            } else {
+                $response['message'] = 'Invalid token!';
+            }
+        }
+
+        $response_json_encoded = json_encode($response);
+        $this->sendReponse($response_json_encoded);
+    }
+
+    protected function checkPlayerAccess(bool $check_secondary = false): bool
     {
         $token = $this->http->wrapper()->query()->has(self::TOKEN)
             ? $this->http->wrapper()->query()->retrieve(
@@ -180,7 +268,12 @@ class ocpcRouterGUI
             )
             : '';
 
-        return (new TokenRepository())->checkToken($this->dic->user()->getId(), $event_id, $token);
+        $apply_secondary = !$check_secondary;
+        if ($check_secondary) {
+            $token = TokenRepository::SECONDARY_TOKEN;
+        }
+
+        return (new TokenRepository())->checkToken($this->dic->user()->getId(), $event_id, $token, $apply_secondary);
     }
 
     protected function create(): void
