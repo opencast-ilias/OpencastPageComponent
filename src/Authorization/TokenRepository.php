@@ -33,6 +33,16 @@ class TokenRepository
     public const TOKEN_VALIDITY = 3 * 60 * 60;
 
     /**
+     * A buffer after which the token remains valid in order to reuse it during this time.
+     */
+    public const TOKEN_BUFFER = 10;
+
+    /**
+     * A secondary use constant token.
+     */
+    public const SECONDARY_TOKEN = 'secondary_token';
+
+    /**
      * @param        $usr_id int
      *
      *
@@ -49,11 +59,16 @@ class TokenRepository
         return $token_AR;
     }
 
-    public function checkToken(int $usr_id, string $event_id, string $token): bool
+    public function checkToken(int $usr_id, string $event_id, string $token, bool $apply_secondary = false): bool
     {
         /** @var TokenAR $token_AR */
         $token_AR = TokenAR::where(['usr_id' => $usr_id, 'event_id' => $event_id, 'token' => $token])->first();
         $valid = !is_null($token_AR) && ($token_AR->getValidUntilUnix() >= time());
+        if ($valid && $token != self::SECONDARY_TOKEN && $apply_secondary) {
+            $token_AR->setValidUntilUnix(time() + self::TOKEN_BUFFER);
+            $token_AR->setToken(new Token(self::SECONDARY_TOKEN));
+            $token_AR->update();
+        }
         $this->cleanUpTokens();
         return $valid;
     }
