@@ -25,6 +25,7 @@ use srag\Plugins\Opencast\DI\OpencastDIC;
 use srag\Plugins\OpencastPageComponent\Authorization\TokenRepository;
 use srag\Plugins\Opencast\Container\Init;
 use srag\Plugins\Opencast\Util\OutputResponse;
+use srag\Plugins\Opencast\Model\Config\PluginConfig;
 
 /**
  * Class ocpcRouterGUI
@@ -107,8 +108,17 @@ class ocpcRouterGUI
             case strtolower(xoctPlayerGUI::class):
                 $is_refresh_token = $cmd === self::CMD_REFRESH_JWT_ASYNC;
                 if (!$this->checkPlayerAccess($is_refresh_token)) {
-                    $this->main_tpl->setOnScreenMessage('failure', 'Access Denied.');
-                    $this->dic->ctrl()->returnToParent($this);
+                    if ($is_refresh_token) {
+                        $response = [
+                            'status' => 'error',
+                            'message' => 'Unable to generate access token.',
+                        ];
+                        $response_json_encoded = json_encode($response);
+                        $this->sendJsonResponse($response_json_encoded);
+                    } else {
+                        $this->main_tpl->setOnScreenMessage('failure', 'Access Denied.');
+                        $this->dic->ctrl()->returnToParent($this);
+                    }
                     break;
                 }
                 if ($is_refresh_token) {
@@ -178,7 +188,7 @@ class ocpcRouterGUI
         }
 
         $response_json_encoded = json_encode($response);
-        $this->sendReponse($response_json_encoded);
+        $this->sendJsonResponse($response_json_encoded);
     }
 
     protected function checkPlayerAccess(bool $check_secondary = false): bool
@@ -197,11 +207,14 @@ class ocpcRouterGUI
             )
             : '';
 
-        $apply_secondary = !$check_secondary;
+        $needs_secondary = method_exists($this->api, 'isJWTActivated') && $this->api->isJWTActivated();
+
+        $secondary_token_buffer = null;
         if ($check_secondary) {
             $token = TokenRepository::SECONDARY_TOKEN;
+            $secondary_token_buffer = (int) (PluginConfig::getConfig(PluginConfig::F_JWT_SECURITY_EXP) ?? 10);
         }
 
-        return (new TokenRepository())->checkToken($this->dic->user()->getId(), $event_id, $token, $apply_secondary);
+        return (new TokenRepository())->checkToken($this->dic->user()->getId(), $event_id, $token, $needs_secondary, $secondary_token_buffer);
     }
 }
