@@ -19,6 +19,7 @@
 use ILIAS\HTTP\Services;
 use ILIAS\Refinery\Factory;
 use ILIAS\DI\Container;
+use srag\Plugins\Opencast\API\API;
 use srag\Plugins\Opencast\Model\Event\EventAPIRepository;
 use srag\Plugins\Opencast\DI\OpencastDIC;
 use srag\Plugins\OpencastPageComponent\Authorization\TokenRepository;
@@ -37,6 +38,7 @@ class ocpcRouterGUI
 {
     use OutputResponse;
     public const TOKEN = 'token';
+    public const CMD_REFRESH_JWT_ASYNC = 'refreshJwtAsync';
 
     /**
      * @var EventAPIRepository
@@ -93,6 +95,7 @@ class ocpcRouterGUI
 
     public function executeCommand(): void
     {
+        $cmd = $this->dic->ctrl()->getCmd();
         $next_class = $this->dic->ctrl()->getNextClass();
 
         $main_opencast_js_path = $this->opencast_plugin->getDirectory() . '/js/opencast/dist/index.js';
