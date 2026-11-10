@@ -125,15 +125,20 @@ class ocpcRouterGUI
                     $xoctPlayerGUI->streamVideo();
                 } catch (\Throwable $th) {
                     $message = $th->getMessage();
+
+                    // We now should log the error, and because we are using xoctPlayerGUI from xoct, we also should use the xoctLog for the log.
+                    \xoctLog::getInstance()->write('ERROR: error while trying to stream Video in Opencast Page Component: ' . $message, xoctLog::DEBUG_LEVEL_1);
+
+                    // There will only be a generic message to show on the screen!
+                    $generic_message = 'There was an error while streaming the video. Please try again later. If the problem persists, please contact your system administrator.';
                     if (
                         $message &&
-                        str_contains($message, '401') ||
-                        str_contains($message, '403')
+                        (str_contains($message, '401') || str_contains($message, '403'))
                     ) {
-                        $message = 'Error: Access Denied.';
+                        $generic_message = 'Error: Access Denied.';
                     }
-                    $this->main_tpl->setOnScreenMessage('failure', $message);
-                    echo $message;
+                    $this->main_tpl->setOnScreenMessage('failure', $generic_message);
+                    echo $generic_message;
                 }
                 break;
         }
