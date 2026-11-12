@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 10.1.0
+- [FEATURE] JWT support, including token refresh for the embedded player #56
+- [FIX] Remove video upload via page editor #49
+
+## Version 10.0.1
+- [FIX] Remove ineffective 'Default width'/'Default height' config options #44
+
 ## Version 10.0.0
 - [FEATURE] ILIAS 10 Support
 
