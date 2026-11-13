@@ -40,9 +40,6 @@ class ocpcRouterGUI
     use OutputResponse;
     public const TOKEN = 'token';
     public const CMD_REFRESH_JWT_ASYNC = 'refreshJwtAsync';
-    /**
-     * @var EventAPIRepository
-     */
     private $event_repository;
     private OpencastDIC $legacy_container;
 
@@ -95,6 +92,7 @@ class ocpcRouterGUI
 
     public function executeCommand(): void
     {
+        $cmd = $this->dic->ctrl()->getCmd();
         $next_class = $this->dic->ctrl()->getNextClass();
 
         $main_opencast_js_path = $this->opencast_plugin->getDirectory() . '/js/opencast/dist/index.js';
@@ -106,8 +104,17 @@ class ocpcRouterGUI
             case strtolower(xoctPlayerGUI::class):
                 $is_refresh_token = $cmd === self::CMD_REFRESH_JWT_ASYNC;
                 if (!$this->checkPlayerAccess($is_refresh_token)) {
-                    $this->main_tpl->setOnScreenMessage('failure', 'Access Denied.');
-                    $this->dic->ctrl()->returnToParent($this);
+                    if ($is_refresh_token) {
+                        $response = [
+                            'status' => 'error',
+                            'message' => 'Unable to generate access token.',
+                        ];
+                        $response_json_encoded = json_encode($response);
+                        $this->sendJsonResponse($response_json_encoded);
+                    } else {
+                        $this->main_tpl->setOnScreenMessage('failure', 'Access Denied.');
+                        $this->dic->ctrl()->returnToParent($this);
+                    }
                     break;
                 }
                 if ($is_refresh_token) {
@@ -124,15 +131,20 @@ class ocpcRouterGUI
                     $xoctPlayerGUI->streamVideo();
                 } catch (\Throwable $th) {
                     $message = $th->getMessage();
+
+                    // We now should log the error, and because we are using xoctPlayerGUI from xoct, we also should use the xoctLog for the log.
+                    \xoctLog::getInstance()->write('ERROR: error while trying to stream Video in Opencast Page Component: ' . $message, \xoctLog::DEBUG_LEVEL_1);
+
+                    // There will only be a generic message to show on the screen!
+                    $generic_message = 'There was an error while streaming the video. Please try again later. If the problem persists, please contact your system administrator.';
                     if (
                         $message &&
-                        str_contains($message, '401') ||
-                        str_contains($message, '403')
+                        (str_contains($message, '401') || str_contains($message, '403'))
                     ) {
-                        $message = 'Error: Access Denied.';
+                        $generic_message = 'Error: Access Denied.';
                     }
-                    $this->main_tpl->setOnScreenMessage('failure', $message);
-                    echo $message;
+                    $this->main_tpl->setOnScreenMessage('failure', $generic_message);
+                    echo $generic_message;
                 }
                 break;
         }
@@ -191,11 +203,14 @@ class ocpcRouterGUI
             )
             : '';
 
-        $apply_secondary = !$check_secondary;
+        $needs_secondary = method_exists($this->api, 'isJWTActivated') && $this->api->isJWTActivated();
+
+        $secondary_token_buffer = null;
         if ($check_secondary) {
             $token = TokenRepository::SECONDARY_TOKEN;
+            $secondary_token_buffer = (int) (PluginConfig::getConfig(PluginConfig::F_JWT_SECURITY_EXP) ?? 10);
         }
 
-        return (new TokenRepository())->checkToken($this->dic->user()->getId(), $event_id, $token, $apply_secondary);
+        return (new TokenRepository())->checkToken($this->dic->user()->getId(), $event_id, $token, $needs_secondary, $secondary_token_buffer);
     }
 }
