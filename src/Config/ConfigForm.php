@@ -81,35 +81,6 @@ class ConfigForm
         $ff = $this->ui_factory->input()->field();
 
         $inputs[] = $ff
-            ->numeric(
-                $this->getLocaleString(Config::KEY_DEFAULT_WIDTH)
-                // , $this->getLocaleString(Config::KEY_DEFAULT_WIDTH . '_info')
-            )
-            ->withValue(
-                (int) $this->config_repository->get(Config::KEY_DEFAULT_WIDTH, 640)->getValue()
-            )
-            ->withRequired(true)
-            ->withAdditionalTransformation(
-                $this->refinery->custom()->transformation(fn($value): Config => $this->config_repository->store(
-                    new Config(Config::KEY_DEFAULT_WIDTH, (int) $value)
-                ))
-            );
-
-        $inputs[] = $ff
-            ->numeric(
-                $this->getLocaleString(Config::KEY_DEFAULT_HEIGHT)
-                // , $this->getLocaleString(Config::KEY_DEFAULT_HEIGHT . '_info')
-            )->withValue(
-                (int) $this->config_repository->get(Config::KEY_DEFAULT_HEIGHT, 480)->getValue()
-            )
-            ->withRequired(true)
-            ->withAdditionalTransformation(
-                $this->refinery->custom()->transformation(fn($value): Config => $this->config_repository->store(
-                    new Config(Config::KEY_DEFAULT_HEIGHT, (int) $value)
-                ))
-            );
-
-        $inputs[] = $ff
             ->checkbox(
                 $this->getLocaleString(Config::KEY_DEFAULT_AS_LINK)
                 // , $this->getLocaleString(Config::KEY_DEFAULT_AS_LINK . '_info')
