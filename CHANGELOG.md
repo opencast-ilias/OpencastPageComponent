@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 9.1.3
+- [FEATURE] JWT support, including token refresh for the embedded player #56
+- [FIX] Remove video upload via page editor #49
+
+## Version 9.1.2
+- [FIX] Remove ineffective 'Default width'/'Default height' config options #44
+
 ## Version 9.1.1
 - [FIX] adding new video took preview of last inserted video
 
